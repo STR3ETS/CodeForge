@@ -1,0 +1,547 @@
+{{-- resources/views/games/sequence.blade.php --}}
+<x-layouts.dashboard :title="'Sequence Rush'" active="daily">
+    @php
+        $isSolved = (bool)($run->solved ?? false);
+        $isFailed = (bool)($isFailed ?? false);
+
+        $startMs = (int)($state['started_ms'] ?? (
+            $run->started_at ? $run->started_at->getTimestampMs() : now()->getTimestampMs()
+        ));
+
+        $fmtMs = function ($ms) {
+            if ($ms === null) return '--:--';
+            $sec = (int) round($ms / 1000);
+            $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+            $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+            return $mm . ':' . $ss;
+        };
+
+        $finalTime = $isSolved ? $fmtMs($run->duration_ms) : null;
+
+        $meId = (int) auth()->id();
+
+        $init = [
+            'me_id' => $meId,
+            'scope' => (string)($scope ?? 'global'),
+
+            'puzzle' => [
+                'number' => (int)($puzzleMeta['number'] ?? 0),
+                'date' => (string)($puzzleMeta['date'] ?? date('Y-m-d')),
+                'total' => (int)($puzzleMeta['total'] ?? 10),
+                'max_wrong' => (int)($puzzleMeta['max_wrong'] ?? 3),
+                'penalty_ms' => (int)($puzzleMeta['penalty_ms'] ?? 3000),
+            ],
+
+            'question' => [
+                'idx' => (int)($question['idx'] ?? 0),
+                'prompt' => (string)($question['prompt'] ?? ''),
+                'options' => (array)($question['options'] ?? []),
+            ],
+
+            'state' => [
+                'current_idx' => (int)($state['current_idx'] ?? 0),
+                'wrong' => (int)($state['wrong'] ?? 0),
+                'answered' => (int)($state['answered'] ?? 0),
+            ],
+
+            'run' => [
+                'solved' => $isSolved,
+                'failed' => $isFailed,
+                'started_ms' => $startMs,
+                'final_time' => $finalTime,
+            ],
+
+            'leaderboard' => [
+                'rows' => collect($topTimes ?? collect())->map(fn($row) => $row)->values()->all(),
+                'my_rank' => $myRank ?? null,
+            ],
+
+            'routes' => [
+                'answer' => route('games.sequence.answer'),
+            ],
+
+            'csrf' => csrf_token(),
+        ];
+    @endphp
+
+    <style>[x-cloak]{display:none!important;}</style>
+    <style>
+        @keyframes srShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .sr-shake {
+            animation: srShake .38s ease-in-out;
+        }
+    </style>
+
+    <script>
+        window.__SEQ_INIT__ = @json($init);
+    </script>
+
+    <div x-data="sequenceRush(window.__SEQ_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
+
+        {{-- HERO --}}
+        <div class="relative z-[1] overflow-hidden rounded-2xl border border-[#564D4A]/10 bg-[#5B2333]">
+            <img src="/assets/stacked-waves-haikei.png" class="absolute inset-0 w-full h-full object-cover opacity-20" alt="">
+            <div class="absolute inset-0 bg-gradient-to-r from-[#5B2333]/95 via-[#5B2333]/80 to-transparent"></div>
+
+            <div class="relative p-8">
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                    <div class="max-w-xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold w-fit">
+                            <i class="fa-solid fa-list-ol"></i>
+                            Daily game
+                        </div>
+
+                        <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
+                            <template x-if="!isSolved && !isFailed">
+                                <span>Sequence Rush <span class="text-white/70">#<span x-text="puzzle.number"></span></span></span>
+                            </template>
+                            <template x-if="isSolved"><span>Nice! Perfect run 🎉</span></template>
+                            <template x-if="isFailed"><span>Ahh… failed 😅</span></template>
+                        </h1>
+
+                        <p class="mt-2 text-xs md:text-sm font-semibold text-white/80 leading-[1.3] italic">
+                            <template x-if="!isSolved && !isFailed">
+                                <span>Pick the correct number for <span class="font-black text-white">?</span>. Max <span class="font-black text-white" x-text="puzzle.max_wrong"></span> mistakes.</span>
+                            </template>
+                            <template x-if="isSolved"><span>Saved as today’s result. Come back tomorrow for a new one.</span></template>
+                            <template x-if="isFailed"><span>Too many mistakes. Try again tomorrow.</span></template>
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span x-show="!isSolved && !isFailed" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold">
+                            <i class="fa-solid fa-stopwatch"></i>
+                            <span x-text="timerText">00:00</span>
+                        </span>
+
+                        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            Mistakes: <span class="font-black" x-text="wrong"></span>/<span x-text="puzzle.max_wrong"></span>
+                        </span>
+
+                        <a href="{{ route('dashboard.daily') }}"
+                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#5B2333] text-xs font-semibold hover:bg-white/90 transition">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Back
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <div class="flex items-center justify-between text-[11px] font-semibold text-white/80">
+                        <span>Progress</span>
+                        <span><span x-text="Math.min(currentIdx, puzzle.total)"></span> / <span x-text="puzzle.total"></span></span>
+                    </div>
+                    <div class="mt-2 w-full h-[7px] rounded-full bg-white/15 overflow-hidden">
+                        <div class="h-full rounded-full bg-white" :style="`width: ${progressPercent()}%`"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- GAME CARD --}}
+        <div class="relative z-[1] w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
+
+            {{-- FINISHED --}}
+            <div x-show="isSolved || isFailed" x-cloak>
+                <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                    <div class="flex items-center gap-3">
+                        <template x-if="isSolved">
+                            <div class="w-10 h-10 rounded-xl bg-[#8E936D] border border-[#8E936D]/10 flex items-center justify-center">
+                                <i class="fa-solid fa-check text-white"></i>
+                            </div>
+                        </template>
+                        <template x-if="isFailed">
+                            <div class="w-10 h-10 rounded-xl bg-[#CE796B] border border-[#CE796B]/10 flex items-center justify-center">
+                                <i class="fa-solid fa-xmark text-white"></i>
+                            </div>
+                        </template>
+
+                        <div>
+                            <p class="text-sm font-extrabold text-[#564D4A] leading-tight" x-text="isSolved ? 'Completed' : 'Failed'"></p>
+                            <p class="text-xs font-semibold text-[#564D4A]/55 leading-[1.3]"
+                               x-text="isSolved ? 'All sequences solved. Nice!' : 'Too many mistakes.'"></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Time</p>
+                            <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]" x-text="finalTime || '--:--'">--:--</p>
+                            <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">
+                                Includes penalty: <span class="font-black" x-text="wrong * (puzzle.penalty_ms/1000)"></span>s
+                            </p>
+                        </div>
+
+                        <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Mistakes</p>
+                            <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]">
+                                <span x-text="wrong"></span>
+                            </p>
+                            <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Max allowed: <span x-text="puzzle.max_wrong"></span></p>
+                        </div>
+                    </div>
+
+                    {{-- Leaderboard (only meaningful on solved) --}}
+                    <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-white p-5" x-show="isSolved" x-cloak>
+                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                            <div>
+                                <h2 class="text-[1.05rem] font-extrabold text-[#564D4A]">Leaderboard</h2>
+                                <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
+                                    Fastest times for today ({{ ($scope ?? 'global') === 'friends' ? 'Friends' : 'Worldwide' }}).
+                                </p>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-2">
+                                @foreach(($tabs ?? []) as $t)
+                                    @php
+                                        $active = ($scope ?? 'global') === $t['key'];
+                                        $href = request()->fullUrlWithQuery(['scope' => $t['key']]);
+                                    @endphp
+
+                                    <a href="{{ $href }}"
+                                       class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition
+                                              {{ $active ? 'bg-[#5B2333]/10 text-[#5B2333]' : 'bg-[#F7F4F3] text-[#564D4A] hover:bg-[#F7F4F3]/70' }}">
+                                        <i class="{{ $t['icon'] }} text-[13px]"></i>
+                                        {{ $t['label'] }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div x-show="leaderboardReady" x-cloak class="mt-4 grid gap-2">
+                            <template x-if="leaderboardRows.length === 0">
+                                <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                                    <p class="text-sm font-semibold text-[#564D4A]/60">No times yet.</p>
+                                </div>
+                            </template>
+
+                            <template x-for="(row, idx) in leaderboardRows" :key="row.user.id + ':' + row.duration_ms">
+                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/10 bg-white transition p-4"
+                                     :class="(parseInt(row.user.id) === meId) ? 'ring-2 ring-[#5B2333]/20' : ''">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 flex items-center justify-center shrink-0">
+                                            <span class="text-xs font-black text-[#564D4A]/60">#<span x-text="idx + 1"></span></span>
+                                        </div>
+
+                                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/10 shrink-0">
+                                            <template x-if="row.user.profile_picture_url">
+                                                <img :src="row.user.profile_picture_url" class="w-full h-full object-cover" alt="">
+                                            </template>
+                                            <template x-if="!row.user.profile_picture_url">
+                                                <div class="w-full h-full flex items-center justify-center bg-[#564D4A]/10">
+                                                    <span class="text-[#564D4A] font-black text-sm" x-text="(row.user.name || '?').slice(0,1).toUpperCase()"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <p class="text-sm font-extrabold text-[#564D4A] truncate" x-text="row.user.name"></p>
+                                                <template x-if="parseInt(row.user.id) === meId">
+                                                    <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-[#5B2333]/10 text-[#5B2333]">YOU</span>
+                                                </template>
+                                            </div>
+                                            <p class="text-[11px] font-semibold text-[#564D4A]/55">
+                                                Level <span x-text="row.user.level || 1"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
+                                        <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
+                                        <span x-text="row.time"></span>
+                                    </span>
+                                </div>
+                            </template>
+
+                            <template x-if="myRank && myRank > leaderboardRows.length">
+                                <div class="mt-2 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4 flex items-center justify-between">
+                                    <p class="text-xs font-semibold text-[#564D4A]/60">Your rank in this scope</p>
+                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A]">
+                                        #<span x-text="myRank"></span>
+                                    </span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- PLAYING --}}
+            <div x-show="!isSolved && !isFailed" x-cloak>
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">What number fits the ?</h2>
+                        <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
+                            Choose quickly. Wrong answer adds risk (and penalty if you win).
+                        </p>
+                    </div>
+
+                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold">
+                        <i class="fa-solid fa-layer-group"></i>
+                        Question <span class="font-black" x-text="currentIdx + 1"></span>/<span x-text="puzzle.total"></span>
+                    </span>
+                </div>
+
+                <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-6">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Sequence</p>
+
+                    <div class="mt-3 rounded-2xl border border-[#564D4A]/10 bg-white p-6">
+                        <p class="text-[1.6rem] md:text-[2rem] font-black text-[#564D4A] tracking-tight leading-tight text-center"
+                           x-text="question.prompt"></p>
+
+                        <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <template x-for="opt in question.options" :key="String(opt)">
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center justify-center rounded-2xl px-5 py-4 text-sm font-extrabold border transition"
+                                    :class="[optionClass(opt), shakeClass(opt)]"
+                                    @click="pick(opt)"
+                                    :disabled="submitting || revealActive"
+                                >
+                                    <span x-text="opt"></span>
+
+                                    <template x-if="pickedOpt === opt && pickedOk !== null">
+                                        <span class="ml-2 inline-flex items-center justify-center">
+                                            <i class="fa-solid" :class="pickedOk ? 'fa-check' : 'fa-xmark'"></i>
+                                        </span>
+                                    </template>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <p class="mt-3 text-[11px] font-semibold text-[#564D4A]/55">
+                        Tip: most sequences are simple patterns (add, multiply, squares, etc.).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="isSolved || isFailed" x-cloak class="relative z-[1]">
+            <x-game-streak :streak="$streak" />
+        </div>
+    </div>
+
+    <script>
+        function sequenceRush(init) {
+            return {
+                meId: parseInt(init.me_id || '0', 10),
+                scope: init.scope || 'global',
+
+                puzzle: init.puzzle,
+                question: init.question,
+
+                currentIdx: parseInt(init.state.current_idx || '0', 10),
+                wrong: parseInt(init.state.wrong || '0', 10),
+
+                isSolved: !!init.run.solved,
+                isFailed: !!init.run.failed,
+
+                startedMs: parseInt(init.run.started_ms || '0', 10),
+                finalTime: init.run.final_time || null,
+
+                // leaderboard
+                leaderboardReady: false,
+                leaderboardRows: (init.leaderboard && Array.isArray(init.leaderboard.rows)) ? init.leaderboard.rows : [],
+                myRank: init.leaderboard ? init.leaderboard.my_rank : null,
+
+                // ui
+                timerText: '00:00',
+                _timerId: null,
+                submitting: false,
+
+                // ✅ button feedback state
+                pickedOpt: null,       // welke optie is geklikt
+                pickedOk: null,        // true/false na response
+                revealActive: false,   // lock buttons tijdens animatie/feedback
+                shaking: false,
+                _revealT: null,
+
+                init() {
+                    this.leaderboardReady = true;
+                    this.startTimer();
+
+                    if (this.isSolved || this.isFailed) {
+                        this.stopTimer();
+                    }
+                },
+
+                progressPercent() {
+                    const done = Math.min(this.currentIdx, this.puzzle.total);
+                    return Math.round((done / Math.max(1, this.puzzle.total)) * 100);
+                },
+
+                startTimer() {
+                    this.stopTimer();
+                    const pad = (n) => String(n).padStart(2, '0');
+
+                    if (this.isSolved) {
+                        this.timerText = this.finalTime || '00:00';
+                        return;
+                    }
+                    if (this.isFailed) return;
+
+                    const tick = () => {
+                        const diff = Math.max(0, Date.now() - this.startedMs);
+                        const s = Math.floor(diff / 1000);
+                        const m = Math.floor(s / 60);
+                        const r = s % 60;
+                        this.timerText = `${pad(m)}:${pad(r)}`;
+                    };
+
+                    tick();
+                    this._timerId = setInterval(tick, 1000);
+                },
+
+                stopTimer() {
+                    if (this._timerId) {
+                        clearInterval(this._timerId);
+                        this._timerId = null;
+                    }
+                },
+
+                // ✅ knop styling afhankelijk van outcome
+                optionClass(opt) {
+                    const base =
+                        'bg-white border-[#564D4A]/10 text-[#564D4A] hover:border-[#5B2333]/40 hover:bg-[#F7F4F3] active:scale-[0.99]';
+
+                    if (this.pickedOpt === opt && this.pickedOk === true) {
+                        return 'bg-[#8E936D] border-[#8E936D] text-white scale-[1.01]';
+                    }
+
+                    if (this.pickedOpt === opt && this.pickedOk === false) {
+                        return 'bg-[#CE796B] border-[#CE796B] text-white';
+                    }
+
+                    return base;
+                },
+
+                // ✅ shake class alleen op de fout geklikte knop
+                shakeClass(opt) {
+                    return (this.pickedOpt === opt && this.pickedOk === false && this.shaking) ? 'sr-shake' : '';
+                },
+
+                async pick(opt) {
+                    if (this.submitting || this.isSolved || this.isFailed || this.revealActive) return;
+
+                    this.submitting = true;
+
+                    // reset feedback state
+                    this.pickedOpt = opt;
+                    this.pickedOk = null;
+                    this.shaking = false;
+
+                    try {
+                        const url = init.routes.answer + '?scope=' + encodeURIComponent(this.scope || 'global');
+
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': init.csrf,
+                            },
+                            body: JSON.stringify({
+                                idx: this.question.idx,
+                                choice: opt,
+                            })
+                        });
+
+                        const data = await res.json();
+                        if (!data?.ok) {
+                            this.pickedOpt = null;
+                            this.pickedOk = null;
+                            this.revealActive = false;
+                            return;
+                        }
+
+                        const ok = !!data.correct;
+
+                        // ✅ feedback IN knop
+                        this.pickedOk = ok;
+                        this.revealActive = true;
+
+                        // ✅ shake bij fout
+                        if (!ok) {
+                            this.shaking = true;
+                            setTimeout(() => { this.shaking = false; }, 380);
+                        }
+
+                        // streak live update
+                        if (data?.streak) {
+                            window.dispatchEvent(new CustomEvent('cf:streak', { detail: data.streak }));
+                        }
+
+                        // update counters (mag direct)
+                        this.currentIdx = parseInt(data.current_idx || this.currentIdx, 10);
+                        this.wrong = parseInt(data.wrong || this.wrong, 10);
+
+                        // ✅ wacht even zodat de animatie zichtbaar is
+                        clearTimeout(this._revealT);
+                        const delay = ok ? 420 : 620;
+
+                        this._revealT = setTimeout(() => {
+
+                            // ✅ klaar? -> pas NA feedback naar end screen
+                            if (data.finished) {
+                                this.isSolved = !!data.solved;
+                                this.isFailed = !!data.failed;
+
+                                this.finalTime = data.final_time || this.finalTime;
+                                if (this.isSolved && this.finalTime) this.timerText = this.finalTime;
+
+                                this.stopTimer();
+
+                                // leaderboard on win
+                                if (data?.leaderboard?.rows) {
+                                    this.leaderboardRows = data.leaderboard.rows;
+                                    this.myRank = data.leaderboard.my_rank ?? this.myRank;
+                                    this.scope = data.leaderboard.scope || this.scope;
+                                }
+
+                                // confetti via layout helper
+                                if (this.isSolved && typeof window.fireMainConfetti === 'function') {
+                                    window.fireMainConfetti({ gameKey: 'sequence-rush', date: this.puzzle.date });
+                                }
+
+                                return;
+                            }
+
+                            // ✅ next question na feedback
+                            if (data?.question) {
+                                this.question = {
+                                    idx: data.question.idx,
+                                    prompt: data.question.prompt,
+                                    options: data.question.options || [],
+                                };
+                            }
+
+                            // reset feedback voor volgende vraag
+                            this.pickedOpt = null;
+                            this.pickedOk = null;
+                            this.revealActive = false;
+
+                        }, delay);
+
+                    } catch (e) {
+                        // unlock bij error
+                        this.pickedOpt = null;
+                        this.pickedOk = null;
+                        this.revealActive = false;
+                    } finally {
+                        this.submitting = false;
+                    }
+                },
+            }
+        }
+    </script>
+</x-layouts.dashboard>
