@@ -279,6 +279,17 @@
 
             {{-- PLAYING --}}
             <div x-show="!isSolved" x-cloak>
+                <div x-show="!started" x-cloak class="text-center py-10">
+                    <p class="text-xl font-extrabold text-[#564D4A]">Are you ready?</p>
+                    <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Find the one emoji that looks different from all others.</p>
+                    <button @click="startGame()"
+                        class="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#5B2333] text-white text-sm font-bold hover:bg-[#5B2333]/90 transition active:scale-[0.98]">
+                        <i class="fa-solid fa-play"></i>
+                        Start game
+                    </button>
+                </div>
+
+                <div x-show="started" x-cloak>
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Find the odd one</h2>
@@ -320,6 +331,7 @@
                         Tip: zoom your browser to 100% for the cleanest hitbox.
                     </p>
                 </div>
+                </div>
             </div>
         </div>
 
@@ -337,6 +349,7 @@
                 puzzle: init.puzzle,
                 isSolved: !!init.run.solved,
                 isFailed: !!(init.run && init.run.failed), // ✅ future-proof
+                started: !!(init.run.solved || init.run.failed),
                 startedMs: parseInt(init.run.started_ms || '0', 10),
                 finalTime: init.run.final_time || null,
 
@@ -381,25 +394,22 @@
                 async init() {
                     this.sessionSeed = this.makeSessionSeed();
                     this.leaderboardReady = true;
-
-                    this.startTimer();
-
-                    // ✅ als al solved: geen arena/canvas nodig
                     if (this.isSolved) {
+                        this.startTimer();
                         this.stopTimer();
                         this.stopLoop();
-                        return;
                     }
+                },
+
+                async startGame() {
+                    this.started = true;
+                    this.startedMs = Date.now();
+                    this.startTimer();
 
                     this.canvas = this.$refs.playCanvas;
                     this.ctx = this.canvas.getContext('2d');
-
                     this.setupCanvasSize();
-
-                    // ✅ wacht tot arena/canvas echt een formaat heeft
                     await this.waitForArenaSize();
-
-                    // ✅ pas nu items bouwen -> meteen verspreid over hele blok
                     this.buildItems();
                     this.hookClicks();
 

@@ -347,6 +347,17 @@
 
             {{-- PLAYING --}}
             <div x-show="!(isSolved || isFailed)" x-cloak>
+                <div x-show="!started" x-cloak class="text-center py-10">
+                    <p class="text-xl font-extrabold text-[#564D4A]">Are you ready?</p>
+                    <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Guess the word in as few tries as possible.</p>
+                    <button @click="startGame()"
+                        class="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#5B2333] text-white text-sm font-bold hover:bg-[#5B2333]/90 transition active:scale-[0.98]">
+                        <i class="fa-solid fa-play"></i>
+                        Start game
+                    </button>
+                </div>
+
+                <div x-show="started" x-cloak>
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                     <div>
                         <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Guess the word</h2>
@@ -457,6 +468,7 @@
                         </div>
                     </details>
                 </div>
+                </div>
             </div>
         </div>
 
@@ -479,6 +491,7 @@
 
                 isSolved: !!init.run.solved,
                 isFailed: !!init.run.failed,
+                started: !!(init.run.solved || init.run.failed),
                 answerWord: init.answer,
 
                 startedMs: parseInt(init.run.started_ms || '0', 10),
@@ -510,14 +523,11 @@
                 // ===== init =====
                 init() {
                     this.leaderboardReady = true;
-                    this.startTimer();
-
-                    this.initEntryFromPattern();
-
-                    // ✅ bij laden meteen klaar om te typen (behalve solved/failed)
-                    if (!this.isSolved && !this.isFailed) {
-                        this.$nextTick(() => this.focusEntry());
+                    if (this.isSolved || this.isFailed) {
+                        this.startTimer();
+                        return;
                     }
+                    this.initEntryFromPattern();
                 },
 
                 // ===== timer =====
@@ -548,6 +558,13 @@
                         clearInterval(this._timerId);
                         this._timerId = null;
                     }
+                },
+
+                startGame() {
+                    this.started = true;
+                    this.startedMs = Date.now();
+                    this.startTimer();
+                    this.$nextTick(() => this.focusEntry());
                 },
 
                 // ===== pattern/locks =====

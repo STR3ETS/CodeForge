@@ -6,6 +6,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\WordForgeController;
 use App\Http\Controllers\FindTheEmojiController;
 use App\Http\Controllers\SequenceRushController;
+use App\Http\Controllers\FlagGuessController;
+use App\Http\Controllers\TetrisController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -35,6 +37,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/games/sequence-rush', [SequenceRushController::class, 'show'])->name('games.sequence');
     Route::post('/games/sequence-rush/answer', [SequenceRushController::class, 'answer'])->name('games.sequence.answer');
+
+    Route::get('/games/flag-guess', [FlagGuessController::class, 'show'])->name('games.flagguess');
+    Route::post('/games/flag-guess/answer', [FlagGuessController::class, 'answer'])->name('games.flagguess.answer');
+
+    Route::get('/games/tetris', [TetrisController::class, 'show'])->name('games.tetris');
+    Route::post('/games/tetris/finish', [TetrisController::class, 'finish'])->name('games.tetris.finish');
+
+    Route::post('/games/abandon', [DashboardController::class, 'abandonGame'])->name('games.abandon');
 
     Route::get('/leaderboard', [DashboardController::class, 'leaderboard'])->name('leaderboard');
 

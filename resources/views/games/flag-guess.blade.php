@@ -1,5 +1,5 @@
-{{-- resources/views/games/sequence.blade.php --}}
-<x-layouts.dashboard :title="'Sequence Rush'" active="daily">
+{{-- resources/views/games/flag-guess.blade.php --}}
+<x-layouts.dashboard :title="'Flag Guess'" active="daily">
     @php
         $isSolved = (bool)($run->solved ?? false);
         $isFailed = (bool)($isFailed ?? false);
@@ -25,39 +25,41 @@
             'scope' => (string)($scope ?? 'global'),
 
             'puzzle' => [
-                'number' => (int)($puzzleMeta['number'] ?? 0),
-                'date' => (string)($puzzleMeta['date'] ?? date('Y-m-d')),
-                'total' => (int)($puzzleMeta['total'] ?? 10),
-                'max_wrong' => (int)($puzzleMeta['max_wrong'] ?? 3),
+                'number'     => (int)($puzzleMeta['number'] ?? 0),
+                'date'       => (string)($puzzleMeta['date'] ?? date('Y-m-d')),
+                'total'      => (int)($puzzleMeta['total'] ?? 3),
+                'max_wrong'  => (int)($puzzleMeta['max_wrong'] ?? 2),
                 'penalty_ms' => (int)($puzzleMeta['penalty_ms'] ?? 3000),
             ],
 
             'question' => [
-                'idx' => (int)($question['idx'] ?? 0),
-                'prompt' => (string)($question['prompt'] ?? ''),
-                'options' => (array)($question['options'] ?? []),
+                'idx'      => (int)($question['idx'] ?? 0),
+                'code'     => (string)($question['code'] ?? ''),
+                'flag_url' => (string)($question['flag_url'] ?? ''),
+                'options'  => (array)($question['options'] ?? []),
+                'answer'   => (string)($question['answer'] ?? ''),
             ],
 
             'state' => [
                 'current_idx' => (int)($state['current_idx'] ?? 0),
-                'wrong' => (int)($state['wrong'] ?? 0),
-                'answered' => (int)($state['answered'] ?? 0),
+                'wrong'       => (int)($state['wrong'] ?? 0),
+                'answered'    => (int)($state['answered'] ?? 0),
             ],
 
             'run' => [
-                'solved' => $isSolved,
-                'failed' => $isFailed,
+                'solved'     => $isSolved,
+                'failed'     => $isFailed,
                 'started_ms' => $startMs,
                 'final_time' => $finalTime,
             ],
 
             'leaderboard' => [
-                'rows' => collect($topTimes ?? collect())->map(fn($row) => $row)->values()->all(),
+                'rows'    => collect($topTimes ?? collect())->map(fn($row) => $row)->values()->all(),
                 'my_rank' => $myRank ?? null,
             ],
 
             'routes' => [
-                'answer' => route('games.sequence.answer'),
+                'answer' => route('games.flagguess.answer'),
             ],
 
             'csrf' => csrf_token(),
@@ -66,23 +68,23 @@
 
     <style>[x-cloak]{display:none!important;}</style>
     <style>
-        @keyframes srShake {
+        @keyframes fgShake {
             0%, 100% { transform: translateX(0); }
             20% { transform: translateX(-6px); }
             40% { transform: translateX(6px); }
             60% { transform: translateX(-4px); }
             80% { transform: translateX(4px); }
         }
-        .sr-shake {
-            animation: srShake .38s ease-in-out;
+        .fg-shake {
+            animation: fgShake .38s ease-in-out;
         }
     </style>
 
     <script>
-        window.__SEQ_INIT__ = @json($init);
+        window.__FG_INIT__ = @json($init);
     </script>
 
-    <div x-data="sequenceRush(window.__SEQ_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
+    <div x-data="flagGuess(window.__FG_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
 
         {{-- HERO --}}
         <div class="relative z-[1] overflow-hidden rounded-2xl border border-[#564D4A]/10 bg-[#5B2333]">
@@ -93,13 +95,13 @@
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                     <div class="max-w-xl">
                         <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold w-fit">
-                            <i class="fa-solid fa-list-ol"></i>
+                            <i class="fa-solid fa-flag"></i>
                             Daily game
                         </div>
 
                         <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
                             <template x-if="!isSolved && !isFailed">
-                                <span>Sequence Rush <span class="text-white/70">#<span x-text="puzzle.number"></span></span></span>
+                                <span>Flag Guess <span class="text-white/70">#<span x-text="puzzle.number"></span></span></span>
                             </template>
                             <template x-if="isSolved"><span>Nice! Perfect run 🎉</span></template>
                             <template x-if="isFailed"><span>Ahh… failed 😅</span></template>
@@ -107,9 +109,9 @@
 
                         <p class="mt-2 text-xs md:text-sm font-semibold text-white/80 leading-[1.3] italic">
                             <template x-if="!isSolved && !isFailed">
-                                <span>Pick the correct number for <span class="font-black text-white">?</span>. Max <span class="font-black text-white" x-text="puzzle.max_wrong"></span> mistakes.</span>
+                                <span>Identify the country by its flag. Max <span class="font-black text-white" x-text="puzzle.max_wrong"></span> mistakes.</span>
                             </template>
-                            <template x-if="isSolved"><span>Saved as today’s result. Come back tomorrow for a new one.</span></template>
+                            <template x-if="isSolved"><span>Saved as today's result. Come back tomorrow for a new one.</span></template>
                             <template x-if="isFailed"><span>Too many mistakes. Try again tomorrow.</span></template>
                         </p>
                     </div>
@@ -166,7 +168,7 @@
                         <div>
                             <p class="text-sm font-extrabold text-[#564D4A] leading-tight" x-text="isSolved ? 'Completed' : 'Failed'"></p>
                             <p class="text-xs font-semibold text-[#564D4A]/55 leading-[1.3]"
-                               x-text="isSolved ? 'All sequences solved. Nice!' : 'Too many mistakes.'"></p>
+                               x-text="isSolved ? 'All flags identified. Nice!' : 'Too many mistakes.'"></p>
                         </div>
                     </div>
 
@@ -188,7 +190,7 @@
                         </div>
                     </div>
 
-                    {{-- Leaderboard (only meaningful on solved) --}}
+                    {{-- Leaderboard (only on solved) --}}
                     <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-white p-5" x-show="isSolved" x-cloak>
                         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                             <div>
@@ -278,7 +280,7 @@
             <div x-show="!isSolved && !isFailed" x-cloak>
                 <div x-show="!started" x-cloak class="text-center py-10">
                     <p class="text-xl font-extrabold text-[#564D4A]">Are you ready?</p>
-                    <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Answer all 5 sequences correctly. Wrong answers add a time penalty.</p>
+                    <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Identify 3 country flags. Wrong guesses add a time penalty.</p>
                     <button @click="startGame()"
                         class="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#5B2333] text-white text-sm font-bold hover:bg-[#5B2333]/90 transition active:scale-[0.98]">
                         <i class="fa-solid fa-play"></i>
@@ -289,49 +291,61 @@
                 <div x-show="started" x-cloak>
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">What number fits the ?</h2>
+                        <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Which country does this flag belong to?</h2>
                         <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                            Choose quickly. Wrong answer adds risk (and penalty if you win).
+                            Pick the correct country. Wrong answer adds a mistake (and a time penalty).
                         </p>
                     </div>
 
-                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold">
+                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold shrink-0">
                         <i class="fa-solid fa-layer-group"></i>
-                        Question <span class="font-black" x-text="currentIdx + 1"></span>/<span x-text="puzzle.total"></span>
+                        Flag <span class="font-black" x-text="currentIdx + 1"></span>/<span x-text="puzzle.total"></span>
                     </span>
                 </div>
 
                 <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-6">
-                    <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Sequence</p>
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Flag</p>
 
                     <div class="mt-3 rounded-2xl border border-[#564D4A]/10 bg-white p-6">
-                        <p class="text-[1.6rem] md:text-[2rem] font-black text-[#564D4A] tracking-tight leading-tight text-center"
-                           x-text="question.prompt"></p>
+                        {{-- Flag image --}}
+                        <div class="flex justify-center">
+                            <img
+                                :src="question.flag_url"
+                                :key="question.flag_url"
+                                class="h-36 w-auto rounded-xl shadow-md border border-[#564D4A]/10 object-cover"
+                                alt="Flag"
+                                draggable="false"
+                            >
+                        </div>
 
-                        <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <template x-for="opt in question.options" :key="String(opt)">
+                        {{-- Options --}}
+                        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <template x-for="opt in question.options" :key="opt.code">
                                 <button
                                     type="button"
                                     class="inline-flex items-center justify-center rounded-2xl px-5 py-4 text-sm font-extrabold border transition"
-                                    :class="[optionClass(opt), shakeClass(opt)]"
-                                    @click="pick(opt)"
+                                    :class="[optionClass(opt.code), shakeClass(opt.code)]"
+                                    @click="pick(opt.code)"
                                     :disabled="submitting || revealActive"
                                 >
-                                    <span x-text="opt"></span>
+                                    <span x-text="opt.name"></span>
 
-                                    <template x-if="pickedOpt === opt && pickedOk !== null">
+                                    <template x-if="pickedCode === opt.code && pickedOk !== null">
                                         <span class="ml-2 inline-flex items-center justify-center">
                                             <i class="fa-solid" :class="pickedOk ? 'fa-check' : 'fa-xmark'"></i>
+                                        </span>
+                                    </template>
+
+                                    {{-- Show correct answer highlight after wrong pick --}}
+                                    <template x-if="pickedCode !== opt.code && revealCorrect && opt.code === question.answer">
+                                        <span class="ml-2 inline-flex items-center justify-center">
+                                            <i class="fa-solid fa-check"></i>
                                         </span>
                                     </template>
                                 </button>
                             </template>
                         </div>
                     </div>
-
-                    <p class="mt-3 text-[11px] font-semibold text-[#564D4A]/55">
-                        Tip: most sequences are simple patterns (add, multiply, squares, etc.).
-                    </p>
                 </div>
                 </div>
             </div>
@@ -343,7 +357,7 @@
     </div>
 
     <script>
-        function sequenceRush(init) {
+        function flagGuess(init) {
             return {
                 meId: parseInt(init.me_id || '0', 10),
                 scope: init.scope || 'global',
@@ -371,10 +385,11 @@
                 _timerId: null,
                 submitting: false,
 
-                // ✅ button feedback state
-                pickedOpt: null,       // welke optie is geklikt
-                pickedOk: null,        // true/false na response
-                revealActive: false,   // lock buttons tijdens animatie/feedback
+                // button feedback
+                pickedCode: null,
+                pickedOk: null,
+                revealActive: false,
+                revealCorrect: false,
                 shaking: false,
                 _revealT: null,
 
@@ -426,35 +441,36 @@
                     this.startTimer();
                 },
 
-                // ✅ knop styling afhankelijk van outcome
-                optionClass(opt) {
-                    const base =
-                        'bg-white border-[#564D4A]/10 text-[#564D4A] hover:border-[#5B2333]/40 hover:bg-[#F7F4F3] active:scale-[0.99]';
+                optionClass(code) {
+                    const base = 'bg-white border-[#564D4A]/10 text-[#564D4A] hover:border-[#5B2333]/40 hover:bg-[#F7F4F3] active:scale-[0.99]';
 
-                    if (this.pickedOpt === opt && this.pickedOk === true) {
+                    if (this.pickedCode === code && this.pickedOk === true) {
                         return 'bg-[#8E936D] border-[#8E936D] text-white scale-[1.01]';
                     }
 
-                    if (this.pickedOpt === opt && this.pickedOk === false) {
+                    if (this.pickedCode === code && this.pickedOk === false) {
                         return 'bg-[#CE796B] border-[#CE796B] text-white';
+                    }
+
+                    // Show correct answer in green after a wrong pick
+                    if (this.revealCorrect && code === this.question.answer && this.pickedCode !== code) {
+                        return 'bg-[#8E936D] border-[#8E936D] text-white';
                     }
 
                     return base;
                 },
 
-                // ✅ shake class alleen op de fout geklikte knop
-                shakeClass(opt) {
-                    return (this.pickedOpt === opt && this.pickedOk === false && this.shaking) ? 'sr-shake' : '';
+                shakeClass(code) {
+                    return (this.pickedCode === code && this.pickedOk === false && this.shaking) ? 'fg-shake' : '';
                 },
 
-                async pick(opt) {
+                async pick(code) {
                     if (this.submitting || this.isSolved || this.isFailed || this.revealActive) return;
 
                     this.submitting = true;
-
-                    // reset feedback state
-                    this.pickedOpt = opt;
+                    this.pickedCode = code;
                     this.pickedOk = null;
+                    this.revealCorrect = false;
                     this.shaking = false;
 
                     try {
@@ -470,13 +486,13 @@
                             },
                             body: JSON.stringify({
                                 idx: this.question.idx,
-                                choice: opt,
+                                choice: code,
                             })
                         });
 
                         const data = await res.json();
                         if (!data?.ok) {
-                            this.pickedOpt = null;
+                            this.pickedCode = null;
                             this.pickedOk = null;
                             this.revealActive = false;
                             return;
@@ -484,13 +500,12 @@
 
                         const ok = !!data.correct;
 
-                        // ✅ feedback IN knop
                         this.pickedOk = ok;
                         this.revealActive = true;
 
-                        // ✅ shake bij fout
                         if (!ok) {
                             this.shaking = true;
+                            this.revealCorrect = true;
                             setTimeout(() => { this.shaking = false; }, 380);
                         }
 
@@ -499,17 +514,14 @@
                             window.dispatchEvent(new CustomEvent('cf:streak', { detail: data.streak }));
                         }
 
-                        // update counters (mag direct)
                         this.currentIdx = parseInt(data.current_idx || this.currentIdx, 10);
                         this.wrong = parseInt(data.wrong || this.wrong, 10);
 
-                        // ✅ wacht even zodat de animatie zichtbaar is
                         clearTimeout(this._revealT);
-                        const delay = ok ? 420 : 620;
+                        const delay = ok ? 420 : 820;
 
                         this._revealT = setTimeout(() => {
 
-                            // ✅ klaar? -> pas NA feedback naar end screen
                             if (data.finished) {
                                 this.isSolved = !!data.solved;
                                 this.isFailed = !!data.failed;
@@ -519,14 +531,13 @@
 
                                 this.stopTimer();
 
-                                // leaderboard on win
                                 if (data?.leaderboard?.rows) {
                                     this.leaderboardRows = data.leaderboard.rows;
                                     this.myRank = data.leaderboard.my_rank ?? this.myRank;
                                     this.scope = data.leaderboard.scope || this.scope;
                                 }
 
-                                // confetti via layout canvas
+                                // confetti
                                 if (this.isSolved && window.confetti && document.getElementById('mainConfettiCanvas')) {
                                     const cannon = window.confetti.create(document.getElementById('mainConfettiCanvas'), { useWorker: true, resize: true });
 
@@ -537,27 +548,29 @@
                                 return;
                             }
 
-                            // ✅ next question na feedback
+                            // Next flag
                             if (data?.question) {
                                 this.question = {
-                                    idx: data.question.idx,
-                                    prompt: data.question.prompt,
-                                    options: data.question.options || [],
+                                    idx:      data.question.idx,
+                                    code:     data.question.code,
+                                    flag_url: data.question.flag_url,
+                                    options:  data.question.options || [],
+                                    answer:   data.question.answer,
                                 };
                             }
 
-                            // reset feedback voor volgende vraag
-                            this.pickedOpt = null;
+                            this.pickedCode = null;
                             this.pickedOk = null;
                             this.revealActive = false;
+                            this.revealCorrect = false;
 
                         }, delay);
 
                     } catch (e) {
-                        // unlock bij error
-                        this.pickedOpt = null;
+                        this.pickedCode = null;
                         this.pickedOk = null;
                         this.revealActive = false;
+                        this.revealCorrect = false;
                     } finally {
                         this.submitting = false;
                     }

@@ -339,6 +339,40 @@ class DashboardController extends Controller
             $seqTime = $mm . ':' . $ss;
         }
 
+        $fgRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'flag-guess')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $fgSolved = (bool)($fgRun?->solved);
+        $fgFailed = (!$fgSolved && !empty($fgRun?->finished_at));
+        $fgTime = null;
+
+        if ($fgSolved && $fgRun?->duration_ms !== null) {
+            $sec = (int) round($fgRun->duration_ms / 1000);
+            $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+            $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+            $fgTime = $mm . ':' . $ss;
+        }
+
+        $ttRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'tetris')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $ttSolved = (bool)($ttRun?->solved);
+        $ttFailed = (!$ttSolved && !empty($ttRun?->finished_at));
+        $ttTime = null;
+
+        if ($ttSolved && $ttRun?->duration_ms !== null) {
+            $sec = (int) round($ttRun->duration_ms / 1000);
+            $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+            $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+            $ttTime = $mm . ':' . $ss;
+        }
+
         // Daily games list
         $games = [
             [
@@ -385,6 +419,36 @@ class DashboardController extends Controller
                 'number' => 100 + (crc32('sequence-rush|' . $today->toDateString()) % 900),
                 'status' => $seqSolved ? 'solved' : ($seqFailed ? 'failed' : null),
                 'status_time' => $seqTime,
+            ],
+            [
+                'key' => 'flag-guess',
+                'title' => 'Flag Guess',
+                'desc' => 'Identify the country by its flag.',
+                'icon' => 'fa-solid fa-flag',
+                'tag' => 'Daily Game',
+                'proOnly' => false,
+                'available' => true,
+                'href' => route('games.flagguess'),
+                'time' => '~30 sec',
+                'reward_xp' => 150,
+                'number' => 100 + (abs(crc32('flag-guess|' . $today->toDateString())) % 900),
+                'status' => $fgSolved ? 'solved' : ($fgFailed ? 'failed' : null),
+                'status_time' => $fgTime,
+            ],
+            [
+                'key'        => 'tetris',
+                'title'      => 'Tetris',
+                'desc'       => 'Clear 10 lines as fast as possible.',
+                'icon'       => 'fa-solid fa-table-cells',
+                'tag'        => 'Daily Game',
+                'proOnly'    => false,
+                'available'  => true,
+                'href'       => route('games.tetris'),
+                'time'       => '~2 min',
+                'reward_xp'  => 150,
+                'number'     => 100 + (abs(crc32('tetris|' . $today->toDateString())) % 900),
+                'status'     => $ttSolved ? 'solved' : ($ttFailed ? 'failed' : null),
+                'status_time' => $ttTime,
             ],
         ];
 
@@ -649,5 +713,33 @@ class DashboardController extends Controller
             ]);
             throw $e;
         }
+    }
+
+    public function abandonGame(Request $request)
+    {
+        $user  = $request->user();
+        $today = now()->startOfDay();
+        $key   = (string) $request->input('game_key', '');
+
+        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'tetris'];
+        if (!in_array($key, $allowed, true)) {
+            return response()->json(['ok' => false], 422);
+        }
+
+        $run = DailyGameRun::where('user_id', $user->id)
+            ->where('game_key', $key)
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        // Already finished or doesn't exist — nothing to do
+        if (!$run || $run->solved || !empty($run->finished_at)) {
+            return response()->json(['ok' => true]);
+        }
+
+        $run->solved      = false;
+        $run->finished_at = now();
+        $run->save();
+
+        return response()->json(['ok' => true]);
     }
 }
