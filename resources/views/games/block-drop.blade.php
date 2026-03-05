@@ -475,7 +475,12 @@
 
             this._rafId   = null;
             this._keydown = this._onKey.bind(this);
+            this._keyup   = this._onKeyUp.bind(this);
+            this._dasDir  = 0;
+            this._dasTimer = null;
+            this._arrTimer = null;
             document.addEventListener('keydown', this._keydown);
+            document.addEventListener('keyup',   this._keyup);
 
             this._spawnNext();
         }
@@ -508,7 +513,9 @@
             if (this._collides(this.current, this.cr, this.cx, this.cy)) {
                 this.running = false;
                 this._render();
+                this._stopDas();
                 document.removeEventListener('keydown', this._keydown);
+                document.removeEventListener('keyup',   this._keyup);
                 this.onGameOver();
                 return;
             }
@@ -536,7 +543,9 @@
                 if (this._collides(this.current, this.cr, this.cx, this.cy)) {
                     this.running = false;
                     this._render();
-                    document.removeEventListener('keydown', this._keydown);
+                    this._stopDas();
+                document.removeEventListener('keydown', this._keydown);
+                document.removeEventListener('keyup',   this._keyup);
                     this.onGameOver();
                     return;
                 }
@@ -589,7 +598,9 @@
                 if (this.lines >= 10) {
                     this.running = false;
                     this._render();
-                    document.removeEventListener('keydown', this._keydown);
+                    this._stopDas();
+                document.removeEventListener('keydown', this._keydown);
+                document.removeEventListener('keyup',   this._keyup);
                     // onLines callback handles win
                 }
             }
@@ -788,8 +799,14 @@
         _onKey(e) {
             if (!this.running || !this.current) return;
             switch (e.code) {
-                case 'ArrowLeft':   e.preventDefault(); this._tryMove(-1); break;
-                case 'ArrowRight':  e.preventDefault(); this._tryMove(1);  break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    if (!e.repeat) this._startDas(-1);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    if (!e.repeat) this._startDas(1);
+                    break;
                 case 'ArrowDown':   e.preventDefault(); this._softDrop();  break;
                 case 'ArrowUp':
                 case 'KeyZ':        e.preventDefault(); this._tryRotate(); break;
@@ -798,6 +815,30 @@
                 case 'ShiftLeft':
                 case 'ShiftRight':  e.preventDefault(); this._hold();      break;
             }
+        }
+
+        _onKeyUp(e) {
+            if (e.code === 'ArrowLeft'  && this._dasDir === -1) this._stopDas();
+            if (e.code === 'ArrowRight' && this._dasDir ===  1) this._stopDas();
+        }
+
+        _startDas(dir) {
+            this._stopDas();
+            this._dasDir = dir;
+            this._tryMove(dir);
+            // DAS: 150ms delay, then ARR every 50ms
+            this._dasTimer = setTimeout(() => {
+                this._arrTimer = setInterval(() => {
+                    if (!this.running || !this.current) { this._stopDas(); return; }
+                    this._tryMove(this._dasDir);
+                }, 50);
+            }, 150);
+        }
+
+        _stopDas() {
+            if (this._dasTimer) { clearTimeout(this._dasTimer);  this._dasTimer = null; }
+            if (this._arrTimer) { clearInterval(this._arrTimer); this._arrTimer = null; }
+            this._dasDir = 0;
         }
 
         _loop(ts) {
@@ -827,7 +868,9 @@
             this.running = false;
             if (this._rafId) cancelAnimationFrame(this._rafId);
             this._clearLockTimer();
-            document.removeEventListener('keydown', this._keydown);
+            this._stopDas();
+                document.removeEventListener('keydown', this._keydown);
+                document.removeEventListener('keyup',   this._keyup);
         }
     }
 
@@ -907,6 +950,11 @@
                 if (this.isSolved || this.isFailed) return;
                 this.started = true;
                 this.startMs = Date.now();
+                fetch('{{ route("games.mark-started") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({ game_key: 'block-drop' })
+                });
                 this.startTimer();
 
                 this.$nextTick(() => {

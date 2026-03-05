@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/games/block-drop/finish', [BlockDropController::class, 'finish'])->name('games.blockdrop.finish');
 
     Route::post('/games/abandon', [DashboardController::class, 'abandonGame'])->name('games.abandon');
+    Route::post('/games/mark-started', [DashboardController::class, 'markGameStarted'])->name('games.mark-started');
 
     Route::get('/leaderboard', [DashboardController::class, 'leaderboard'])->name('leaderboard');
 

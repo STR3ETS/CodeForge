@@ -970,4 +970,34 @@ class DashboardController extends Controller
 
         return response()->json(['ok' => true]);
     }
+
+    public function markGameStarted(Request $request)
+    {
+        $user  = $request->user();
+        $today = now()->startOfDay();
+        $key   = (string) $request->input('game_key', '');
+
+        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop'];
+        if (!in_array($key, $allowed, true)) {
+            return response()->json(['ok' => false], 422);
+        }
+
+        $run = DailyGameRun::where('user_id', $user->id)
+            ->where('game_key', $key)
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        if (!$run || $run->solved || !empty($run->finished_at)) {
+            return response()->json(['ok' => true]);
+        }
+
+        $nowMs = now()->getTimestampMs();
+        $state = $run->state ?? [];
+        $state['started_ms'] = $nowMs;
+        $run->state      = $state;
+        $run->started_at = now();
+        $run->save();
+
+        return response()->json(['ok' => true, 'started_ms' => $nowMs]);
+    }
 }
