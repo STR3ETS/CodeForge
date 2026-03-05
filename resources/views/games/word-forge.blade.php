@@ -71,6 +71,17 @@
     <script>
         window.__WF_INIT__ = @json($wfInit);
     </script>
+    <script>
+        window.__gameFinished = @json($isSolved || $isFailed);
+        window.__gameStarted  = false;
+        window.addEventListener('beforeunload', function () {
+            if (window.__gameFinished || !window.__gameStarted) return;
+            navigator.sendBeacon(
+                '{{ route("games.abandon") }}',
+                new Blob([JSON.stringify({ game_key: 'word-forge', _token: '{{ csrf_token() }}' })], { type: 'application/json' })
+            );
+        });
+    </script>
 
     <div x-data="wordForge(window.__WF_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
 
@@ -523,6 +534,9 @@
                 // ===== init =====
                 init() {
                     this.leaderboardReady = true;
+                    this.$watch('started',  v => { if (v && !window.__gameFinished) window.__gameStarted = true; });
+                    this.$watch('isSolved', v => { if (v) window.__gameFinished = true; });
+                    this.$watch('isFailed', v => { if (v) window.__gameFinished = true; });
                     if (this.isSolved || this.isFailed) {
                         this.startTimer();
                         return;

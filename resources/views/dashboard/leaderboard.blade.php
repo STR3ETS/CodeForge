@@ -24,19 +24,14 @@
         $lvl3 = $lvlTop->get(2);
         $lvlRest = $lvlTop->slice(3)->values();
 
-        // STREAK board data
-        $stTop = collect($topStreaks ?? [])->values();
-        $st1 = $stTop->get(0);
-        $st2 = $stTop->get(1);
-        $st3 = $stTop->get(2);
-        $stRest = $stTop->slice(3)->values();
-
-        // GAMES board data
-        $gmTop = collect($topGames ?? [])->values();
-        $gm1 = $gmTop->get(0);
-        $gm2 = $gmTop->get(1);
-        $gm3 = $gmTop->get(2);
-        $gmRest = $gmTop->slice(3)->values();
+        // Speed boards helper: format ms → “4.2s” or “1m 23s”
+        $fmtMs = function (int $ms): string {
+            $s = $ms / 1000;
+            if ($s < 60) return number_format($s, 1) . 's';
+            $m = (int) floor($s / 60);
+            $sec = (int) round($s - $m * 60);
+            return $m . 'm ' . $sec . 's';
+        };
 
         // “You” quick status (based on level list only)
         $meId = auth()->id();
@@ -144,11 +139,6 @@
                             </span>
                         </div>
 
-                        @if($p)
-                            <p class="mt-2 text-[11px] font-semibold text-[#564D4A]/55">
-                                {{ number_format((int)($p->xp ?? 0), 0, ',', '.') }} Total XP
-                            </p>
-                        @endif
                     </div>
                 </div>
 
@@ -196,12 +186,6 @@
                                     {{ $p ? (int)($p->level ?? 1) : '-' }}
                                 </span>
                             </div>
-
-                            @if($p)
-                                <p class="mt-2 text-[11px] font-semibold text-[#564D4A]/55">
-                                    {{ number_format((int)($p->xp ?? 0), 0, ',', '.') }} Total XP
-                                </p>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -242,11 +226,6 @@
                             </span>
                         </div>
 
-                        @if($p)
-                            <p class="mt-2 text-[11px] font-semibold text-[#564D4A]/55">
-                                {{ number_format((int)($p->xp ?? 0), 0, ',', '.') }} Total XP
-                            </p>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -286,9 +265,6 @@
                                         <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-[#5B2333]/10 text-[#5B2333]">YOU</span>
                                     @endif
                                 </div>
-                                <p class="text-[11px] font-semibold text-[#564D4A]/55">
-                                    {{ number_format((int)($p->xp ?? 0), 0, ',', '.') }} Total XP
-                                </p>
                             </div>
                         </div>
 
@@ -305,262 +281,134 @@
             </div>
         </div>
 
-        {{-- =========================
-            SECONDARY BOARDS (2-col)
-        ========================== --}}
+
+        {{-- SPEED RECORDS PER GAME (grid of 2) --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            @foreach($speedBoards ?? [] as $gameKey => $board)
+                @php
+                    $spTop  = $board['rows'];
+                    $sp1    = $spTop->get(0);
+                    $sp2    = $spTop->get(1);
+                    $sp3    = $spTop->get(2);
+                    $spRest = $spTop->slice(3)->values();
+                @endphp
 
-            {{-- =========================
-                2) LONGEST STREAK
-            ========================== --}}
-            <div class="w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Longest streak</h2>
-                        <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                            Who can keep it going the longest?
-                        </p>
+                <div class="w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-[#5B2333]/10 flex items-center justify-center shrink-0">
+                                <i class="{{ $board['icon'] }} text-[#5B2333] text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-[1.1rem] font-extrabold text-[#564D4A]">{{ $board['title'] }}</h2>
+                                <p class="text-[11px] font-semibold text-[#564D4A]/50">Fastest today</p>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold shrink-0">
+                            <i class="fa-solid fa-stopwatch"></i>
+                            Speed
+                        </span>
                     </div>
 
-                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
-                        Heat
-                    </span>
-                </div>
-
-                {{-- Top 3 --}}
-                <div class="mt-6 grid grid-cols-1 gap-2">
-                    @foreach([
-                        ['rank'=>1,'row'=>$st1,'ring'=>'ring-[#D6B05E]/40','badge'=>'bg-[#D6B05E]/20 text-[#B88B2A]','icon'=>'fa-solid fa-crown'],
-                        ['rank'=>2,'row'=>$st2,'ring'=>'ring-[#BFC6D1]/45','badge'=>'bg-[#BFC6D1]/25 text-[#6B7280]','icon'=>'fa-solid fa-medal'],
-                        ['rank'=>3,'row'=>$st3,'ring'=>'ring-[#C48A5A]/40','badge'=>'bg-[#C48A5A]/20 text-[#9A5A2E]','icon'=>'fa-solid fa-medal'],
-                    ] as $slot)
-                        @php
-                            $row = $slot['row'];
-                            $p = $row['user'] ?? null;
-                            $value = (int)($row['value'] ?? 0);
-                            $isMe = $p ? ((int)$p->id === (int)$meId) : false;
-                            $av = $avatarOf($p);
-                        @endphp
-
-                        <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold {{ $slot['badge'] }}">
-                                    <i class="{{ $slot['icon'] }}"></i>
-                                    #{{ $slot['rank'] }}
-                                </span>
-                                @if($isMe)
-                                    <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-[#5B2333]/10 text-[#5B2333]">YOU</span>
-                                @endif
-                            </div>
-
-                            <div class="mt-4 flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-full overflow-hidden bg-white border border-[#564D4A]/10 ring-4 {{ $slot['ring'] }} flex items-center justify-center shrink-0">
-                                    @if($p && $av)
-                                        <img src="{{ $av }}" class="w-full h-full object-cover" alt="">
-                                    @elseif($p)
-                                        <div class="w-full h-full flex items-center justify-center bg-[#564D4A]/10">
-                                            <span class="text-[#564D4A] font-black">{{ strtoupper(mb_substr($p->name, 0, 1)) }}</span>
-                                        </div>
-                                    @else
-                                        <i class="fa-solid fa-lock text-[#564D4A]/45"></i>
-                                    @endif
-                                </div>
-
-                                <div class="min-w-0">
-                                    <p class="text-sm font-extrabold text-[#564D4A] truncate">{{ $p->name ?? 'Empty' }}</p>
-                                    <p class="text-[11px] font-semibold text-[#564D4A]/55">
-                                        {{ $p ? ('Level ' . (int)($p->level ?? 1)) : '' }}
-                                    </p>
-                                </div>
-
-                                <div class="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
-                                    <i class="fa-solid fa-fire-flame-curved text-[#5B2333]"></i>
-                                    {{ $p ? $value . ' days' : '-' }}
-                                </div>
-                            </div>
+                    @if($spTop->isEmpty())
+                        <div class="mt-5 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                            <p class="text-sm font-semibold text-[#564D4A]/60">No one has completed this today yet.</p>
                         </div>
-                    @endforeach
-                </div>
+                    @else
+                        {{-- Top 3 --}}
+                        <div class="mt-5 grid grid-cols-1 gap-2">
+                            @foreach([
+                                ['rank'=>1,'row'=>$sp1,'ring'=>'ring-[#D6B05E]/40','badge'=>'bg-[#D6B05E]/20 text-[#B88B2A]','icon'=>'fa-solid fa-crown'],
+                                ['rank'=>2,'row'=>$sp2,'ring'=>'ring-[#BFC6D1]/45','badge'=>'bg-[#BFC6D1]/25 text-[#6B7280]','icon'=>'fa-solid fa-medal'],
+                                ['rank'=>3,'row'=>$sp3,'ring'=>'ring-[#C48A5A]/40','badge'=>'bg-[#C48A5A]/20 text-[#9A5A2E]','icon'=>'fa-solid fa-medal'],
+                            ] as $slot)
+                                @if($slot['row'])
+                                    @php
+                                        $rp   = $slot['row']['user'];
+                                        $ms   = $slot['row']['best_ms'];
+                                        $isMe = $rp ? ((int)$rp->id === (int)$meId) : false;
+                                        $av   = $avatarOf($rp);
+                                    @endphp
 
-                {{-- List --}}
-                <div class="mt-5 grid gap-2">
-                    @forelse($stRest as $i => $row)
-                        @php
-                            $rank = $i + 4;
-                            $p = $row['user'];
-                            $value = (int)$row['value'];
-                            $isMe = (int)($p->id ?? 0) === (int)$meId;
-                            $av = $avatarOf($p);
-                        @endphp
-
-                        <div class="group flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/10 bg-white hover:bg-[#F7F4F3] transition p-4 {{ $isMe ? 'ring-2 ring-[#5B2333]/20' : '' }}">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 flex items-center justify-center shrink-0">
-                                    <span class="text-xs font-black text-[#564D4A]/60">#{{ $rank }}</span>
-                                </div>
-
-                                <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/10 shrink-0">
-                                    @if($av)
-                                        <img src="{{ $av }}" class="w-full h-full object-cover" alt="">
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center bg-[#564D4A]/10">
-                                            <span class="text-[#564D4A] font-black text-sm">{{ strtoupper(mb_substr($p->name, 0, 1)) }}</span>
+                                    <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold {{ $slot['badge'] }}">
+                                                <i class="{{ $slot['icon'] }}"></i> #{{ $slot['rank'] }}
+                                            </span>
+                                            @if($isMe)
+                                                <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-[#5B2333]/10 text-[#5B2333]">YOU</span>
+                                            @endif
                                         </div>
-                                    @endif
-                                </div>
 
-                                <div class="min-w-0">
-                                    <div class="flex items-center gap-2">
-                                        <p class="text-sm font-extrabold text-[#564D4A] truncate">{{ $p->name }}</p>
-                                        @if($isMe)
-                                            <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-[#5B2333]/10 text-[#5B2333]">YOU</span>
-                                        @endif
+                                        <div class="mt-3 flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full overflow-hidden bg-white border border-[#564D4A]/10 ring-4 {{ $slot['ring'] }} flex items-center justify-center shrink-0">
+                                                @if($rp && $av)
+                                                    <img src="{{ $av }}" class="w-full h-full object-cover" alt="">
+                                                @elseif($rp)
+                                                    <div class="w-full h-full flex items-center justify-center bg-[#564D4A]/10">
+                                                        <span class="text-[#564D4A] font-black text-sm">{{ strtoupper(mb_substr($rp->name, 0, 1)) }}</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            <div class="min-w-0 flex-1">
+                                                <p class="text-sm font-extrabold text-[#564D4A] truncate">{{ $rp->name ?? '-' }}</p>
+                                                <p class="text-[11px] font-semibold text-[#564D4A]/55">Level {{ (int)($rp->level ?? 1) }}</p>
+                                            </div>
+
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
+                                                <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
+                                                {{ $fmtMs($ms) }}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <p class="text-[11px] font-semibold text-[#564D4A]/55">Level {{ (int)($p->level ?? 1) }}</p>
-                                </div>
-                            </div>
-
-                            <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
-                                <i class="fa-solid fa-fire-flame-curved text-[#5B2333]"></i>
-                                {{ $value }} days
-                            </span>
-                        </div>
-                    @empty
-                        <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                            <p class="text-sm font-semibold text-[#564D4A]/60">No streaks to show yet.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-
-            {{-- =========================
-                3) MOST GAMES PLAYED (same style as streak)
-            ========================== --}}
-            <div class="w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Most games played</h2>
-                        <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                            The most active players.
-                        </p>
-                    </div>
-
-                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold">
-                        <i class="fa-solid fa-gamepad"></i>
-                        Activity
-                    </span>
-                </div>
-
-                {{-- Top 3 (same layout as streak) --}}
-                <div class="mt-6 grid grid-cols-1 gap-2">
-                    @foreach([
-                        ['rank'=>1,'row'=>$gm1,'ring'=>'ring-[#D6B05E]/40','badge'=>'bg-[#D6B05E]/20 text-[#B88B2A]','icon'=>'fa-solid fa-crown'],
-                        ['rank'=>2,'row'=>$gm2,'ring'=>'ring-[#BFC6D1]/45','badge'=>'bg-[#BFC6D1]/25 text-[#6B7280]','icon'=>'fa-solid fa-medal'],
-                        ['rank'=>3,'row'=>$gm3,'ring'=>'ring-[#C48A5A]/40','badge'=>'bg-[#C48A5A]/20 text-[#9A5A2E]','icon'=>'fa-solid fa-medal'],
-                    ] as $slot)
-                        @php
-                            $row = $slot['row'];
-                            $p = $row['user'] ?? null;
-                            $value = (int)($row['value'] ?? 0);
-
-                            $isMe = $p ? ((int)$p->id === (int)$meId) : false;
-                            $av = $avatarOf($p);
-                        @endphp
-
-                        <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                            <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold {{ $slot['badge'] }}">
-                                    <i class="{{ $slot['icon'] }}"></i>
-                                    #{{ $slot['rank'] }}
-                                </span>
-
-                                @if($isMe)
-                                    <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-[#5B2333]/10 text-[#5B2333]">YOU</span>
                                 @endif
-                            </div>
-
-                            <div class="mt-4 flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-full overflow-hidden bg-white border border-[#564D4A]/10 ring-4 {{ $slot['ring'] }} flex items-center justify-center shrink-0">
-                                    @if($p && $av)
-                                        <img src="{{ $av }}" class="w-full h-full object-cover" alt="">
-                                    @elseif($p)
-                                        <div class="w-full h-full flex items-center justify-center bg-[#564D4A]/10">
-                                            <span class="text-[#564D4A] font-black">{{ strtoupper(mb_substr($p->name, 0, 1)) }}</span>
-                                        </div>
-                                    @else
-                                        <i class="fa-solid fa-lock text-[#564D4A]/45"></i>
-                                    @endif
-                                </div>
-
-                                <div class="min-w-0">
-                                    <p class="text-sm font-extrabold text-[#564D4A] truncate">{{ $p->name ?? 'Empty' }}</p>
-                                    <p class="text-[11px] font-semibold text-[#564D4A]/55">
-                                        {{ $p ? ('Level ' . (int)($p->level ?? 1)) : '' }}
-                                    </p>
-                                </div>
-
-                                <div class="ml-auto inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
-                                    <i class="fa-solid fa-gamepad text-[#5B2333]"></i>
-                                    {{ $p ? $value . ' games' : '-' }}
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
-                    @endforeach
-                </div>
 
-                {{-- List --}}
-                <div class="mt-5 grid gap-2">
-                    @forelse($gmRest as $i => $row)
-                        @php
-                            $rank = $i + 4;
-                            $p = $row['user'];
-                            $value = (int)$row['value'];
-
-                            $isMe = (int)($p->id ?? 0) === (int)$meId;
-                            $av = $avatarOf($p);
-                        @endphp
-
-                        <div class="group flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/10 bg-white hover:bg-[#F7F4F3] transition p-4 {{ $isMe ? 'ring-2 ring-[#5B2333]/20' : '' }}">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 flex items-center justify-center shrink-0">
-                                    <span class="text-xs font-black text-[#564D4A]/60">#{{ $rank }}</span>
-                                </div>
-
-                                <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/10 shrink-0">
-                                    @if($av)
-                                        <img src="{{ $av }}" class="w-full h-full object-cover" alt="">
-                                    @else
-                                        <div class="w-full h-full flex items-center justify-center bg-[#564D4A]/10">
-                                            <span class="text-[#564D4A] font-black text-sm">{{ strtoupper(mb_substr($p->name, 0, 1)) }}</span>
+                        {{-- Rank 4+ --}}
+                        @if($spRest->isNotEmpty())
+                            <div class="mt-3 grid gap-2">
+                                @foreach($spRest as $i => $row)
+                                    @php
+                                        $rp   = $row['user'];
+                                        $ms   = $row['best_ms'];
+                                        $rank = $i + 4;
+                                        $isMe = (int)($rp->id ?? 0) === (int)$meId;
+                                        $av   = $avatarOf($rp);
+                                    @endphp
+                                    <div class="flex items-center justify-between gap-3 rounded-2xl border border-[#564D4A]/10 bg-white hover:bg-[#F7F4F3] transition p-3 {{ $isMe ? 'ring-2 ring-[#5B2333]/20' : '' }}">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <div class="w-8 h-8 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 flex items-center justify-center shrink-0">
+                                                <span class="text-xs font-black text-[#564D4A]/60">#{{ $rank }}</span>
+                                            </div>
+                                            <div class="w-8 h-8 rounded-full overflow-hidden bg-white border border-[#564D4A]/10 shrink-0">
+                                                @if($av)
+                                                    <img src="{{ $av }}" class="w-full h-full object-cover" alt="">
+                                                @else
+                                                    <div class="w-full h-full flex items-center justify-center bg-[#564D4A]/10">
+                                                        <span class="text-[#564D4A] font-black text-xs">{{ strtoupper(mb_substr($rp->name, 0, 1)) }}</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="text-xs font-extrabold text-[#564D4A] truncate">{{ $rp->name }}</p>
+                                                @if($isMe)
+                                                    <span class="text-[10px] font-bold text-[#5B2333]">YOU</span>
+                                                @endif
+                                            </div>
                                         </div>
-                                    @endif
-                                </div>
-
-                                <div class="min-w-0">
-                                    <div class="flex items-center gap-2">
-                                        <p class="text-sm font-extrabold text-[#564D4A] truncate">{{ $p->name }}</p>
-                                        @if($isMe)
-                                            <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-[#5B2333]/10 text-[#5B2333]">YOU</span>
-                                        @endif
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
+                                            <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
+                                            {{ $fmtMs($ms) }}
+                                        </span>
                                     </div>
-                                    <p class="text-[11px] font-semibold text-[#564D4A]/55">Level {{ (int)($p->level ?? 1) }}</p>
-                                </div>
+                                @endforeach
                             </div>
-
-                            <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
-                                <i class="fa-solid fa-gamepad text-[#5B2333]"></i>
-                                {{ $value }} games
-                            </span>
-                        </div>
-                    @empty
-                        <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                            <p class="text-sm font-semibold text-[#564D4A]/60">No activity to show yet.</p>
-                        </div>
-                    @endforelse
+                        @endif
+                    @endif
                 </div>
-            </div>
-
+            @endforeach
         </div>
 
     </div>

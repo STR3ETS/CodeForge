@@ -112,7 +112,7 @@ class DashboardController extends Controller
                 'icon' => 'fa-solid fa-fire-flame-curved',
                 'goal' => 1,
                 'reward_xp' => 150,
-                'tag' => 'XP',
+                'tag' => 'Easy',
                 'type' => 'any_play',
             ],
         ];
@@ -223,43 +223,49 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        // ✅ Placeholders (streak & games) – respects scope
-        $usersForOtherBoards = (clone $baseQuery)
-            ->orderByDesc('level')
-            ->orderByDesc('xp')
-            ->limit(10)
-            ->get();
-
-        $streakMap = [
-            1 => 365,
-            2 => 120,
-            3 => 90,
-            4 => 45,
+        // ✅ Speed leaderboards per game
+        $gameMeta = [
+            'find-the-emoji' => ['title' => 'Find the Emoji',  'icon' => 'fa-solid fa-face-grin-squint'],
+            'word-forge'     => ['title' => 'Word Forge',       'icon' => 'fa-solid fa-a'],
+            'sequence-rush'  => ['title' => 'Sequence Rush',    'icon' => 'fa-solid fa-list-ol'],
+            'flag-guess'     => ['title' => 'Flag Guess',       'icon' => 'fa-solid fa-flag'],
+            'block-drop'     => ['title' => 'Block Drop',       'icon' => 'fa-solid fa-cubes-stacked'],
         ];
 
-        $gamesMap = [
-            1 => 842,
-            2 => 612,
-            3 => 410,
-            4 => 128,
-        ];
+        $speedBoards = [];
+        foreach ($gameMeta as $gameKey => $meta) {
+            $rows = DailyGameRun::query()
+                ->select('user_id', DB::raw('MIN(duration_ms) as best_ms'))
+                ->where('game_key', $gameKey)
+                ->where('solved', true)
+                ->whereNotNull('duration_ms')
+                ->where('duration_ms', '>', 0)
+                ->whereDate('puzzle_date', Carbon::today())
+                ->groupBy('user_id')
+                ->orderBy('best_ms')
+                ->limit(10)
+                ->get();
 
-        $topStreaks = $usersForOtherBoards->map(function ($u) use ($streakMap) {
-            $value = $streakMap[$u->id] ?? (10 + (($u->id * 7) % 70));
-            return ['user' => $u, 'value' => (int) $value];
-        })->sortByDesc('value')->values();
+            $userIds = $rows->pluck('user_id');
+            $users = User::whereIn('id', $userIds)
+                ->select('id', 'name', 'profile_picture', 'plan', 'level')
+                ->get()->keyBy('id');
 
-        $topGames = $usersForOtherBoards->map(function ($u) use ($gamesMap) {
-            $value = $gamesMap[$u->id] ?? (20 + (($u->id * 13) % 300));
-            return ['user' => $u, 'value' => (int) $value];
-        })->sortByDesc('value')->values();
+            $speedBoards[$gameKey] = [
+                'title' => $meta['title'],
+                'icon'  => $meta['icon'],
+                'rows'  => $rows->map(fn($r) => [
+                    'user'    => $users->get($r->user_id),
+                    'best_ms' => (int) $r->best_ms,
+                ])->filter(fn($r) => $r['user'] !== null)->values(),
+            ];
+        }
 
         return view('dashboard.leaderboard', [
-            'user' => $me,
-            'scope' => $scope,
-            'topLevels' => $topLevels,
-            'topStreaks' => $topStreaks,
-            'topGames' => $topGames,
+            'user'        => $me,
+            'scope'       => $scope,
+            'topLevels'   => $topLevels,
+            'speedBoards' => $speedBoards,
         ]);
     }
 
@@ -358,7 +364,7 @@ class DashboardController extends Controller
 
         $ttRun = \App\Models\DailyGameRun::query()
             ->where('user_id', $user->id)
-            ->where('game_key', 'tetris')
+            ->where('game_key', 'block-drop')
             ->where('puzzle_date', $today->toDateString())
             ->first();
 
@@ -381,6 +387,7 @@ class DashboardController extends Controller
                 'desc' => 'Find the odd one out as fast as possible.',
                 'icon' => 'fa-solid fa-magnifying-glass',
                 'tag' => 'Daily Game',
+                'difficulty' => 'Easy',
                 'proOnly' => false,
                 'available' => true,
                 'href' => route('games.findtheemoji'),
@@ -396,6 +403,7 @@ class DashboardController extends Controller
                 'desc' => 'Guess the word using the category hint.',
                 'icon' => 'fa-solid fa-font',
                 'tag' => 'Daily Game',
+                'difficulty' => 'Medium',
                 'proOnly' => false,
                 'available' => true,
                 'href' => route('games.wordforge'),
@@ -411,6 +419,7 @@ class DashboardController extends Controller
                 'desc' => 'Pick the missing number in the sequence.',
                 'icon' => 'fa-solid fa-list-ol',
                 'tag' => 'Daily Game',
+                'difficulty' => 'Medium',
                 'proOnly' => false,
                 'available' => true,
                 'href' => route('games.sequence'),
@@ -426,6 +435,7 @@ class DashboardController extends Controller
                 'desc' => 'Identify the country by its flag.',
                 'icon' => 'fa-solid fa-flag',
                 'tag' => 'Daily Game',
+                'difficulty' => 'Easy',
                 'proOnly' => false,
                 'available' => true,
                 'href' => route('games.flagguess'),
@@ -436,48 +446,51 @@ class DashboardController extends Controller
                 'status_time' => $fgTime,
             ],
             [
-                'key'        => 'tetris',
-                'title'      => 'Tetris',
+                'key'        => 'block-drop',
+                'title'      => 'Block Drop',
                 'desc'       => 'Clear 10 lines as fast as possible.',
                 'icon'       => 'fa-solid fa-table-cells',
                 'tag'        => 'Daily Game',
+                'difficulty' => 'Hard',
                 'proOnly'    => false,
                 'available'  => true,
-                'href'       => route('games.tetris'),
+                'href'       => route('games.blockdrop'),
                 'time'       => '~2 min',
                 'reward_xp'  => 150,
-                'number'     => 100 + (abs(crc32('tetris|' . $today->toDateString())) % 900),
+                'number'     => 100 + (abs(crc32('block-drop|' . $today->toDateString())) % 900),
                 'status'     => $ttSolved ? 'solved' : ($ttFailed ? 'failed' : null),
                 'status_time' => $ttTime,
             ],
         ];
 
-        $gameKeys = collect($games)->pluck('key')->filter()->values()->all();
-        $q = $this->buildDailyQuestsForUser($user, $today, $gameKeys);
+        $gameKeys     = collect($games)->pluck('key')->filter()->values()->all();
+        $q            = $this->buildDailyQuestsForUser($user, $today, $gameKeys);
+        $weeklyQuests = $this->buildWeeklyQuestsForUser($user, $today);
 
         return view('dashboard.daily', [
-            'user' => $user,
-            'isPro' => $isPro,
-            'limit' => $limit,
-            'done' => $done,
-            'remaining' => $remaining,
-            'games' => $games,
-            'quests' => $q['quests'],
-            'questsAllDone' => $q['all_done'],
-            'questsAllClaimed' => $q['all_claimed'],
-            'globalStreak' => $globalStreak,
+            'user'              => $user,
+            'isPro'             => $isPro,
+            'limit'             => $limit,
+            'done'              => $done,
+            'remaining'         => $remaining,
+            'games'             => $games,
+            'quests'            => $q['quests'],
+            'questsAllDone'     => $q['all_done'],
+            'questsAllClaimed'  => $q['all_claimed'],
+            'weeklyQuests'      => $weeklyQuests,
+            'globalStreak'      => $globalStreak,
         ]);
     }
 
-    private function dailyQuestDefinitions(int $playGoal): array
+    private function dailyQuestDefinitions(): array
     {
         return [
             [
-                'key' => 'play_games',
-                'title' => 'Play ' . $playGoal . ' games',
-                'desc' => 'Finish ' . $playGoal . ' rounds today.',
+                'key' => 'play_3_games',
+                'title' => 'Play 3 games',
+                'desc' => 'Finish 3 rounds today.',
                 'icon' => 'fa-solid fa-gamepad',
-                'goal' => $playGoal,
+                'goal' => 3,
                 'reward_xp' => 150,
                 'tag' => 'Easy',
                 'type' => 'plays',
@@ -485,7 +498,7 @@ class DashboardController extends Controller
             [
                 'key' => 'win_1_game',
                 'title' => 'Win 1 game',
-                'desc' => 'Get at least one win.',
+                'desc' => 'Get at least one win today.',
                 'icon' => 'fa-solid fa-trophy',
                 'goal' => 1,
                 'reward_xp' => 250,
@@ -499,35 +512,131 @@ class DashboardController extends Controller
                 'icon' => 'fa-solid fa-fire-flame-curved',
                 'goal' => 1,
                 'reward_xp' => 150,
-                'tag' => 'XP',
+                'tag' => 'Easy',
                 'type' => 'any_play',
+            ],
+            [
+                'key' => 'win_wordforge',
+                'title' => 'Win WordForge',
+                'desc' => 'Complete WordForge today.',
+                'icon' => 'fa-solid fa-font',
+                'goal' => 1,
+                'reward_xp' => 150,
+                'tag' => 'Medium',
+                'type' => 'game_win',
+                'game' => 'word-forge',
+            ],
+            [
+                'key' => 'fast_emoji',
+                'title' => 'Find The Emoji in ≤15s',
+                'desc' => 'Solve Find The Emoji in 15 seconds or less.',
+                'icon' => 'fa-solid fa-bolt',
+                'goal' => 1,
+                'reward_xp' => 200,
+                'tag' => 'Hard',
+                'type' => 'game_win_under',
+                'game' => 'find-the-emoji',
+                'max_ms' => 15000,
+            ],
+            [
+                'key' => 'win_flag_guess',
+                'title' => 'Win Flag Guess',
+                'desc' => 'Correctly identify a flag today.',
+                'icon' => 'fa-solid fa-flag',
+                'goal' => 1,
+                'reward_xp' => 150,
+                'tag' => 'Easy',
+                'type' => 'game_win',
+                'game' => 'flag-guess',
             ],
         ];
     }
 
-    private function buildDailyQuestsForUser($user, Carbon $today, array $gameKeys): array
+    private function weeklyQuestDefinitions(): array
     {
-        // ✅ “Played today” = attempts>0 OR finished_at OR solved
-        $playedRuns = DailyGameRun::query()
+        return [
+            [
+                'key' => 'w_play_10',
+                'title' => 'Play 10 games',
+                'desc' => 'Complete 10 rounds this week.',
+                'icon' => 'fa-solid fa-gamepad',
+                'goal' => 10,
+                'reward_xp' => 500,
+                'tag' => 'Medium',
+                'type' => 'weekly_plays',
+            ],
+            [
+                'key' => 'w_win_5',
+                'title' => 'Win 5 games',
+                'desc' => 'Win at least 5 games this week.',
+                'icon' => 'fa-solid fa-trophy',
+                'goal' => 5,
+                'reward_xp' => 750,
+                'tag' => 'Hard',
+                'type' => 'weekly_wins',
+            ],
+            [
+                'key' => 'w_wordforge_3',
+                'title' => 'Win WordForge 3×',
+                'desc' => 'Complete WordForge 3x this week.',
+                'icon' => 'fa-solid fa-font',
+                'goal' => 3,
+                'reward_xp' => 350,
+                'tag' => 'Medium',
+                'type' => 'weekly_game_wins',
+                'game' => 'word-forge',
+            ],
+            [
+                'key' => 'w_sequence_3',
+                'title' => 'Win Sequence Rush 3×',
+                'desc' => 'Complete Sequence Rush 3x this week.',
+                'icon' => 'fa-solid fa-list-ol',
+                'goal' => 3,
+                'reward_xp' => 350,
+                'tag' => 'Medium',
+                'type' => 'weekly_game_wins',
+                'game' => 'sequence-rush',
+            ],
+            [
+                'key' => 'w_blockdrop',
+                'title' => 'Complete Block Drop',
+                'desc' => 'Win Block Drop at least once this week.',
+                'icon' => 'fa-solid fa-table-cells',
+                'goal' => 1,
+                'reward_xp' => 300,
+                'tag' => 'Hard',
+                'type' => 'weekly_game_wins',
+                'game' => 'block-drop',
+            ],
+            [
+                'key' => 'w_all_5_games',
+                'title' => 'Play all 5 games',
+                'desc' => 'Complete each daily game at least once.',
+                'icon' => 'fa-solid fa-layer-group',
+                'goal' => 5,
+                'reward_xp' => 600,
+                'tag' => 'Hard',
+                'type' => 'weekly_unique_games',
+            ],
+        ];
+    }
+
+    private function buildDailyQuestsForUser($user, Carbon $today, array $gameKeys = []): array
+    {
+        $allRuns = DailyGameRun::query()
             ->where('user_id', $user->id)
             ->where('puzzle_date', $today->toDateString())
-            ->whereIn('game_key', $gameKeys)
-            ->where(function ($q) {
-                $q->where('solved', true)
-                ->orWhereNotNull('finished_at')
-                ->orWhere('attempts', '>', 0);
-            })
-            ->get(['id', 'game_key', 'solved', 'finished_at', 'attempts']);
+            ->get(['game_key', 'solved', 'finished_at', 'attempts', 'duration_ms']);
 
-        $plays = (int) $playedRuns->count();
-        $wins  = (int) $playedRuns->where('solved', true)->count();
+        $plays = (int) $allRuns->filter(fn($r) => $r->solved || !empty($r->finished_at) || $r->attempts > 0)->count();
+        $wins  = (int) $allRuns->where('solved', true)->count();
 
-        $playGoal = min(3, max(1, count($gameKeys)));
-        $defs = $this->dailyQuestDefinitions($playGoal);
+        $defs = $this->dailyQuestDefinitions();
 
         $claimedKeys = DailyQuestClaim::query()
             ->where('user_id', $user->id)
             ->where('quest_date', $today->toDateString())
+            ->whereIn('quest_key', collect($defs)->pluck('key')->all())
             ->pluck('quest_key')
             ->all();
 
@@ -535,43 +644,124 @@ class DashboardController extends Controller
         foreach ($defs as $q) {
             $progress = 0;
 
-            if ($q['type'] === 'plays') {
-                $progress = $plays;
-            } elseif ($q['type'] === 'wins') {
-                $progress = $wins;
-            } elseif ($q['type'] === 'any_play') {
-                $progress = $plays > 0 ? 1 : 0;
+            switch ($q['type']) {
+                case 'plays':
+                    $progress = $plays;
+                    break;
+                case 'wins':
+                    $progress = $wins;
+                    break;
+                case 'any_play':
+                    $progress = $plays > 0 ? 1 : 0;
+                    break;
+                case 'game_win':
+                    $progress = (int) $allRuns->where('game_key', $q['game'])->where('solved', true)->count();
+                    break;
+                case 'game_win_under':
+                    $maxMs = (int) ($q['max_ms'] ?? 0);
+                    $progress = (int) $allRuns
+                        ->where('game_key', $q['game'])
+                        ->where('solved', true)
+                        ->filter(fn($r) => $r->duration_ms !== null && (int)$r->duration_ms <= $maxMs)
+                        ->count();
+                    break;
             }
 
             $progress = min((int) $q['goal'], (int) $progress);
-            $isDone = $progress >= (int) $q['goal'];
-            $claimed = in_array($q['key'], $claimedKeys, true);
+            $isDone   = $progress >= (int) $q['goal'];
+            $claimed  = in_array($q['key'], $claimedKeys, true);
 
             $quests[] = [
-                'key' => $q['key'],
-                'title' => $q['title'],
-                'desc' => $q['desc'],
-                'icon' => $q['icon'],
-                'progress' => $progress,
-                'goal' => (int) $q['goal'],
-                'reward_xp' => (int) $q['reward_xp'],
-                'reward' => '+' . (int) $q['reward_xp'] . ' XP',
-                'tag' => $q['tag'],
-                'is_done' => $isDone,
-                'claimed' => $claimed,
+                'key'        => $q['key'],
+                'title'      => $q['title'],
+                'desc'       => $q['desc'],
+                'icon'       => $q['icon'],
+                'progress'   => $progress,
+                'goal'       => (int) $q['goal'],
+                'reward_xp'  => (int) $q['reward_xp'],
+                'reward'     => '+' . (int) $q['reward_xp'] . ' XP',
+                'tag'        => $q['tag'],
+                'is_done'    => $isDone,
+                'claimed'    => $claimed,
+                'quest_type' => 'daily',
             ];
         }
 
-        $allDone = collect($quests)->every(fn ($qq) => (bool)$qq['is_done']);
-        $allClaimedOrNotDone = collect($quests)->every(fn ($qq) => !$qq['is_done'] || $qq['claimed']);
+        $allDone             = collect($quests)->every(fn($qq) => (bool)$qq['is_done']);
+        $allClaimedOrNotDone = collect($quests)->every(fn($qq) => !$qq['is_done'] || $qq['claimed']);
 
         return [
-            'quests' => $quests,
-            'all_done' => $allDone,
+            'quests'      => $quests,
+            'all_done'    => $allDone,
             'all_claimed' => $allClaimedOrNotDone,
-            'plays' => $plays,
-            'wins' => $wins,
+            'plays'       => $plays,
+            'wins'        => $wins,
         ];
+    }
+
+    private function buildWeeklyQuestsForUser($user, Carbon $today): array
+    {
+        $weekStart = $today->copy()->startOfWeek(Carbon::MONDAY);
+        $weekEnd   = $weekStart->copy()->endOfWeek(Carbon::SUNDAY);
+
+        $weekRuns = DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->whereBetween('puzzle_date', [$weekStart->toDateString(), $weekEnd->toDateString()])
+            ->get(['game_key', 'solved', 'finished_at', 'attempts', 'duration_ms']);
+
+        $weekPlays   = (int) $weekRuns->filter(fn($r) => $r->solved || !empty($r->finished_at) || $r->attempts > 0)->count();
+        $weekWins    = (int) $weekRuns->where('solved', true)->count();
+        $uniqueGames = $weekRuns->where('solved', true)->pluck('game_key')->unique()->count();
+
+        $defs = $this->weeklyQuestDefinitions();
+
+        $claimedKeys = DailyQuestClaim::query()
+            ->where('user_id', $user->id)
+            ->where('quest_date', $weekStart->toDateString())
+            ->whereIn('quest_key', collect($defs)->pluck('key')->all())
+            ->pluck('quest_key')
+            ->all();
+
+        $quests = [];
+        foreach ($defs as $q) {
+            $progress = 0;
+
+            switch ($q['type']) {
+                case 'weekly_plays':
+                    $progress = $weekPlays;
+                    break;
+                case 'weekly_wins':
+                    $progress = $weekWins;
+                    break;
+                case 'weekly_game_wins':
+                    $progress = (int) $weekRuns->where('game_key', $q['game'])->where('solved', true)->count();
+                    break;
+                case 'weekly_unique_games':
+                    $progress = $uniqueGames;
+                    break;
+            }
+
+            $progress = min((int) $q['goal'], (int) $progress);
+            $isDone   = $progress >= (int) $q['goal'];
+            $claimed  = in_array($q['key'], $claimedKeys, true);
+
+            $quests[] = [
+                'key'        => $q['key'],
+                'title'      => $q['title'],
+                'desc'       => $q['desc'],
+                'icon'       => $q['icon'],
+                'progress'   => $progress,
+                'goal'       => (int) $q['goal'],
+                'reward_xp'  => (int) $q['reward_xp'],
+                'reward'     => '+' . (int) $q['reward_xp'] . ' XP',
+                'tag'        => $q['tag'],
+                'is_done'    => $isDone,
+                'claimed'    => $claimed,
+                'quest_type' => 'weekly',
+            ];
+        }
+
+        return $quests;
     }
 
     public function claimDailyQuests(Request $request)
@@ -611,6 +801,44 @@ class DashboardController extends Controller
         });
 
         return back()->with('quest_rewarded', $awardedXp);
+    }
+
+    public function claimSingleQuest(Request $request)
+    {
+        $user      = $request->user();
+        $today     = now()->startOfDay();
+        $questKey  = (string) $request->input('quest_key', '');
+        $questType = (string) $request->input('quest_type', 'daily');
+
+        if ($questType === 'weekly') {
+            $quests    = $this->buildWeeklyQuestsForUser($user, $today);
+            $questDate = $today->copy()->startOfWeek(Carbon::MONDAY)->toDateString();
+        } else {
+            $q         = $this->buildDailyQuestsForUser($user, $today);
+            $quests    = $q['quests'];
+            $questDate = $today->toDateString();
+        }
+
+        $quest = collect($quests)->firstWhere('key', $questKey);
+
+        if (!$quest || !$quest['is_done'] || $quest['claimed']) {
+            return back()->with('error', 'Quest cannot be claimed.');
+        }
+
+        try {
+            DailyQuestClaim::create([
+                'user_id'    => $user->id,
+                'quest_key'  => $questKey,
+                'quest_date' => $questDate,
+                'reward_xp'  => (int) $quest['reward_xp'],
+                'claimed_at' => now(),
+            ]);
+            $user->addXp((int) $quest['reward_xp']);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            // Already claimed (race condition) — ignore silently
+        }
+
+        return back()->with('quest_rewarded', $quest['reward_xp']);
     }
 
     public function updateProfileMedia(Request $request)
@@ -721,7 +949,7 @@ class DashboardController extends Controller
         $today = now()->startOfDay();
         $key   = (string) $request->input('game_key', '');
 
-        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'tetris'];
+        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop'];
         if (!in_array($key, $allowed, true)) {
             return response()->json(['ok' => false], 422);
         }

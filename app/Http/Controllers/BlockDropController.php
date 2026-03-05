@@ -6,9 +6,9 @@ use App\Models\DailyGameRun;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-class TetrisController extends Controller
+class BlockDropController extends Controller
 {
-    private const GAME_KEY = 'tetris';
+    private const GAME_KEY = 'block-drop';
 
     private function wantsJson(Request $request): bool
     {
@@ -132,7 +132,7 @@ class TetrisController extends Controller
             return $mm . ':' . $ss;
         };
 
-        return view('games.tetris', [
+        return view('games.block-drop', [
             'user'       => $user,
             'puzzleMeta' => $puzzleMeta,
 

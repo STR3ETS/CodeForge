@@ -7,7 +7,7 @@ use App\Http\Controllers\WordForgeController;
 use App\Http\Controllers\FindTheEmojiController;
 use App\Http\Controllers\SequenceRushController;
 use App\Http\Controllers\FlagGuessController;
-use App\Http\Controllers\TetrisController;
+use App\Http\Controllers\BlockDropController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/daily-challenges', [DashboardController::class, 'dailyChallenges'])->name('dashboard.daily');
     Route::post('/daily-challenges/quests/claim', [DashboardController::class, 'claimDailyQuests'])->name('dashboard.daily.quests.claim');
+    Route::post('/daily-challenges/quests/claim-single', [DashboardController::class, 'claimSingleQuest'])->name('dashboard.daily.quests.claim.single');
 
     Route::get('/games/word-forge', [WordForgeController::class, 'show'])->name('games.wordforge');
     Route::post('/games/word-forge/guess', [WordForgeController::class, 'guess'])->name('games.wordforge.guess');
@@ -41,8 +42,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/games/flag-guess', [FlagGuessController::class, 'show'])->name('games.flagguess');
     Route::post('/games/flag-guess/answer', [FlagGuessController::class, 'answer'])->name('games.flagguess.answer');
 
-    Route::get('/games/tetris', [TetrisController::class, 'show'])->name('games.tetris');
-    Route::post('/games/tetris/finish', [TetrisController::class, 'finish'])->name('games.tetris.finish');
+    Route::get('/games/block-drop', [BlockDropController::class, 'show'])->name('games.blockdrop');
+    Route::post('/games/block-drop/finish', [BlockDropController::class, 'finish'])->name('games.blockdrop.finish');
 
     Route::post('/games/abandon', [DashboardController::class, 'abandonGame'])->name('games.abandon');
 

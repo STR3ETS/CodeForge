@@ -65,6 +65,17 @@
     <script>
         window.__FTE_INIT__ = @json($fteInit);
     </script>
+    <script>
+        window.__gameFinished = @json($isSolved);
+        window.__gameStarted  = false;
+        window.addEventListener('beforeunload', function () {
+            if (window.__gameFinished || !window.__gameStarted) return;
+            navigator.sendBeacon(
+                '{{ route("games.abandon") }}',
+                new Blob([JSON.stringify({ game_key: 'find-the-emoji', _token: '{{ csrf_token() }}' })], { type: 'application/json' })
+            );
+        });
+    </script>
 
     <div x-data="findTheEmoji(window.__FTE_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
 
@@ -394,6 +405,9 @@
                 async init() {
                     this.sessionSeed = this.makeSessionSeed();
                     this.leaderboardReady = true;
+                    this.$watch('started',  v => { if (v && !window.__gameFinished) window.__gameStarted = true; });
+                    this.$watch('isSolved', v => { if (v) window.__gameFinished = true; });
+                    this.$watch('isFailed', v => { if (v) window.__gameFinished = true; });
                     if (this.isSolved) {
                         this.startTimer();
                         this.stopTimer();

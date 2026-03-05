@@ -1,5 +1,5 @@
-{{-- resources/views/games/tetris.blade.php --}}
-<x-layouts.dashboard :title="'Tetris'" active="daily">
+{{-- resources/views/games/block-drop.blade.php --}}
+<x-layouts.dashboard :title="'Block Drop'" active="daily">
     @php
         $isSolved = (bool)($run->solved ?? false);
         $isFailed = (bool)($isFailed ?? false);
@@ -23,7 +23,7 @@
                 'my_rank' => $myRank ?? null,
             ],
             'routes' => [
-                'finish' => route('games.tetris.finish'),
+                'finish' => route('games.blockdrop.finish'),
             ],
             'csrf' => csrf_token(),
         ];
@@ -31,7 +31,7 @@
 
     <style>
         [x-cloak]{display:none!important;}
-        #tetrisCanvas {
+        #blockDropCanvas {
             image-rendering: pixelated;
             display: block;
             margin: 0 auto;
@@ -49,8 +49,19 @@
     </style>
 
     <script>window.__TT_INIT__ = @json($init);</script>
+    <script>
+        window.__gameFinished = @json($isSolved || $isFailed);
+        window.__gameStarted  = false;
+        window.addEventListener('beforeunload', function () {
+            if (window.__gameFinished || !window.__gameStarted) return;
+            navigator.sendBeacon(
+                '{{ route("games.abandon") }}',
+                new Blob([JSON.stringify({ game_key: 'block-drop', _token: '{{ csrf_token() }}' })], { type: 'application/json' })
+            );
+        });
+    </script>
 
-    <div x-data="tetrisUi(window.__TT_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
+    <div x-data="blockDropUi(window.__TT_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
 
         {{-- HERO --}}
         <div class="relative z-[1] overflow-hidden rounded-2xl border border-[#564D4A]/10 bg-[#5B2333]">
@@ -67,7 +78,7 @@
 
                         <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
                             <template x-if="!isSolved && !isFailed">
-                                <span>Tetris <span class="text-white/70">#<span x-text="puzzle.number"></span></span></span>
+                                <span>Block Drop <span class="text-white/70">#<span x-text="puzzle.number"></span></span></span>
                             </template>
                             <template x-if="isSolved"><span>Nice! 10 lines cleared 🎉</span></template>
                             <template x-if="isFailed"><span>Ahh… topped out 😅</span></template>
@@ -260,8 +271,8 @@
 
             <div x-show="started" class="flex gap-4 items-start">
                 {{-- Board — left aligned, natural size --}}
-                <div id="tetrisBoardWrap" class="shrink-0">
-                    <canvas id="tetrisCanvas" width="200" height="400" class="block rounded-xl"></canvas>
+                <div id="blockDropBoardWrap" class="shrink-0">
+                    <canvas id="blockDropCanvas" width="200" height="400" class="block rounded-xl"></canvas>
                 </div>
 
                 {{-- Right panel --}}
@@ -419,7 +430,7 @@
         };
     }
 
-    class TetrisEngine {
+    class BlockDropEngine {
         constructor(seed, onLines, onGameOver) {
             this.rand      = mulberry32(seed);
             this.nextPiece = makeBag7(this.rand);
@@ -442,7 +453,7 @@
             this.lockTimer  = null;
             this.onGround   = false;
 
-            this.canvas     = document.getElementById('tetrisCanvas');
+            this.canvas     = document.getElementById('blockDropCanvas');
             this.ctx        = this.canvas.getContext('2d');
             this.nextCanvas = document.getElementById('nextCanvas');
             this.nctx       = this.nextCanvas.getContext('2d');
@@ -450,7 +461,7 @@
             this.hctx       = this.holdCanvas.getContext('2d');
 
             // Dynamic cell size: fit both card width AND viewport height
-            const wrap   = document.getElementById('tetrisBoardWrap');
+            const wrap   = document.getElementById('blockDropBoardWrap');
             const availW = wrap ? wrap.clientWidth : 300;
             const availH = Math.min(window.innerHeight - 320, 420); // leave room for hero + stats
             const cellByW = Math.floor(availW / COLS);
@@ -822,7 +833,7 @@
 
     // ─── Alpine UI ───────────────────────────────────────────────────────────────
 
-    function tetrisUi(init) {
+    function blockDropUi(init) {
         return {
             meId:   parseInt(init.me_id || '0', 10),
             scope:  init.scope || 'global',
@@ -847,6 +858,9 @@
 
             init() {
                 this.leaderboardReady = true;
+                this.$watch('started',  v => { if (v && !window.__gameFinished) window.__gameStarted = true; });
+                this.$watch('isSolved', v => { if (v) window.__gameFinished = true; });
+                this.$watch('isFailed', v => { if (v) window.__gameFinished = true; });
 
                 if (this.isSolved) {
                     this.linesCleared = 10;
@@ -896,7 +910,7 @@
                 this.startTimer();
 
                 this.$nextTick(() => {
-                    this._engine = new TetrisEngine(
+                    this._engine = new BlockDropEngine(
                         init.puzzle.seed,
                         window.__tt_onLines,
                         window.__tt_onFail,
