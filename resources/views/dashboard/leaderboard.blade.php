@@ -4,10 +4,10 @@
         $scope = $scope ?? request('scope', 'global');
 
         $tabs = [
-            ['key' => 'global',  'label' => 'Worldwide',   'icon' => 'fa-solid fa-globe'],
-            ['key' => 'friends', 'label' => 'Friends',     'icon' => 'fa-solid fa-user-group'],
-            ['key' => 'nl',      'label' => 'Netherlands', 'icon' => 'fa-solid fa-flag'],
-            ['key' => 'eu',      'label' => 'Europe',      'icon' => 'fa-solid fa-earth-europe'],
+            ['key' => 'global',  'label' => 'Wereldwijd',  'icon' => 'fa-solid fa-globe'],
+            ['key' => 'friends', 'label' => 'Vrienden',    'icon' => 'fa-solid fa-user-group'],
+            ['key' => 'nl',      'label' => 'Nederland',   'icon' => 'fa-solid fa-flag'],
+            ['key' => 'eu',      'label' => 'Europa',      'icon' => 'fa-solid fa-earth-europe'],
         ];
 
         $scopeLabel = collect($tabs)->firstWhere('key', $scope)['label'] ?? 'Worldwide';
@@ -33,6 +33,16 @@
             return $m . 'm ' . $sec . 's';
         };
 
+        // Accent colors per game (same as daily.blade.php)
+        $accentMap = [
+            'find-the-emoji' => ['bg' => 'bg-[#FBE2D8]', 'text' => 'text-[#c0705a]'],
+            'word-forge'     => ['bg' => 'bg-[#D6E4F0]', 'text' => 'text-[#4a7fa5]'],
+            'sequence-rush'  => ['bg' => 'bg-[#D9EAD3]', 'text' => 'text-[#5a8a4e]'],
+            'flag-guess'     => ['bg' => 'bg-[#FFF3CD]', 'text' => 'text-[#9a7a20]'],
+            'block-drop'     => ['bg' => 'bg-[#E8D5F0]', 'text' => 'text-[#7a4fa0]'],
+            'sudoku'         => ['bg' => 'bg-[#D0EAE8]', 'text' => 'text-[#3a8a85]'],
+        ];
+
         // “You” quick status (based on level list only)
         $meId = auth()->id();
         $meRankInTop = $lvlTop->search(fn($p) => (int)($p->id ?? 0) === (int)$meId);
@@ -52,15 +62,15 @@
                     <div class="max-w-xl">
                         <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold w-fit">
                             <i class="fa-solid fa-trophy"></i>
-                            Top players
+                            Top spelers
                         </div>
 
                         <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
-                            Leaderboard
+                            Scorebord
                         </h1>
 
                         <p class="mt-2 text-xs md:text-sm font-semibold text-white/80 leading-[1.3]">
-                            Compare levels, streaks and activity. You vs the rest. 😄
+                            Vergelijk levels, streaks en activiteit. Jij vs de rest. 😄
                         </p>
                     </div>
 
@@ -89,9 +99,9 @@
         <div class="w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Highest level</h2>
+                    <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Hoogste level</h2>
                     <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                        The players with the most XP and levels.
+                        De spelers met de meeste XP en levels.
                     </p>
                 </div>
 
@@ -129,7 +139,7 @@
                         </div>
 
                         <p class="mt-3 text-sm font-extrabold text-[#564D4A] truncate max-w-[220px]">
-                            {{ $p->name ?? 'Empty' }}
+                            {{ $p->name ?? 'Leeg' }}
                         </p>
 
                         <div class="mt-3 w-full rounded-2xl border border-[#564D4A]/10 bg-white p-3 flex items-center justify-between">
@@ -177,7 +187,7 @@
                             </div>
 
                             <p class="mt-3 text-base font-black text-[#564D4A] truncate max-w-[220px]">
-                                {{ $p->name ?? 'Empty' }}
+                                {{ $p->name ?? 'Leeg' }}
                             </p>
 
                             <div class="mt-3 w-full rounded-2xl border border-[#564D4A]/10 bg-white p-3 flex items-center justify-between">
@@ -216,7 +226,7 @@
                         </div>
 
                         <p class="mt-3 text-sm font-extrabold text-[#564D4A] truncate max-w-[220px]">
-                            {{ $p->name ?? 'Empty' }}
+                            {{ $p->name ?? 'Leeg' }}
                         </p>
 
                         <div class="mt-3 w-full rounded-2xl border border-[#564D4A]/10 bg-white p-3 flex items-center justify-between">
@@ -275,7 +285,7 @@
                     </div>
                 @empty
                     <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                        <p class="text-sm font-semibold text-[#564D4A]/60">No players to show yet.</p>
+                        <p class="text-sm font-semibold text-[#564D4A]/60">Nog geen spelers om te tonen.</p>
                     </div>
                 @endforelse
             </div>
@@ -286,6 +296,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             @foreach($speedBoards ?? [] as $gameKey => $board)
                 @php
+                    $accent     = $accentMap[$gameKey] ?? ['bg' => 'bg-[#5B2333]/10', 'text' => 'text-[#5B2333]'];
+                    $accentBg   = $accent['bg'];
+                    $accentText = $accent['text'];
                     $spTop  = $board['rows'];
                     $sp1    = $spTop->get(0);
                     $sp2    = $spTop->get(1);
@@ -296,12 +309,12 @@
                 <div class="w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-[#5B2333]/10 flex items-center justify-center shrink-0">
-                                <i class="{{ $board['icon'] }} text-[#5B2333] text-sm"></i>
+                            <div class="w-9 h-9 rounded-xl {{ $accentBg }} flex items-center justify-center shrink-0">
+                                <i class="{{ $board['icon'] }} {{ $accentText }} text-sm"></i>
                             </div>
                             <div>
                                 <h2 class="text-[1.1rem] font-extrabold text-[#564D4A]">{{ $board['title'] }}</h2>
-                                <p class="text-[11px] font-semibold text-[#564D4A]/50">Fastest today</p>
+                                <p class="text-[11px] font-semibold text-[#564D4A]/50">Snelst vandaag</p>
                             </div>
                         </div>
                         <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold shrink-0">
@@ -312,7 +325,7 @@
 
                     @if($spTop->isEmpty())
                         <div class="mt-5 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                            <p class="text-sm font-semibold text-[#564D4A]/60">No one has completed this today yet.</p>
+                            <p class="text-xs font-semibold text-[#564D4A]/60">Niemand heeft dit vandaag al afgerond.</p>
                         </div>
                     @else
                         {{-- Top 3 --}}

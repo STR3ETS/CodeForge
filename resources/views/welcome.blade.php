@@ -71,42 +71,42 @@
                 <div class="w-12 h-12 rounded-xl bg-[#5B2333] flex items-center justify-center">
                     <img src="/assets/logo-wit.png" class="max-h-6">
                 </div>
-                <h1 class="text-2xl font-black text-[#564D4A] my-3">Create your account</h1>
+                <h1 class="text-2xl font-black text-[#564D4A] my-3">Maak je account aan</h1>
                 <div class="cursor-pointer w-full bg-[#564D4A]/10 hover:bg-[#564D4A]/25 transition duration-200 rounded-md py-2.5 px-4 text-center text-xs text-[#564D4A] font-semibold">
-                    <i class="fa-brands fa-google"></i> <span class="ml-2">Sign up with Google</span>
+                    <i class="fa-brands fa-google"></i> <span class="ml-2">Registreren met Google</span>
                 </div>
                 <div class="grid grid-cols-5 gap-2 flex items-center my-5">
                     <div class="col-span-2 h-[1px] w-full bg-[#564D4A]/10"></div>
-                    <p class="text-center text-[11px] uppercase text-[#564D4A]/50 font-bold">OR</p>
+                    <p class="text-center text-[11px] uppercase text-[#564D4A]/50 font-bold">OF</p>
                     <div class="col-span-2 h-[1px] w-full bg-[#564D4A]/10"></div>
                 </div>
                 <div class="grid gap-3">
                     <div class="relative w-full">
-                        <input type="text" class="w-full outline-none rounded-md py-2.5 px-4 pl-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200" placeholder="Your Name">
+                        <input type="text" class="w-full outline-none rounded-md py-2.5 px-4 pl-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200" placeholder="Jouw naam">
                         <i class="fa-solid fa-user text-[#564D4A]/50 absolute left-4 top-1/2 -translate-y-1/2 text-xs"></i>
                     </div>
                     <div class="relative w-full">
-                        <input type="email" class="w-full outline-none rounded-md py-2.5 px-4 pl-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200" placeholder="Your Email">
+                        <input type="email" class="w-full outline-none rounded-md py-2.5 px-4 pl-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200" placeholder="Jouw e-mailadres">
                         <i class="fa-solid fa-at text-[#564D4A]/50 absolute left-4 top-1/2 -translate-y-1/2 text-xs"></i>
                     </div>
                     <div clas="flex flex-col">
                         <div class="relative w-full">
-                            <input type="password" class="w-full outline-none rounded-md py-2.5 px-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200" placeholder="Your Password">
+                            <input type="password" class="w-full outline-none rounded-md py-2.5 px-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200" placeholder="Jouw wachtwoord">
                             <i class="fa-solid fa-key text-[#564D4A]/50 absolute left-4 top-1/2 -translate-y-1/2 text-xs"></i>
                             <i class="fa-solid fa-eye text-[#564D4A]/50 absolute right-4 top-1/2 -translate-y-1/2 text-xs"></i>
                         </div>
-                        <p class="text-[11px] text-[#564D4A] font-medium italic mt-1 opacity-40">Password must be atleast 8 characters.</p>
+                        <p class="text-[11px] text-[#564D4A] font-medium italic mt-1 opacity-40">Wachtwoord moet minimaal 8 tekens zijn.</p>
                     </div>
                     <div class="flex items-center gap-2 mt-3">
                         <div class="relative flex items-center justify-center">
                             <input type="checkbox" class="h-4 w-4 appearance-none rounded border border-[#564D4A]/25 bg-white checked:bg-[#5B2333] checked:border-[#5B2333] focus:outline-none transition duration-200 cursor-pointer"/>
                             <i class="fa-solid fa-check text-[8px] absolute z-1 text-white pointer-events-none"></i>
                         </div>
-                        <p class="text-xs text-[#564D4A] font-semibold">I agree to the <a href="#" class="text-[#5B2333] underline">Terms & Conditions</a></p>
+                        <p class="text-xs text-[#564D4A] font-semibold">Ik ga akkoord met de <a href="#" class="text-[#5B2333] underline">Algemene voorwaarden</a></p>
                     </div>
                 </div>
                 <a href="#" class="cursor-pointer w-full bg-[#5B2333] hover:bg-[#5B2333]/80 transition duration-200 rounded-md py-3.5 px-4 text-center text-xs text-white font-semibold mt-8">
-                    Complete account register
+                    Account aanmaken
                 </a>
             </div>
         </div>

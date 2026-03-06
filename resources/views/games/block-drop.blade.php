@@ -1,5 +1,5 @@
 {{-- resources/views/games/block-drop.blade.php --}}
-<x-layouts.dashboard :title="'Block Drop'" active="daily">
+<x-layouts.dashboard :title="'Blok Drop'" active="daily">
     @php
         $isSolved = (bool)($run->solved ?? false);
         $isFailed = (bool)($isFailed ?? false);
@@ -73,23 +73,23 @@
                     <div class="max-w-xl">
                         <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold w-fit">
                             <i class="fa-solid fa-table-cells"></i>
-                            Daily game
+                            Dagelijks spel
                         </div>
 
                         <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
                             <template x-if="!isSolved && !isFailed">
-                                <span>Block Drop <span class="text-white/70">#<span x-text="puzzle.number"></span></span></span>
+                                <span>Blok Drop <span class="text-white/70">#<span x-text="puzzle.number"></span></span></span>
                             </template>
-                            <template x-if="isSolved"><span>Nice! 10 lines cleared 🎉</span></template>
-                            <template x-if="isFailed"><span>Ahh… topped out 😅</span></template>
+                            <template x-if="isSolved"><span>Mooi! 10 rijen gewist 🎉</span></template>
+                            <template x-if="isFailed"><span>Helaas… board vol 😅</span></template>
                         </h1>
 
                         <p class="mt-2 text-xs md:text-sm font-semibold text-white/80 leading-[1.3] italic">
                             <template x-if="!isSolved && !isFailed">
-                                <span>Clear <span class="font-black text-white">10 lines</span> as fast as possible. Top out = game over.</span>
+                                <span>Wis <span class="font-black text-white">10 rijen</span> zo snel mogelijk. Board vol = game over.</span>
                             </template>
-                            <template x-if="isSolved"><span>Saved as today's result. Come back tomorrow for a new one.</span></template>
-                            <template x-if="isFailed"><span>Board topped out. Try again tomorrow.</span></template>
+                            <template x-if="isSolved"><span>Opgeslagen als resultaat van vandaag. Kom morgen terug voor een nieuwe.</span></template>
+                            <template x-if="isFailed"><span>Board vol gelopen. Probeer het morgen opnieuw.</span></template>
                         </p>
                     </div>
 
@@ -102,15 +102,15 @@
                         <a href="{{ route('dashboard.daily') }}"
                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#5B2333] text-xs font-semibold hover:bg-white/90 transition">
                             <i class="fa-solid fa-arrow-left"></i>
-                            Back
+                            Terug
                         </a>
                     </div>
                 </div>
 
                 <div class="mt-5">
                     <div class="flex items-center justify-between text-[11px] font-semibold text-white/80">
-                        <span>Progress</span>
-                        <span><span x-text="linesCleared"></span> / 10 lines</span>
+                        <span>Voortgang</span>
+                        <span><span x-text="linesCleared"></span> / 10 rijen</span>
                     </div>
                     <div class="mt-2 w-full h-[7px] rounded-full bg-white/15 overflow-hidden">
                         <div class="h-full rounded-full bg-white transition-all duration-300" :style="`width: ${Math.round((linesCleared/10)*100)}%`"></div>
@@ -134,22 +134,22 @@
                         </div>
                     </template>
                     <div>
-                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight" x-text="isSolved ? 'Completed' : 'Failed'"></p>
+                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight" x-text="isSolved ? 'Voltooid' : 'Mislukt'"></p>
                         <p class="text-xs font-semibold text-[#564D4A]/55 leading-[1.3]"
-                           x-text="isSolved ? '10 lines cleared!' : 'Board topped out.'"></p>
+                           x-text="isSolved ? '10 rijen gewist!' : 'Board vol gelopen.'"></p>
                     </div>
                 </div>
 
                 <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Time</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Tijd</p>
                         <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]" x-text="finalTime || '--:--'"></p>
-                        <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Time to clear 10 lines</p>
+                        <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Tijd om 10 rijen te wissen</p>
                     </div>
                     <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Lines cleared</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Rijen gewist</p>
                         <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]" x-text="linesCleared"></p>
-                        <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Goal: 10 lines</p>
+                        <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Doel: 10 rijen</p>
                     </div>
                 </div>
 
@@ -157,9 +157,9 @@
                 <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-white p-5" x-show="isSolved" x-cloak>
                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div>
-                            <h2 class="text-[1.05rem] font-extrabold text-[#564D4A]">Leaderboard</h2>
+                            <h2 class="text-[1.05rem] font-extrabold text-[#564D4A]">Scorebord</h2>
                             <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                                Fastest times for today ({{ ($scope ?? 'global') === 'friends' ? 'Friends' : 'Worldwide' }}).
+                                Snelste tijden van vandaag ({{ ($scope ?? 'global') === 'friends' ? 'Vrienden' : 'Wereldwijd' }}).
                             </p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
@@ -181,7 +181,7 @@
                     <div x-show="leaderboardReady" x-cloak class="mt-4 grid gap-2">
                         <template x-if="leaderboardRows.length === 0">
                             <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                                <p class="text-sm font-semibold text-[#564D4A]/60">No times yet.</p>
+                                <p class="text-sm font-semibold text-[#564D4A]/60">Nog geen tijden.</p>
                             </div>
                         </template>
 
@@ -221,7 +221,7 @@
 
                         <template x-if="myRank && myRank > leaderboardRows.length">
                             <div class="mt-2 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4 flex items-center justify-between">
-                                <p class="text-xs font-semibold text-[#564D4A]/60">Your rank in this scope</p>
+                                <p class="text-xs font-semibold text-[#564D4A]/60">Jouw positie</p>
                                 <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A]">
                                     #<span x-text="myRank"></span>
                                 </span>
@@ -236,36 +236,36 @@
         <div x-show="!isSolved && !isFailed" x-cloak class="relative z-[1] w-full bg-white rounded-2xl p-6 border border-[#564D4A]/10">
 
             <div x-show="!started" class="text-center py-8">
-                <p class="text-xl font-extrabold text-[#564D4A]">Are you ready?</p>
-                <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Use arrow keys to move and rotate. Space = hard drop.</p>
+                <p class="text-xl font-extrabold text-[#564D4A]">Ben je er klaar voor?</p>
+                <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Gebruik pijltjestoetsen om te bewegen en draaien. Spatie = hard drop.</p>
                 <div class="mt-4 grid grid-cols-3 gap-2 max-w-[200px] mx-auto text-xs font-semibold text-[#564D4A]/70">
                     <div></div>
                     <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 text-center flex flex-col items-center gap-1">
                         <i class="fa-solid fa-arrow-up text-[13px]"></i>
-                        <span class="text-[10px]">Rotate</span>
+                        <span class="text-[10px]">Draaien</span>
                     </div>
                     <div></div>
                     <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 text-center flex flex-col items-center gap-1">
                         <i class="fa-solid fa-arrow-left text-[13px]"></i>
-                        <span class="text-[10px]">Left</span>
+                        <span class="text-[10px]">Links</span>
                     </div>
                     <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 text-center flex flex-col items-center gap-1">
                         <i class="fa-solid fa-arrow-down text-[13px]"></i>
-                        <span class="text-[10px]">Soft</span>
+                        <span class="text-[10px]">Zacht</span>
                     </div>
                     <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 text-center flex flex-col items-center gap-1">
                         <i class="fa-solid fa-arrow-right text-[13px]"></i>
-                        <span class="text-[10px]">Right</span>
+                        <span class="text-[10px]">Rechts</span>
                     </div>
                     <div class="col-span-3 rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 flex items-center justify-center gap-2">
                         <i class="fa-solid fa-angles-down text-[13px]"></i>
-                        <span class="text-[10px]">Space - Hard drop</span>
+                        <span class="text-[10px]">Spatie - Hard drop</span>
                     </div>
                 </div>
                 <button @click="startGame()"
                     class="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#5B2333] text-white text-sm font-bold hover:bg-[#5B2333]/90 transition active:scale-[0.98]">
                     <i class="fa-solid fa-play"></i>
-                    Start game
+                    Spel starten
                 </button>
             </div>
 
@@ -293,28 +293,28 @@
 
                     {{-- Lines cleared --}}
                     <div class="rounded-xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
-                        <p class="text-[10px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Lines cleared</p>
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Rijen gewist</p>
                         <p class="mt-1 text-2xl font-black text-[#564D4A]" x-text="linesCleared + ' / 10'"></p>
                     </div>
 
                     {{-- Controls --}}
                     <div class="rounded-xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
-                        <p class="text-[10px] font-semibold uppercase tracking-wider text-[#564D4A]/45 mb-2">Controls</p>
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-[#564D4A]/45 mb-2">Bediening</p>
                         <div class="flex flex-col gap-2 text-xs">
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-[#564D4A]/60">Move</span>
+                                <span class="font-semibold text-[#564D4A]/60">Bewegen</span>
                                 <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/10 rounded-lg px-2 py-1">← →</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-[#564D4A]/60">Rotate</span>
+                                <span class="font-semibold text-[#564D4A]/60">Draaien</span>
                                 <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/10 rounded-lg px-2 py-1">↑ / Z</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-[#564D4A]/60">Hard drop</span>
-                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/10 rounded-lg px-2 py-1">Space</span>
+                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/10 rounded-lg px-2 py-1">Spatie</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span class="font-semibold text-[#564D4A]/60">Hold</span>
+                                <span class="font-semibold text-[#564D4A]/60">Vasthouden</span>
                                 <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/10 rounded-lg px-2 py-1">C / ⇧</span>
                             </div>
                         </div>

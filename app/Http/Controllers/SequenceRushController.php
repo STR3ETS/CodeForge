@@ -337,8 +337,8 @@ class SequenceRushController extends Controller
         }
 
         $tabs = [
-            ['key' => 'global',  'label' => 'Worldwide', 'icon' => 'fa-solid fa-globe'],
-            ['key' => 'friends', 'label' => 'Friends',   'icon' => 'fa-solid fa-user-group'],
+            ['key' => 'global',  'label' => 'Wereldwijd', 'icon' => 'fa-solid fa-globe'],
+            ['key' => 'friends', 'label' => 'Vrienden',   'icon' => 'fa-solid fa-user-group'],
         ];
 
         $lb = $this->leaderboardPayload($request, $today, $user, $run->solved ? (int)$run->duration_ms : null);

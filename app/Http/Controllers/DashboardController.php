@@ -87,8 +87,8 @@ class DashboardController extends Controller
         $defs = [
             [
                 'key' => 'play_games',
-                'title' => 'Play ' . $playGoal . ' games',
-                'desc' => 'Finish ' . $playGoal . ' rounds today.',
+                'title' => 'Speel ' . $playGoal . ' spellen',
+                'desc' => 'Voltooi ' . $playGoal . ' rondes vandaag.',
                 'icon' => 'fa-solid fa-gamepad',
                 'goal' => $playGoal,
                 'reward_xp' => 150,
@@ -97,8 +97,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'win_1_game',
-                'title' => 'Win 1 game',
-                'desc' => 'Get at least one win.',
+                'title' => 'Win 1 spel',
+                'desc' => 'Behaal minstens één overwinning.',
                 'icon' => 'fa-solid fa-trophy',
                 'goal' => 1,
                 'reward_xp' => 250,
@@ -107,8 +107,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'keep_streak_alive',
-                'title' => 'Keep your streak alive',
-                'desc' => 'Play any game today.',
+                'title' => 'Houd je streak in leven',
+                'desc' => 'Speel vandaag een willekeurig spel.',
                 'icon' => 'fa-solid fa-fire-flame-curved',
                 'goal' => 1,
                 'reward_xp' => 150,
@@ -225,11 +225,12 @@ class DashboardController extends Controller
 
         // ✅ Speed leaderboards per game
         $gameMeta = [
-            'find-the-emoji' => ['title' => 'Find the Emoji',  'icon' => 'fa-solid fa-face-grin-squint'],
-            'word-forge'     => ['title' => 'Word Forge',       'icon' => 'fa-solid fa-a'],
-            'sequence-rush'  => ['title' => 'Sequence Rush',    'icon' => 'fa-solid fa-list-ol'],
-            'flag-guess'     => ['title' => 'Flag Guess',       'icon' => 'fa-solid fa-flag'],
-            'block-drop'     => ['title' => 'Block Drop',       'icon' => 'fa-solid fa-cubes-stacked'],
+            'find-the-emoji' => ['title' => 'Vind de Emoji',   'icon' => 'fa-solid fa-face-grin-squint'],
+            'word-forge'     => ['title' => 'Woord Raden',       'icon' => 'fa-solid fa-a'],
+            'sequence-rush'  => ['title' => 'Voltooi Reeks',    'icon' => 'fa-solid fa-list-ol'],
+            'flag-guess'     => ['title' => 'Vlag Raden',       'icon' => 'fa-solid fa-flag'],
+            'block-drop'     => ['title' => 'Blok Drop',        'icon' => 'fa-solid fa-cubes-stacked'],
+            'sudoku'         => ['title' => 'Mini Sudoku',      'icon' => 'fa-solid fa-table-cells-large'],
         ];
 
         $speedBoards = [];
@@ -379,12 +380,29 @@ class DashboardController extends Controller
             $ttTime = $mm . ':' . $ss;
         }
 
+        $sdkRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'sudoku')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $sdkSolved = (bool)($sdkRun?->solved);
+        $sdkFailed = (!$sdkSolved && !empty($sdkRun?->finished_at));
+        $sdkTime = null;
+
+        if ($sdkSolved && $sdkRun?->duration_ms !== null) {
+            $sec = (int) round($sdkRun->duration_ms / 1000);
+            $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+            $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+            $sdkTime = $mm . ':' . $ss;
+        }
+
         // Daily games list
         $games = [
             [
                 'key' => 'find-the-emoji',
-                'title' => 'Find The Emoji',
-                'desc' => 'Find the odd one out as fast as possible.',
+                'title' => 'Vind de Emoji',
+                'desc' => 'Vind de vreemde emoji zo snel mogelijk.',
                 'icon' => 'fa-solid fa-magnifying-glass',
                 'tag' => 'Daily Game',
                 'difficulty' => 'Easy',
@@ -399,8 +417,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'word-forge',
-                'title' => 'WordForge',
-                'desc' => 'Guess the word using the category hint.',
+                'title' => 'Woord Raden',
+                'desc' => 'Raad het woord met behulp van de categoriehint.',
                 'icon' => 'fa-solid fa-font',
                 'tag' => 'Daily Game',
                 'difficulty' => 'Medium',
@@ -415,8 +433,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'sequence-rush',
-                'title' => 'Sequence Rush',
-                'desc' => 'Pick the missing number in the sequence.',
+                'title' => 'Voltooi Reeks',
+                'desc' => 'Vul het ontbrekende getal in de reeks in.',
                 'icon' => 'fa-solid fa-list-ol',
                 'tag' => 'Daily Game',
                 'difficulty' => 'Medium',
@@ -431,8 +449,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'flag-guess',
-                'title' => 'Flag Guess',
-                'desc' => 'Identify the country by its flag.',
+                'title' => 'Vlag Raden',
+                'desc' => 'Identificeer het land aan de hand van zijn vlag.',
                 'icon' => 'fa-solid fa-flag',
                 'tag' => 'Daily Game',
                 'difficulty' => 'Easy',
@@ -447,8 +465,8 @@ class DashboardController extends Controller
             ],
             [
                 'key'        => 'block-drop',
-                'title'      => 'Block Drop',
-                'desc'       => 'Clear 10 lines as fast as possible.',
+                'title'      => 'Blok Drop',
+                'desc'       => 'Wis 10 rijen zo snel mogelijk.',
                 'icon'       => 'fa-solid fa-table-cells',
                 'tag'        => 'Daily Game',
                 'difficulty' => 'Hard',
@@ -460,6 +478,22 @@ class DashboardController extends Controller
                 'number'     => 100 + (abs(crc32('block-drop|' . $today->toDateString())) % 900),
                 'status'     => $ttSolved ? 'solved' : ($ttFailed ? 'failed' : null),
                 'status_time' => $ttTime,
+            ],
+            [
+                'key'        => 'sudoku',
+                'title'      => 'Mini Sudoku',
+                'desc'       => 'Los het 4×4 sudoku puzzel op.',
+                'icon'       => 'fa-solid fa-table-cells-large',
+                'tag'        => 'Daily Game',
+                'difficulty' => 'Medium',
+                'proOnly'    => false,
+                'available'  => true,
+                'href'       => route('games.sudoku'),
+                'time'       => '~90 sec',
+                'reward_xp'  => 150,
+                'number'     => 100 + (abs(crc32('sudoku|' . $today->toDateString())) % 900),
+                'status'     => $sdkSolved ? 'solved' : ($sdkFailed ? 'failed' : null),
+                'status_time' => $sdkTime,
             ],
         ];
 
@@ -487,8 +521,8 @@ class DashboardController extends Controller
         return [
             [
                 'key' => 'play_3_games',
-                'title' => 'Play 3 games',
-                'desc' => 'Finish 3 rounds today.',
+                'title' => 'Speel 3 spellen',
+                'desc' => 'Voltooi 3 rondes vandaag.',
                 'icon' => 'fa-solid fa-gamepad',
                 'goal' => 3,
                 'reward_xp' => 150,
@@ -497,8 +531,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'win_1_game',
-                'title' => 'Win 1 game',
-                'desc' => 'Get at least one win today.',
+                'title' => 'Win 1 spel',
+                'desc' => 'Win minstens één spel vandaag.',
                 'icon' => 'fa-solid fa-trophy',
                 'goal' => 1,
                 'reward_xp' => 250,
@@ -507,8 +541,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'keep_streak_alive',
-                'title' => 'Keep your streak alive',
-                'desc' => 'Play any game today.',
+                'title' => 'Houd je streak in leven',
+                'desc' => 'Speel vandaag een willekeurig spel.',
                 'icon' => 'fa-solid fa-fire-flame-curved',
                 'goal' => 1,
                 'reward_xp' => 150,
@@ -517,8 +551,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'win_wordforge',
-                'title' => 'Win WordForge',
-                'desc' => 'Complete WordForge today.',
+                'title' => 'Win Woord Raden',
+                'desc' => 'Voltooi Woord Raden vandaag.',
                 'icon' => 'fa-solid fa-font',
                 'goal' => 1,
                 'reward_xp' => 150,
@@ -528,8 +562,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'fast_emoji',
-                'title' => 'Find The Emoji in ≤15s',
-                'desc' => 'Solve Find The Emoji in 15 seconds or less.',
+                'title' => 'Vind de Emoji in ≤15s',
+                'desc' => 'Vind de Emoji in max. 15 seconden.',
                 'icon' => 'fa-solid fa-bolt',
                 'goal' => 1,
                 'reward_xp' => 200,
@@ -540,14 +574,25 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'win_flag_guess',
-                'title' => 'Win Flag Guess',
-                'desc' => 'Correctly identify a flag today.',
+                'title' => 'Win Vlag Raden',
+                'desc' => 'Raad vandaag een vlag correct.',
                 'icon' => 'fa-solid fa-flag',
                 'goal' => 1,
                 'reward_xp' => 150,
                 'tag' => 'Easy',
                 'type' => 'game_win',
                 'game' => 'flag-guess',
+            ],
+            [
+                'key' => 'win_sudoku',
+                'title' => 'Los Mini Sudoku op',
+                'desc' => 'Voltooi het sudoku puzzel vandaag.',
+                'icon' => 'fa-solid fa-table-cells-large',
+                'goal' => 1,
+                'reward_xp' => 200,
+                'tag' => 'Medium',
+                'type' => 'game_win',
+                'game' => 'sudoku',
             ],
         ];
     }
@@ -557,8 +602,8 @@ class DashboardController extends Controller
         return [
             [
                 'key' => 'w_play_10',
-                'title' => 'Play 10 games',
-                'desc' => 'Complete 10 rounds this week.',
+                'title' => 'Speel 10 spellen',
+                'desc' => 'Voltooi 10 rondes deze week.',
                 'icon' => 'fa-solid fa-gamepad',
                 'goal' => 10,
                 'reward_xp' => 500,
@@ -567,8 +612,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'w_win_5',
-                'title' => 'Win 5 games',
-                'desc' => 'Win at least 5 games this week.',
+                'title' => 'Win 5 spellen',
+                'desc' => 'Win minstens 5 spellen deze week.',
                 'icon' => 'fa-solid fa-trophy',
                 'goal' => 5,
                 'reward_xp' => 750,
@@ -577,8 +622,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'w_wordforge_3',
-                'title' => 'Win WordForge 3×',
-                'desc' => 'Complete WordForge 3x this week.',
+                'title' => 'Win Woord Raden 3×',
+                'desc' => 'Voltooi Woord Raden 3× deze week.',
                 'icon' => 'fa-solid fa-font',
                 'goal' => 3,
                 'reward_xp' => 350,
@@ -588,8 +633,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'w_sequence_3',
-                'title' => 'Win Sequence Rush 3×',
-                'desc' => 'Complete Sequence Rush 3x this week.',
+                'title' => 'Win Voltooi Reeks 3×',
+                'desc' => 'Win Voltooi Reeks 3× deze week.',
                 'icon' => 'fa-solid fa-list-ol',
                 'goal' => 3,
                 'reward_xp' => 350,
@@ -599,8 +644,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'w_blockdrop',
-                'title' => 'Complete Block Drop',
-                'desc' => 'Win Block Drop at least once this week.',
+                'title' => 'Voltooi Blok Drop',
+                'desc' => 'Win Blok Drop één keer deze week.',
                 'icon' => 'fa-solid fa-table-cells',
                 'goal' => 1,
                 'reward_xp' => 300,
@@ -609,9 +654,20 @@ class DashboardController extends Controller
                 'game' => 'block-drop',
             ],
             [
+                'key' => 'w_sudoku_3',
+                'title' => 'Los Mini Sudoku 3×',
+                'desc' => 'Voltooi het sudoku puzzel 3× deze week.',
+                'icon' => 'fa-solid fa-table-cells-large',
+                'goal' => 3,
+                'reward_xp' => 400,
+                'tag' => 'Hard',
+                'type' => 'weekly_game_wins',
+                'game' => 'sudoku',
+            ],
+            [
                 'key' => 'w_all_5_games',
-                'title' => 'Play all 5 games',
-                'desc' => 'Complete each daily game at least once.',
+                'title' => 'Speel alle 5 spellen',
+                'desc' => 'Speel elk dagelijks spel één keer.',
                 'icon' => 'fa-solid fa-layer-group',
                 'goal' => 5,
                 'reward_xp' => 600,
@@ -949,7 +1005,7 @@ class DashboardController extends Controller
         $today = now()->startOfDay();
         $key   = (string) $request->input('game_key', '');
 
-        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop'];
+        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku'];
         if (!in_array($key, $allowed, true)) {
             return response()->json(['ok' => false], 422);
         }
@@ -977,7 +1033,7 @@ class DashboardController extends Controller
         $today = now()->startOfDay();
         $key   = (string) $request->input('game_key', '');
 
-        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop'];
+        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku'];
         if (!in_array($key, $allowed, true)) {
             return response()->json(['ok' => false], 422);
         }

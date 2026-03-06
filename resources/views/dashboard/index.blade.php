@@ -85,7 +85,7 @@
                         <div class="absolute right-6 top-6 opacity-0 group-hover:opacity-100 transition">
                             <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/90 text-[#564D4A] text-xs font-semibold">
                                 <i class="fa-solid fa-camera"></i>
-                                Change banner
+                                Banner wijzigen
                             </span>
                         </div>
                     </label>
@@ -147,15 +147,15 @@
 
                 {{-- friends blijft hardcoded --}}
                 <a href="#" class="w-fit text-xs text-[#5B2333] mt-4 leading-[1.3] font-semibold hover:underline">
-                    4 Friends
+                    4 Vrienden
                 </a>
 
                 <div class="flex items-center gap-2">
                     <a href="#" class="mt-2 w-fit inline-flex items-center justify-center rounded-xl bg-[#5B2333] hover:bg-[#5B2333]/85 transition text-white text-xs font-semibold py-2.5 px-6">
-                        Edit my profile
+                        Profiel bewerken
                     </a>
                     <a href="#" class="mt-2 w-fit inline-flex items-center justify-center rounded-xl bg-[#564D4A] hover:bg-[#564D4A]/85 transition text-white text-xs font-semibold py-2.5 px-6">
-                        See all friends
+                        Alle vrienden bekijken
                     </a>
                 </div>
             </div>
@@ -165,15 +165,15 @@
         <div class="w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Statistics</h2>
+                    <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Statistieken</h2>
                     <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                        Your progress overview.
+                        Jouw voortgangsoverzicht.
                     </p>
                 </div>
 
                 <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold">
                     <i class="fa-solid fa-chart-simple"></i>
-                    This week
+                    Deze week
                 </span>
             </div>
 
@@ -186,19 +186,19 @@
                         </div>
 
                         <span class="text-[11px] font-bold text-[#564D4A]/50">
-                            {{ $gamesPlayedWeek }} this week
+                            {{ $gamesPlayedWeek }} deze week
                         </span>
                     </div>
 
                     <div class="mt-4">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">
-                            Games Played
+                            Gespeelde spellen
                         </p>
                         <p class="mt-1 text-[1.8rem] leading-none font-black text-[#564D4A]">
                             {{ $gamesPlayedTotal }}
                         </p>
                         <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">
-                            Total games completed
+                            Totaal afgeronde spellen
                         </p>
                     </div>
                 </div>
@@ -211,20 +211,20 @@
                         </div>
 
                         <span class="text-[11px] font-bold text-[#564D4A]/50">
-                            Best
+                            Record
                         </span>
                     </div>
 
                     <div class="mt-4">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">
-                            Longest Streak
+                            Langste Streak
                         </p>
                         <p class="mt-1 text-[1.8rem] leading-none font-black text-[#564D4A]">
                             {{ (int)($u->streak ?? 0) }}
-                            <span class="text-sm font-black text-[#564D4A]/50">days</span>
+                            <span class="text-sm font-black text-[#564D4A]/50">dagen</span>
                         </p>
                         <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">
-                            Keep the streak alive
+                            Houd de streak levend
                         </p>
                     </div>
                 </div>
@@ -238,20 +238,20 @@
 
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/80 border border-[#564D4A]/10 text-[11px] font-bold text-[#5B2333]">
                             <i class="fa-solid fa-star text-[10px]"></i>
-                            New
+                            Nieuw
                         </span>
                     </div>
 
                     <div class="mt-4">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">
-                            Achievements
+                            Prestaties
                         </p>
                         <p class="mt-1 text-[1.8rem] leading-none font-black text-[#564D4A]">
                             7
                             <span class="text-sm font-black text-[#564D4A]/50">/ 24</span>
                         </p>
                         <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">
-                            Unlocked badges
+                            Ontgrendelde badges
                         </p>
                     </div>
                 </div>
@@ -266,9 +266,9 @@
                                 <i class="fa-solid fa-bolt text-[#5B2333]"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-extrabold text-[#564D4A] leading-tight">Daily Challenges</p>
+                                <p class="text-sm font-extrabold text-[#564D4A] leading-tight">Dagelijkse Uitdagingen</p>
                                 <p class="text-xs font-semibold text-[#564D4A]/55">
-                                    {{ is_null($limit) ? 'Unlimited (Pro)' : 'Free limit: ' . $limit . ' / day' }}
+                                    {{ is_null($limit) ? 'Onbeperkt (Pro)' : 'Gratis limiet: ' . $limit . ' / dag' }}
                                 </p>
                             </div>
                         </div>
@@ -284,26 +284,26 @@
                         </div>
 
                         <div class="mt-3 flex items-center justify-between text-[11px] font-semibold text-[#564D4A]/55">
-                            <span>{{ is_null($limit) ? 'Unlimited challenges' : ($remaining . ' challenges remaining') }}</span>
-                            <span>Reset at 00:00</span>
+                            <span>{{ is_null($limit) ? 'Onbeperkte uitdagingen' : ($remaining . ' uitdagingen over') }}</span>
+                            <span>Reset om 00:00</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">
-                        Best Rank
+                        Beste positie
                     </p>
                     <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]">
                         #{{ $bestRank }}
                     </p>
                     <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">
-                        Top 10 soon 👀
+                        Top 10 bijna bereikt 👀
                     </p>
 
                     <a href="{{ route('leaderboard') }}"
                        class="mt-4 inline-flex items-center justify-center w-full rounded-xl bg-[#5B2333] hover:bg-[#5B2333]/85 transition text-white text-xs font-semibold py-2.5">
-                        View leaderboard
+                        Bekijk scorebord
                     </a>
                 </div>
             </div>
@@ -315,14 +315,14 @@
                 <div>
                     <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Badges</h2>
                     <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                        Your unlocked milestones.
+                        Jouw ontgrendelde mijlpalen.
                     </p>
                 </div>
 
                 <a href="#"
                 class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 hover:border-[#564D4A]/20 transition text-xs font-semibold text-[#564D4A]">
                     <i class="fa-solid fa-grid"></i>
-                    View all
+                    Alles bekijken
                 </a>
             </div>
 
@@ -340,13 +340,13 @@
                     </div>
 
                     <div>
-                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight">365 Day Streak</p>
+                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight">365 Dag Streak</p>
                         <p class="mt-1 text-xs font-semibold text-[#564D4A]/55 leading-[1.35]">
-                            Logged in & played daily for a full year.
+                            Elke dag ingelogd & gespeeld voor een heel jaar.
                         </p>
 
                         <div class="mt-3 flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-[#564D4A]/50">Unlocked</span>
+                            <span class="text-[11px] font-semibold text-[#564D4A]/50">Ontgrendeld</span>
                             <span class="text-[11px] font-bold text-[#564D4A]">Jan 12, 2026</span>
                         </div>
                     </div>
@@ -364,13 +364,13 @@
                     </div>
 
                     <div>
-                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight">No Miss Week</p>
+                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight">Geen Missers Week</p>
                         <p class="mt-1 text-xs font-semibold text-[#564D4A]/55 leading-[1.35]">
-                            Completed all daily challenges for 7 days straight.
+                            Alle dagelijkse uitdagingen 7 dagen op rij voltooid.
                         </p>
 
                         <div class="mt-3 flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-[#564D4A]/50">Unlocked</span>
+                            <span class="text-[11px] font-semibold text-[#564D4A]/50">Ontgrendeld</span>
                             <span class="text-[11px] font-bold text-[#564D4A]">Feb 03, 2026</span>
                         </div>
                     </div>
@@ -388,13 +388,13 @@
                     </div>
 
                     <div>
-                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight">First Win</p>
+                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight">Eerste Overwinning</p>
                         <p class="mt-1 text-xs font-semibold text-[#564D4A]/55 leading-[1.35]">
-                            Won your first game.
+                            Je eerste spel gewonnen.
                         </p>
 
                         <div class="mt-3 flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-[#564D4A]/50">Unlocked</span>
+                            <span class="text-[11px] font-semibold text-[#564D4A]/50">Ontgrendeld</span>
                             <span class="text-[11px] font-bold text-[#564D4A]">Dec 22, 2025</span>
                         </div>
                     </div>
@@ -412,14 +412,14 @@
                     </div>
 
                     <div class="mt-4">
-                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight">100 Wins</p>
+                        <p class="text-sm font-extrabold text-[#564D4A] leading-tight">100 Overwinningen</p>
                         <p class="mt-1 text-xs font-semibold text-[#564D4A]/55 leading-[1.35]">
-                            Win 100 games to unlock this badge.
+                            Win 100 spellen om deze badge te ontgrendelen.
                         </p>
 
                         <div class="mt-4">
                             <div class="flex items-center justify-between text-[11px] font-semibold text-[#564D4A]/55">
-                                <span>Progress</span>
+                                <span>Voortgang</span>
                                 <span>62%</span>
                             </div>
                             <div class="mt-2 w-full h-[6px] rounded-full bg-[#564D4A]/10 overflow-hidden">
@@ -433,16 +433,16 @@
             <div class="mt-5 rounded-2xl border border-[#564D4A]/10 bg-white p-4">
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold">
-                        <i class="fa-solid fa-fire-flame-curved"></i> 30-day streak
+                        <i class="fa-solid fa-fire-flame-curved"></i> 30-dag streak
                     </span>
                     <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#564D4A]/5 text-[#564D4A] text-xs font-semibold">
-                        <i class="fa-solid fa-star"></i> First achievement
+                        <i class="fa-solid fa-star"></i> Eerste prestatie
                     </span>
                     <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#564D4A]/5 text-[#564D4A] text-xs font-semibold">
-                        <i class="fa-solid fa-bolt"></i> 10 challenges done
+                        <i class="fa-solid fa-bolt"></i> 10 uitdagingen gedaan
                     </span>
                     <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#564D4A]/5 text-[#564D4A] text-xs font-semibold">
-                        <i class="fa-solid fa-user-group"></i> 5 friends added
+                        <i class="fa-solid fa-user-group"></i> 5 vrienden toegevoegd
                     </span>
                 </div>
             </div>

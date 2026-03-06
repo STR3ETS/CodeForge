@@ -15,11 +15,12 @@
 
         // Accent colors for the right panel
         $accentMap = [
-            'find-the-emoji' => 'bg-[#FBE2D8]', // zalmroze
-            'word-forge'     => 'bg-[#D6E4F0]', // lichtblauw
-            'sequence-rush'  => 'bg-[#D9EAD3]', // lichtgroen
-            'flag-guess'     => 'bg-[#FFF3CD]', // zachtgeel
-            'block-drop'     => 'bg-[#E8D5F0]', // lichtpaars
+            'find-the-emoji' => ['bg' => 'bg-[#FBE2D8]', 'text' => 'text-[#c0705a]'],
+            'word-forge'     => ['bg' => 'bg-[#D6E4F0]', 'text' => 'text-[#4a7fa5]'],
+            'sequence-rush'  => ['bg' => 'bg-[#D9EAD3]', 'text' => 'text-[#5a8a4e]'],
+            'flag-guess'     => ['bg' => 'bg-[#FFF3CD]', 'text' => 'text-[#9a7a20]'],
+            'block-drop'     => ['bg' => 'bg-[#E8D5F0]', 'text' => 'text-[#7a4fa0]'],
+            'sudoku'         => ['bg' => 'bg-[#D0EAE8]', 'text' => 'text-[#3a8a85]'],
         ];
     @endphp
 
@@ -35,15 +36,15 @@
                     <div class="max-w-xl">
                         <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold w-fit">
                             <i class="fa-solid fa-bullseye-arrow"></i>
-                            Daily games
+                            Dagelijkse spellen
                         </div>
 
                         <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
-                            Daily Challenges
+                            Dagelijkse Uitdagingen
                         </h1>
 
                         <p class="mt-2 text-xs md:text-sm font-semibold text-white/80 leading-[1.3]">
-                            Play daily games to earn XP and keep your streak alive.
+                            Speel dagelijkse spellen om XP te verdienen en je streak levend te houden.
                         </p>
                     </div>
 
@@ -55,7 +56,7 @@
                                         ? 'bg-white text-[#5B2333]'
                                         : 'bg-white/10 text-white hover:bg-white/15' }}">
                             <i class="fa-solid fa-layer-group text-[13px]"></i>
-                            All
+                            Alles
                         </a>
 
                         <a href="{{ request()->fullUrlWithQuery(['filter' => 'free']) }}"
@@ -64,7 +65,7 @@
                                         ? 'bg-white text-[#5B2333]'
                                         : 'bg-white/10 text-white hover:bg-white/15' }}">
                             <i class="fa-solid fa-unlock text-[13px]"></i>
-                            Free
+                            Gratis
                         </a>
 
                         <a href="{{ request()->fullUrlWithQuery(['filter' => 'pro']) }}"
@@ -107,7 +108,9 @@
                     $locked = $requiresPro && !$isPro;
                     $available = !empty($g['available']);
 
-                    $accent = $accentMap[$key] ?? 'bg-[#EEF1F4]';
+                    $accent     = $accentMap[$key] ?? ['bg' => 'bg-[#EEF1F4]', 'text' => 'text-[#564D4A]'];
+                    $accentBg   = $accent['bg'];
+                    $accentText = $accent['text'];
                     $dailyNo = $g['number'] ?? (100 + $loop->index);
 
                     $isDailyGame = (($g['tag'] ?? '') === 'Daily Game');
@@ -147,12 +150,12 @@
                                     @if(($g['status'] ?? null) === 'solved')
                                     <span class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#8E936D] text-white text-[10px] font-bold">
                                         <i class="fa-solid fa-check text-[10px]"></i>
-                                        Solved @if(!empty($g['status_time'])) in {{ $g['status_time'] }} @endif
+                                        Opgelost @if(!empty($g['status_time'])) in {{ $g['status_time'] }} @endif
                                     </span>
                                     @elseif(($g['status'] ?? null) === 'failed')
                                     <span class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#CE796B] text-white text-[10px] font-bold">
                                         <i class="fa-solid fa-xmark text-[10px]"></i>
-                                        Failed
+                                        Mislukt
                                     </span>
                                     @endif
                                     @php
@@ -199,10 +202,8 @@
                         </div>
 
                         {{-- RIGHT PANEL --}}
-                        <div class="w-[92px] sm:w-[110px] flex items-center justify-center relative {{ $accent }}">
-                            <div class="w-12 h-12 rounded-2xl bg-white/70 border border-[#564D4A]/10 flex items-center justify-center">
-                                <i class="{{ $g['icon'] ?? 'fa-solid fa-gamepad' }} text-[#564D4A] text-[18px]"></i>
-                            </div>
+                        <div class="w-[92px] sm:w-[110px] flex items-center justify-center relative {{ $accentBg }}">
+                            <i class="{{ $g['icon'] ?? 'fa-solid fa-gamepad' }} {{ $accentText }} text-[22px]"></i>
 
                             @if($locked)
                                 <div class="absolute top-3 right-3 w-8 h-8 rounded-xl bg-white/85 border border-[#564D4A]/10 flex items-center justify-center">
@@ -226,25 +227,25 @@
                     <i class="fa-solid fa-check"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-extrabold text-[#564D4A] leading-tight">Reward claimed!</p>
-                    <p class="text-xs font-semibold text-[#564D4A]/55">You received +{{ (int) session('quest_rewarded') }} XP.</p>
+                    <p class="text-sm font-extrabold text-[#564D4A] leading-tight">Beloning ontvangen!</p>
+                    <p class="text-xs font-semibold text-[#564D4A]/55">Je ontving +{{ (int) session('quest_rewarded') }} XP.</p>
                 </div>
             </div>
         @endif
 
         {{-- Daily Quests --}}
         @include('dashboard.partials.quest-section', [
-            'sectionTitle'  => 'Daily Quests',
-            'sectionDesc'   => 'Complete quests to earn XP. Resets every day at 00:00.',
-            'resetLabel'    => 'Resets daily',
+            'sectionTitle'  => 'Dagelijkse Quests',
+            'sectionDesc'   => 'Voltooi quests om XP te verdienen. Reset elke dag om 00:00.',
+            'resetLabel'    => 'Reset dagelijks',
             'questList'     => $quests ?? [],
         ])
 
         {{-- Weekly Quests --}}
         @include('dashboard.partials.quest-section', [
-            'sectionTitle'  => 'Weekly Quests',
-            'sectionDesc'   => 'Harder challenges with bigger rewards. Resets every Monday.',
-            'resetLabel'    => 'Resets weekly',
+            'sectionTitle'  => 'Wekelijkse Quests',
+            'sectionDesc'   => 'Moeilijkere uitdagingen met grotere beloningen. Reset elke maandag.',
+            'resetLabel'    => 'Reset wekelijks',
             'questList'     => $weeklyQuests ?? [],
         ])
 

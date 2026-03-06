@@ -8,6 +8,7 @@ use App\Http\Controllers\FindTheEmojiController;
 use App\Http\Controllers\SequenceRushController;
 use App\Http\Controllers\FlagGuessController;
 use App\Http\Controllers\BlockDropController;
+use App\Http\Controllers\SudokuController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -44,6 +45,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/games/block-drop', [BlockDropController::class, 'show'])->name('games.blockdrop');
     Route::post('/games/block-drop/finish', [BlockDropController::class, 'finish'])->name('games.blockdrop.finish');
+
+    Route::get('/games/sudoku', [SudokuController::class, 'show'])->name('games.sudoku');
+    Route::post('/games/sudoku/check', [SudokuController::class, 'check'])->name('games.sudoku.check');
 
     Route::post('/games/abandon', [DashboardController::class, 'abandonGame'])->name('games.abandon');
     Route::post('/games/mark-started', [DashboardController::class, 'markGameStarted'])->name('games.mark-started');

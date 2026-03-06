@@ -1,5 +1,5 @@
 {{-- resources/views/games/word-forge.blade.php --}}
-<x-layouts.dashboard :title="'WordForge'" active="daily">
+<x-layouts.dashboard :title="'Woord Raden'" active="daily">
     @php
         $pattern = (string)($state['pattern'] ?? '');
         $letters = str_split($pattern);
@@ -95,34 +95,34 @@
                     <div class="max-w-xl">
                         <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold w-fit">
                             <i class="fa-solid fa-font"></i>
-                            Daily game
+                            Dagelijks spel
                         </div>
 
                         <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
                             <template x-if="!isSolved">
                                 <span>
-                                    WordForge
+                                    Woord Raden
                                     <span class="text-white/70">
                                         #<span x-text="puzzle.number">{{ (int)$puzzle['number'] }}</span>
                                     </span>
                                 </span>
                             </template>
-                            <template x-if="isSolved"><span>Nice job! You got it 🎉</span></template>
+                            <template x-if="isSolved"><span>Goed gedaan! Je hebt het 🎉</span></template>
                         </h1>
 
                         <p class="mt-2 text-xs md:text-sm font-semibold text-white/80 leading-[1.3] italic">
                             <template x-if="!isSolved">
                                 <span>
-                                    Psstt... I'll give you a little hint,<br>
-                                    this WordForge is about
+                                    Psstt... ik geef je een kleine hint,<br>
+                                    dit Woord Raden gaat over
                                     <span class="font-black text-white" x-text="puzzle.category">{{ $puzzle['category'] }}</span>
                                 </span>
                             </template>
 
                             <template x-if="isSolved">
                                 <span>
-                                    You've guessed the word correctly.<br>
-                                    Come back tomorrow for a new one.
+                                    Je hebt het woord correct geraden.<br>
+                                    Kom morgen terug voor een nieuw woord.
                                 </span>
                             </template>
                         </p>
@@ -133,7 +133,7 @@
                             <template x-if="isFailed">
                                 <span class="inline-flex items-center gap-2">
                                     <i class="fa-solid fa-xmark"></i>
-                                    <span>Failed</span>
+                                    <span>Mislukt</span>
                                 </span>
                             </template>
 
@@ -147,13 +147,13 @@
 
                         <span x-show="!isSolved" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold">
                             <i class="fa-solid fa-bullseye-arrow"></i>
-                            Attempts: <span x-text="attemptsUsed">{{ $attemptsUsed }}</span> / <span x-text="state.max">{{ $maxAttempts }}</span>
+                            Pogingen: <span x-text="attemptsUsed">{{ $attemptsUsed }}</span> / <span x-text="state.max">{{ $maxAttempts }}</span>
                         </span>
 
                         <a href="{{ route('dashboard.daily') }}"
                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#5B2333] text-xs font-semibold hover:bg-white/90 transition">
                             <i class="fa-solid fa-arrow-left"></i>
-                            Back
+                            Terug
                         </a>
                     </div>
                 </div>
@@ -183,10 +183,10 @@
 
                             <div>
                                 <p class="text-sm font-extrabold text-[#564D4A] leading-tight"
-                                    x-text="isFailed ? 'Failed' : 'Completed'">Completed</p>
+                                    x-text="isFailed ? ‘Mislukt’ : ‘Voltooid’">Voltooid</p>
                                 <p class="text-xs font-semibold text-[#564D4A]/55 leading-[1.3]"
-                                    x-text="isFailed ? 'You used all attempts.' : 'You’ve guessed the word correctly.'">
-                                    You’ve guessed the word correctly.
+                                    x-text="isFailed ? ‘Je hebt alle pogingen gebruikt.’ : ‘Je hebt het woord correct geraden.’">
+                                    Je hebt het woord correct geraden.
                                 </p>
                             </div>
                         </div>
@@ -195,19 +195,19 @@
                     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
                             <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45"
-                                x-text="isFailed ? 'BETTER LUCK NEXT TIME' : 'TIME'"></p>
+                                x-text="isFailed ? 'VOLGENDE KEER BETER' : 'TIJD'"></p>
                             <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]"
-                                x-text="isFailed ? 'Failed!' : (finalTime || timerText)">00:00</p>
+                                x-text="isFailed ? ‘Mislukt!’ : (finalTime || timerText)">00:00</p>
                             <p class="mt-2 text-xs font-semibold text-[#564D4A]/55"
-                                x-text="isFailed ? 'Come back tomorrow for a new one.' : 'Saved as today’s result.'"></p>
+                                x-text="isFailed ? ‘Kom morgen terug voor een nieuw woord.’ : ‘Opgeslagen als resultaat van vandaag.’"></p>
                         </div>
 
                         <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
-                            <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Word</p>
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Woord</p>
                             <p class="mt-2 text-[1.8rem] leading-none font-black tracking-wider uppercase text-[#564D4A]" x-text="answerWord">
                                 {{ $isSolved ? $puzzle['word'] : '' }}
                             </p>
-                            <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Come back tomorrow for a new one.</p>
+                            <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Kom morgen terug voor een nieuw woord.</p>
                         </div>
                     </div>
 
@@ -215,7 +215,7 @@
                         <a href="{{ route('dashboard.daily') }}"
                            class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white border border-[#564D4A]/10 hover:border-[#564D4A]/20 transition text-xs font-semibold text-[#564D4A]">
                             <i class="fa-solid fa-arrow-left"></i>
-                            Back to Daily Challenges
+                            Terug naar Dagelijkse Uitdagingen
                         </a>
                     </div>
 
@@ -223,9 +223,9 @@
                     <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-white p-5">
                         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                             <div>
-                                <h2 class="text-[1.05rem] font-extrabold text-[#564D4A]">Leaderboard</h2>
+                                <h2 class="text-[1.05rem] font-extrabold text-[#564D4A]">Scorebord</h2>
                                 <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                                    Fastest times for today ({{ $scope === 'friends' ? 'Friends' : 'Worldwide' }}).
+                                    Snelste tijden van vandaag ({{ $scope === 'friends' ? 'Vrienden' : 'Wereldwijd' }}).
                                 </p>
                             </div>
 
@@ -291,7 +291,7 @@
                                 </div>
                             @empty
                                 <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                                    <p class="text-sm font-semibold text-[#564D4A]/60">No times yet.</p>
+                                    <p class="text-sm font-semibold text-[#564D4A]/60">Nog geen tijden.</p>
                                 </div>
                             @endforelse
                         </div>
@@ -300,7 +300,7 @@
                         <div x-show="leaderboardReady" x-cloak class="mt-4 grid gap-2">
                             <template x-if="leaderboardRows.length === 0">
                                 <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                                    <p class="text-sm font-semibold text-[#564D4A]/60">No times yet.</p>
+                                    <p class="text-sm font-semibold text-[#564D4A]/60">Nog geen tijden.</p>
                                 </div>
                             </template>
 
@@ -345,7 +345,7 @@
 
                             <template x-if="myRank && myRank > leaderboardRows.length">
                                 <div class="mt-2 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4 flex items-center justify-between">
-                                    <p class="text-xs font-semibold text-[#564D4A]/60">Your rank in this scope</p>
+                                    <p class="text-xs font-semibold text-[#564D4A]/60">Jouw positie</p>
                                     <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A]">
                                         #<span x-text="myRank"></span>
                                     </span>
@@ -359,33 +359,33 @@
             {{-- PLAYING --}}
             <div x-show="!(isSolved || isFailed)" x-cloak>
                 <div x-show="!started" x-cloak class="text-center py-10">
-                    <p class="text-xl font-extrabold text-[#564D4A]">Are you ready?</p>
-                    <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Guess the word in as few tries as possible.</p>
+                    <p class="text-xl font-extrabold text-[#564D4A]">Ben je er klaar voor?</p>
+                    <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Raad het woord in zo min mogelijk pogingen.</p>
                     <button @click="startGame()"
                         class="mt-6 inline-flex items-center gap-2 px-8 py-3 rounded-2xl bg-[#5B2333] text-white text-sm font-bold hover:bg-[#5B2333]/90 transition active:scale-[0.98]">
                         <i class="fa-solid fa-play"></i>
-                        Start game
+                        Spel starten
                     </button>
                 </div>
 
                 <div x-show="started" x-cloak>
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                     <div>
-                        <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Guess the word</h2>
+                        <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Raad het woord</h2>
                         <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                            Type a <span x-text="puzzle.length">{{ (int)$puzzle['length'] }}</span>-letter word. We’ll reveal letters that are in the correct position.
+                            Typ een woord van <span x-text="puzzle.length">{{ (int)$puzzle[‘length’] }}</span> letters. We onthullen letters die op de juiste positie staan.
                         </p>
                     </div>
 
                     @if($attemptsLeft <= 0)
                         <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#564D4A]/5 text-[#564D4A]/70 text-xs font-semibold">
                             <i class="fa-solid fa-xmark"></i>
-                            No attempts left
+                            Geen pogingen meer
                         </span>
                     @else
                         <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold">
                             <i class="fa-solid fa-lightbulb"></i>
-                            Category: <span x-text="puzzle.category">{{ $puzzle['category'] }}</span>
+                            Categorie: <span x-text="puzzle.category">{{ $puzzle['category'] }}</span>
                         </span>
                     @endif
                 </div>
@@ -398,26 +398,26 @@
                                 <i class="fa-solid fa-eye text-[#5B2333]"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-extrabold text-[#564D4A] leading-tight">The word was</p>
+                                <p class="text-sm font-extrabold text-[#564D4A] leading-tight">Het woord was</p>
                                 <p class="mt-1 text-[1.8rem] leading-none font-black text-[#564D4A] tracking-wider uppercase"
                                    x-text="answerWord">{{ $isFailed ? $puzzle['word'] : '' }}</p>
                             </div>
                         </div>
 
                         <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-semibold text-[#564D4A]/70">
-                            Come back tomorrow
+                            Kom morgen terug
                         </span>
                     </div>
                 </div>
 
                 {{-- Pattern row --}}
                 <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-6">
-                    <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Current</p>
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Huidige poging</p>
 
                     {{-- Typen in blokjes (letter voor letter) --}}
                     <div class="mt-3">
                         <label class="block text-[11px] font-semibold text-[#564D4A]/55 mb-2">
-                            Type your guess in the boxes (starts with <span class="font-black" x-text="puzzle.first"></span>)
+                            Typ je gok in de vakjes (begint met <span class="font-black" x-text="puzzle.first"></span>)
                         </label>
 
                         <div class="relative" @click="focusEntry()">
@@ -458,22 +458,22 @@
                 <div>
                     <details x-data="{ open:false }" @toggle="open = $el.open" class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
                         <summary class="cursor-pointer list-none flex items-center justify-between">
-                            <span class="text-sm font-extrabold text-[#564D4A]">How to play</span>
+                            <span class="text-sm font-extrabold text-[#564D4A]">Hoe te spelen</span>
                             <i class="fa-solid fa-chevron-down text-[#564D4A]/50 transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                         </summary>
 
                         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
-                                <p class="text-xs font-extrabold text-[#564D4A]">1) Use the category</p>
+                                <p class="text-xs font-extrabold text-[#564D4A]">1) Gebruik de categorie</p>
                                 <p class="mt-1 text-[11px] font-semibold text-[#564D4A]/55 leading-[1.35]">
-                                    You always get a category + the first letter.
+                                    Je krijgt altijd een categorie + de eerste letter.
                                 </p>
                             </div>
 
                             <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
-                                <p class="text-xs font-extrabold text-[#564D4A]">2) Guess up to {{ $maxAttempts }} times</p>
+                                <p class="text-xs font-extrabold text-[#564D4A]">2) Raad tot {{ $maxAttempts }} keer</p>
                                 <p class="mt-1 text-[11px] font-semibold text-[#564D4A]/55 leading-[1.35]">
-                                    After each guess, letters in the correct position turn solid.
+                                    Na elke gok worden letters op de juiste positie zichtbaar.
                                 </p>
                             </div>
                         </div>

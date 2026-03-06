@@ -1,9 +1,6 @@
 {{-- resources/views/dashboard/partials/quest-section.blade.php --}}
 @php
     $questList   = collect($questList ?? [])->values()->all();
-    $doneCount   = collect($questList)->filter(fn($q) => !empty($q['is_done']))->count();
-    $totalCount  = count($questList);
-    $pct         = (int) round(($doneCount / max(1, $totalCount)) * 100);
 
     $diffOrder = ['Easy', 'Medium', 'Hard', 'Extreme'];
     $groupedQuests = collect($questList)->groupBy(fn($q) => ucfirst(strtolower($q['tag'] ?? 'Other')));
@@ -23,35 +20,17 @@
             <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">{{ $sectionTitle }}</h2>
             <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">{{ $sectionDesc }}</p>
         </div>
-        <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold shrink-0">
+        <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#564D4A]/8 text-[#564D4A]/50 text-xs font-semibold shrink-0">
             <i class="fa-solid fa-rotate"></i>
             {{ $resetLabel }}
         </span>
-    </div>
-
-    {{-- Progress bar --}}
-    <div class="mt-5 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
-        <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-white border border-[#564D4A]/10 flex items-center justify-center">
-                    <i class="fa-solid fa-bolt text-[#5B2333] text-sm"></i>
-                </div>
-                <p class="text-xs font-semibold text-[#564D4A]/60">
-                    <span class="font-extrabold text-[#564D4A]">{{ $doneCount }}</span> / {{ $totalCount }} completed
-                </p>
-            </div>
-            <span class="text-xs font-bold text-[#5B2333]">{{ $pct }}%</span>
-        </div>
-        <div class="mt-3 w-full h-[7px] rounded-full bg-[#564D4A]/10 overflow-hidden">
-            <div class="h-full rounded-full bg-[#5B2333] transition-all" style="width: {{ $pct }}%"></div>
-        </div>
     </div>
 
     {{-- Quest cards grouped by difficulty in one continuous grid --}}
     <div class="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
         @if(empty($questList))
             <div class="col-span-3 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
-                <p class="text-sm font-semibold text-[#564D4A]/60">No quests configured.</p>
+                <p class="text-sm font-semibold text-[#564D4A]/60">Geen quests geconfigureerd.</p>
             </div>
         @else
             @foreach($diffOrder as $diffLabel)
@@ -82,35 +61,25 @@
                                         <p class="mt-0.5 text-[11px] font-semibold text-[#564D4A]/55 leading-snug">{{ $q['desc'] ?? '' }}</p>
                                     </div>
                                 </div>
-                                @if($claimed)
-                                    <span class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-[#8E936D]/15 text-[#6b7052]">
-                                        <i class="fa-solid fa-check text-[9px]"></i> Claimed
-                                    </span>
-                                @elseif($isDone)
-                                    <span class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-[#5B2333]/10 text-[#5B2333]">
-                                        <i class="fa-solid fa-check text-[9px]"></i> Done
-                                    </span>
-                                @else
-                                    <span class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold {{ $tagStyle }}">
-                                        <i class="fa-solid fa-signal text-[9px]"></i> {{ ucfirst($tag) }}
-                                    </span>
-                                @endif
+                                <span class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold {{ $tagStyle }}">
+                                    <i class="fa-solid fa-signal text-[9px]"></i> {{ ucfirst($tag) }}
+                                </span>
                             </div>
 
                             {{-- Progress --}}
                             <div class="mt-4 flex items-center justify-between text-[11px] font-semibold text-[#564D4A]/55">
-                                <span>Progress</span>
+                                <span>Voortgang</span>
                                 <span class="font-bold text-[#564D4A]">{{ $progress }} / {{ $goal }}</span>
                             </div>
                             <div class="mt-1.5 w-full h-[6px] rounded-full bg-[#564D4A]/10 overflow-hidden">
-                                <div class="h-full rounded-full {{ $isDone ? 'bg-[#5B2333]' : 'bg-[#564D4A]/25' }}"
+                                <div class="h-full rounded-full {{ $isDone ? 'bg-[#8E936D]' : 'bg-[#564D4A]/25' }}"
                                      style="width: {{ $percent }}%"></div>
                             </div>
 
                             {{-- Reward --}}
                             <div class="mt-3 flex items-center justify-between">
                                 <span class="text-[11px] font-semibold text-[#564D4A]/55 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-coins text-[#564D4A]/35"></i> Reward
+                                    <i class="fa-solid fa-coins text-[#564D4A]/35"></i> Beloning
                                 </span>
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold
                                     {{ $isDone ? 'bg-[#5B2333]/10 text-[#5B2333]' : 'bg-[#F7F4F3] text-[#564D4A]/60' }}">
@@ -123,7 +92,7 @@
                                 @if($claimed)
                                     <button disabled
                                         class="w-full inline-flex items-center justify-center rounded-xl py-2.5 text-xs font-semibold bg-[#8E936D]/15 text-[#6b7052] cursor-not-allowed">
-                                        <i class="fa-solid fa-check mr-2"></i> Claimed
+                                        <i class="fa-solid fa-check mr-2"></i> Geclaimd
                                     </button>
                                 @elseif($isDone)
                                     <form method="POST" action="{{ route('dashboard.daily.quests.claim.single') }}">
@@ -132,13 +101,13 @@
                                         <input type="hidden" name="quest_type" value="{{ $q['quest_type'] ?? 'daily' }}">
                                         <button type="submit"
                                             class="w-full inline-flex items-center justify-center rounded-xl py-2.5 text-xs font-semibold bg-[#5B2333] hover:bg-[#5B2333]/85 text-white transition">
-                                            <i class="fa-solid fa-gift mr-2"></i> Claim reward
+                                            <i class="fa-solid fa-gift mr-2"></i> Beloning claimen
                                         </button>
                                     </form>
                                 @else
                                     <button disabled
                                         class="w-full inline-flex items-center justify-center rounded-xl py-2.5 text-xs font-semibold bg-white border border-[#564D4A]/10 text-[#564D4A]/40 cursor-not-allowed">
-                                        <i class="fa-solid fa-lock mr-2"></i> Not completed
+                                        <i class="fa-solid fa-lock mr-2"></i> Nog niet voltooid
                                     </button>
                                 @endif
                             </div>
