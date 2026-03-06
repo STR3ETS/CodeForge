@@ -735,6 +735,7 @@ class WordForgeController extends Controller
         return view('games.word-forge', [
             'user'         => $user,
             'puzzle'       => $puzzle,
+            'wordLength'   => (int) $puzzle['length'],
             'run'          => $run,
             'state'        => $state,
             'attemptsUsed' => $attemptsUsed,
