@@ -49,10 +49,11 @@
                 'max'      => $maxAttempts,
             ],
             'run' => [
-                'solved'     => $isSolved,
-                'failed'     => $isFailed,
-                'started_ms' => $startMs,
-                'final_time' => $finalTime,
+                'solved'      => $isSolved,
+                'failed'      => $isFailed,
+                'started_ms'  => $startMs,
+                'duration_ms' => $isSolved ? (int) $run->duration_ms : null,
+                'final_time'  => $finalTime,
             ],
             'leaderboard' => [
                 'rows' => collect($topTimes ?? collect())->map(fn($row) => $row)->values()->all(),
@@ -537,6 +538,14 @@
                     this.$watch('started',  v => { if (v && !window.__gameFinished) window.__gameStarted = true; });
                     this.$watch('isSolved', v => { if (v) window.__gameFinished = true; });
                     this.$watch('isFailed', v => { if (v) window.__gameFinished = true; });
+
+                    // Ensure finalTime is always set when solved, even if final_time was missing
+                    if (this.isSolved && !this.finalTime && init.run.duration_ms != null) {
+                        const sec = Math.round(init.run.duration_ms / 1000);
+                        const pad = n => String(n).padStart(2, '0');
+                        this.finalTime = pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
+                    }
+
                     if (this.isSolved || this.isFailed) {
                         this.startTimer();
                         return;
@@ -836,10 +845,12 @@
                         }
 
                         if (data.answer) this.answerWord = data.answer;
-                        if (this.isSolved && data.final_time) this.finalTime = data.final_time;
-
-                        if (this.isSolved && this.finalTime) {
-                            this.timerText = this.finalTime;
+                        if (this.isSolved) {
+                            // Use final_time from server; fallback: find own row in leaderboard
+                            this.finalTime = data.final_time
+                                || (data.leaderboard?.rows?.find(r => parseInt(r.user.id) === this.meId)?.time)
+                                || this.finalTime;
+                            if (this.finalTime) this.timerText = this.finalTime;
                         }
 
                         // confetti only on solved

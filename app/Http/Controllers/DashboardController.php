@@ -583,17 +583,6 @@ class DashboardController extends Controller
                 'type' => 'game_win',
                 'game' => 'flag-guess',
             ],
-            [
-                'key' => 'win_sudoku',
-                'title' => 'Los Mini Sudoku op',
-                'desc' => 'Voltooi het sudoku puzzel vandaag.',
-                'icon' => 'fa-solid fa-table-cells-large',
-                'goal' => 1,
-                'reward_xp' => 200,
-                'tag' => 'Medium',
-                'type' => 'game_win',
-                'game' => 'sudoku',
-            ],
         ];
     }
 
@@ -652,17 +641,6 @@ class DashboardController extends Controller
                 'tag' => 'Hard',
                 'type' => 'weekly_game_wins',
                 'game' => 'block-drop',
-            ],
-            [
-                'key' => 'w_sudoku_3',
-                'title' => 'Los Mini Sudoku 3×',
-                'desc' => 'Voltooi het sudoku puzzel 3× deze week.',
-                'icon' => 'fa-solid fa-table-cells-large',
-                'goal' => 3,
-                'reward_xp' => 400,
-                'tag' => 'Hard',
-                'type' => 'weekly_game_wins',
-                'game' => 'sudoku',
             ],
             [
                 'key' => 'w_all_5_games',
