@@ -372,8 +372,9 @@
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                     <div>
                         <h2 class="text-[1.2rem] font-extrabold text-[#564D4A]">Raad het woord</h2>
+                        @php $wordLength = (int)($puzzle[‘length’] ?? 0); @endphp
                         <p class="mt-1 text-xs font-semibold text-[#564D4A]/50 leading-[1.3]">
-                            Typ een woord van <span x-text="puzzle.length">{{ (int)$puzzle[‘length’] }}</span> letters. We onthullen letters die op de juiste positie staan.
+                            Typ een woord van <span x-text="puzzle.length">{{ $wordLength }}</span> letters. We onthullen letters die op de juiste positie staan.
                         </p>
                     </div>
 
