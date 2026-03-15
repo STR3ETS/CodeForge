@@ -218,6 +218,19 @@ class SudokuController extends Controller
     {
         $user  = $request->user();
         $today = now()->startOfDay();
+
+        // Free-user daily limit
+        if ($user->plan !== 'pro') {
+            $done = (int) $user->daily_challenges_done;
+            $existing = DailyGameRun::where('user_id', $user->id)
+                ->where('game_key', self::GAME_KEY)
+                ->where('puzzle_date', $today->toDateString())
+                ->exists();
+            if (!$existing && $done >= 5) {
+                return redirect()->route('dashboard')->with('limit_reached', true);
+            }
+        }
+
         $puzzle = $this->dailyPuzzle($today);
 
         $run = DailyGameRun::firstOrCreate(
@@ -332,7 +345,7 @@ class SudokuController extends Controller
             $canReward = is_null($limit) || ((int) $user->daily_challenges_done < (int) $limit);
             if ($canReward) {
                 $user->daily_challenges_done = (int) $user->daily_challenges_done + 1;
-                $user->addXp(150);
+                $user->addXp(50);
             } else {
                 $user->save();
             }
@@ -345,6 +358,15 @@ class SudokuController extends Controller
             $run->solved      = false;
             $run->finished_at = now();
             $run->duration_ms = null;
+
+            // Count as played game for free-user limit
+            $todayStr2 = now()->toDateString();
+            if (!$user->daily_challenges_date || $user->daily_challenges_date->toDateString() !== $todayStr2) {
+                $user->daily_challenges_done = 0;
+                $user->daily_challenges_date = $todayStr2;
+            }
+            $user->daily_challenges_done = (int) $user->daily_challenges_done + 1;
+            $user->save();
 
             app(\App\Services\DailyGameStreakService::class)->recordSolved($user, self::GAME_KEY, $today);
         }

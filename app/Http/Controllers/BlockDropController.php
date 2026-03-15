@@ -96,6 +96,18 @@ class BlockDropController extends Controller
         $user  = $request->user();
         $today = now()->startOfDay();
 
+        // Free-user daily limit
+        if ($user->plan !== 'pro') {
+            $done = (int) $user->daily_challenges_done;
+            $existing = DailyGameRun::where('user_id', $user->id)
+                ->where('game_key', self::GAME_KEY)
+                ->where('puzzle_date', $today->toDateString())
+                ->exists();
+            if (!$existing && $done >= 5) {
+                return redirect()->route('dashboard')->with('limit_reached', true);
+            }
+        }
+
         $puzzleMeta = $this->dailyPuzzle($today);
 
         $run = DailyGameRun::firstOrCreate(
@@ -182,6 +194,15 @@ class BlockDropController extends Controller
         if ($failed) {
             $run->solved      = false;
             $run->duration_ms = null;
+
+            // Count as played game for free-user limit
+            $todayStr = now()->toDateString();
+            if (!$user->daily_challenges_date || $user->daily_challenges_date->toDateString() !== $todayStr) {
+                $user->daily_challenges_done = 0;
+                $user->daily_challenges_date = $todayStr;
+            }
+            $user->daily_challenges_done = (int) $user->daily_challenges_done + 1;
+            $user->save();
         } else {
             $run->solved      = true;
             $run->duration_ms = $durationMs;
@@ -198,7 +219,7 @@ class BlockDropController extends Controller
 
             if ($canReward) {
                 $user->daily_challenges_done = (int) $user->daily_challenges_done + 1;
-                $user->addXp(150);
+                $user->addXp(100);
             } else {
                 $user->save();
             }

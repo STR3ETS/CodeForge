@@ -694,6 +694,19 @@ class WordForgeController extends Controller
     {
         $user = $request->user();
         $today = now()->startOfDay();
+
+        // Free-user daily limit: block if limit reached and no existing run for this game
+        if ($user->plan !== 'pro') {
+            $done = (int) $user->daily_challenges_done;
+            $existing = DailyGameRun::where('user_id', $user->id)
+                ->where('game_key', self::GAME_KEY)
+                ->where('puzzle_date', $today->toDateString())
+                ->exists();
+            if (!$existing && $done >= 5) {
+                return redirect()->route('dashboard')->with('limit_reached', true);
+            }
+        }
+
         $puzzle = $this->dailyPuzzle($today);
 
         $run = DailyGameRun::firstOrCreate(
@@ -767,7 +780,7 @@ class WordForgeController extends Controller
                 $state = $run->state ?: $this->initialState($puzzle);
                 $attemptsUsed = count($state['attempts'] ?? []);
                 $attemptsLeft = max(0, self::MAX_ATTEMPTS - $attemptsUsed);
-                $failed = (!$run->solved && $run->finished_at && $attemptsLeft <= 0);
+                $failed = (!$run->solved && !empty($run->finished_at));
 
                 $payload = [
                     'ok' => true,
@@ -778,6 +791,7 @@ class WordForgeController extends Controller
                     'solved' => (bool)$run->solved,
                     'failed' => (bool)$failed,
                     'final_time' => $this->mmss($run->duration_ms),
+                    'duration_ms' => $run->solved ? (int) $run->duration_ms : null,
                     'answer' => $run->solved ? $puzzle['word'] : ($failed ? $puzzle['word'] : null),
                 ];
 
@@ -893,7 +907,7 @@ class WordForgeController extends Controller
 
             if ($canReward) {
                 $user->daily_challenges_done = (int)$user->daily_challenges_done + 1;
-                $user->addXp(150);
+                $user->addXp(50);
             } else {
                 $user->save();
             }
@@ -905,6 +919,15 @@ class WordForgeController extends Controller
                 $run->finished_at = now();
                 $run->duration_ms = null;
                 $run->solved = false;
+
+                // Count as played game for free-user limit
+                $todayStr2 = now()->toDateString();
+                if (!$user->daily_challenges_date || $user->daily_challenges_date->toDateString() !== $todayStr2) {
+                    $user->daily_challenges_done = 0;
+                    $user->daily_challenges_date = $todayStr2;
+                }
+                $user->daily_challenges_done = (int) $user->daily_challenges_done + 1;
+                $user->save();
 
                 $justFinishedToday = true; // ✅ game klaar (failed)
             }
@@ -931,6 +954,7 @@ class WordForgeController extends Controller
                 'solved' => (bool)$run->solved,
                 'failed' => (bool)$failed,
                 'final_time' => $this->mmss($run->duration_ms),
+                'duration_ms' => $run->solved ? (int) $run->duration_ms : null,
                 'answer' => $run->solved ? $puzzle['word'] : ($failed ? $puzzle['word'] : null),
             ];
 

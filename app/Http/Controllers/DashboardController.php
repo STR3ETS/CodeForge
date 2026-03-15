@@ -10,8 +10,11 @@ use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use App\Models\DailyGameRun;
 use App\Models\DailyQuestClaim;
+use App\Models\ScorePost;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use App\Services\DailyGameStreakService;
 
 class DashboardController extends Controller
@@ -91,7 +94,7 @@ class DashboardController extends Controller
                 'desc' => 'Voltooi ' . $playGoal . ' rondes vandaag.',
                 'icon' => 'fa-solid fa-gamepad',
                 'goal' => $playGoal,
-                'reward_xp' => 150,
+                'reward_xp' => 15,
                 'tag' => 'Easy',
                 'type' => 'plays',
             ],
@@ -101,7 +104,7 @@ class DashboardController extends Controller
                 'desc' => 'Behaal minstens één overwinning.',
                 'icon' => 'fa-solid fa-trophy',
                 'goal' => 1,
-                'reward_xp' => 250,
+                'reward_xp' => 50,
                 'tag' => 'Medium',
                 'type' => 'wins',
             ],
@@ -111,7 +114,7 @@ class DashboardController extends Controller
                 'desc' => 'Speel vandaag een willekeurig spel.',
                 'icon' => 'fa-solid fa-fire-flame-curved',
                 'goal' => 1,
-                'reward_xp' => 150,
+                'reward_xp' => 25,
                 'tag' => 'Easy',
                 'type' => 'any_play',
             ],
@@ -172,13 +175,103 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function profile(Request $request)
+    {
+        $user = $request->user();
+
+        $limit = $user->plan === 'pro' ? null : 5;
+        $remaining = is_null($limit) ? null : max(0, $limit - (int) $user->daily_challenges_done);
+
+        $playedBase = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where(function ($q) {
+                $q->where('solved', true)
+                    ->orWhereNotNull('finished_at')
+                    ->orWhere('attempts', '>', 0);
+            });
+
+        $gamesPlayedTotal = (clone $playedBase)->count();
+
+        $weekStart = now()->subDays(6)->startOfDay()->toDateString();
+        $gamesPlayedWeek = (clone $playedBase)
+            ->where('puzzle_date', '>=', $weekStart)
+            ->count();
+
+        $bestRank = 1 + \App\Models\User::query()
+            ->where(function ($q) use ($user) {
+                $q->where('level', '>', (int) $user->level)
+                    ->orWhere(function ($q2) use ($user) {
+                        $q2->where('level', (int) $user->level)
+                            ->where('xp', '>', (int) $user->xp);
+                    });
+            })
+            ->count();
+
+        $scorePosts = ScorePost::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get();
+
+        return view('dashboard.profile', [
+            'user' => $user,
+            'limit' => $limit,
+            'remaining' => $remaining,
+            'stats' => [
+                'games_played_total' => $gamesPlayedTotal,
+                'games_played_week' => $gamesPlayedWeek,
+                'best_rank' => $bestRank,
+            ],
+            'scorePosts' => $scorePosts,
+        ]);
+    }
+
+    public function settings()
+    {
+        return view('dashboard.settings');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name'  => 'required|string|max:50',
+            'email' => 'required|email|max:100|unique:users,email,' . $user->id,
+        ]);
+
+        $user->name  = $validated['name'];
+        $user->email = $validated['email'];
+        $user->save();
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'current_password' => 'required|string',
+            'password'         => 'required|string|min:8|confirmed',
+        ]);
+
+        if (!Hash::check($request->input('current_password'), $user->password)) {
+            return response()->json(['ok' => false, 'error' => 'Huidig wachtwoord is onjuist.'], 422);
+        }
+
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+
+        return response()->json(['ok' => true]);
+    }
+
     public function leaderboard(Request $request)
     {
         $me = $request->user();
 
         // scope: global | friends | nl | eu
         $scope = (string) $request->query('scope', 'global');
-        if (!in_array($scope, ['global', 'friends', 'nl', 'eu'], true)) {
+        if (!in_array($scope, ['global', 'friends'], true)) {
             $scope = 'global';
         }
 
@@ -225,41 +318,107 @@ class DashboardController extends Controller
 
         // ✅ Speed leaderboards per game
         $gameMeta = [
-            'find-the-emoji' => ['title' => 'Vind de Emoji',   'icon' => 'fa-solid fa-face-grin-squint'],
-            'word-forge'     => ['title' => 'Woord Raden',       'icon' => 'fa-solid fa-a'],
+            'find-the-emoji' => ['title' => 'Vind de Emoji',   'icon' => 'fa-solid fa-magnifying-glass'],
+            'word-forge'     => ['title' => 'Woord Raden',       'icon' => 'fa-solid fa-font'],
             'sequence-rush'  => ['title' => 'Voltooi Reeks',    'icon' => 'fa-solid fa-list-ol'],
             'flag-guess'     => ['title' => 'Vlag Raden',       'icon' => 'fa-solid fa-flag'],
-            'block-drop'     => ['title' => 'Blok Drop',        'icon' => 'fa-solid fa-cubes-stacked'],
+            'block-drop'     => ['title' => 'Blok Drop',        'icon' => 'fa-solid fa-table-cells'],
             'sudoku'         => ['title' => 'Mini Sudoku',      'icon' => 'fa-solid fa-table-cells-large'],
+            'memory-grid'    => ['title' => 'Memory Grid',      'icon' => 'fa-solid fa-brain'],
+            'color-match'    => ['title' => 'Color Match',      'icon' => 'fa-solid fa-palette'],
+            'reaction-time'  => ['title' => 'Reaction Time',    'icon' => 'fa-solid fa-bolt'],
+            'maze-runner'    => ['title' => 'Maze Runner',      'icon' => 'fa-solid fa-route'],
+            'color-sort'     => ['title' => 'Color Sort',       'icon' => 'fa-solid fa-layer-group'],
         ];
 
         $speedBoards = [];
         foreach ($gameMeta as $gameKey => $meta) {
-            $rows = DailyGameRun::query()
-                ->select('user_id', DB::raw('MIN(duration_ms) as best_ms'))
-                ->where('game_key', $gameKey)
-                ->where('solved', true)
-                ->whereNotNull('duration_ms')
-                ->where('duration_ms', '>', 0)
-                ->whereDate('puzzle_date', Carbon::today())
-                ->groupBy('user_id')
-                ->orderBy('best_ms')
-                ->limit(10)
-                ->get();
+            // Reaction Time ranks by lowest average ms
+            if ($gameKey === 'reaction-time') {
+                $rows = DailyGameRun::query()
+                    ->select('user_id', DB::raw('MIN(duration_ms) as best_ms'))
+                    ->where('game_key', $gameKey)
+                    ->where('solved', true)
+                    ->whereNotNull('duration_ms')
+                    ->where('duration_ms', '>', 0)
+                    ->whereDate('puzzle_date', Carbon::today())
+                    ->groupBy('user_id')
+                    ->orderBy('best_ms')
+                    ->limit(10)
+                    ->get();
 
-            $userIds = $rows->pluck('user_id');
-            $users = User::whereIn('id', $userIds)
-                ->select('id', 'name', 'profile_picture', 'plan', 'level')
-                ->get()->keyBy('id');
+                $userIds = $rows->pluck('user_id');
+                $users = User::whereIn('id', $userIds)
+                    ->select('id', 'name', 'profile_picture', 'plan', 'level')
+                    ->get()->keyBy('id');
 
-            $speedBoards[$gameKey] = [
-                'title' => $meta['title'],
-                'icon'  => $meta['icon'],
-                'rows'  => $rows->map(fn($r) => [
-                    'user'    => $users->get($r->user_id),
-                    'best_ms' => (int) $r->best_ms,
-                ])->filter(fn($r) => $r['user'] !== null)->values(),
-            ];
+                $speedBoards[$gameKey] = [
+                    'title' => $meta['title'],
+                    'icon'  => $meta['icon'],
+                    'rank_by' => 'reaction',
+                    'rows'  => $rows->map(fn($r) => [
+                        'user'    => $users->get($r->user_id),
+                        'best_ms' => (int) $r->best_ms,
+                    ])->filter(fn($r) => $r['user'] !== null)->values(),
+                ];
+            }
+            // Memory Grid ranks by fewest attempts, not fastest time
+            elseif ($gameKey === 'memory-grid') {
+                $rows = DailyGameRun::query()
+                    ->select('user_id', DB::raw('MIN(attempts) as best_attempts'), DB::raw('MIN(duration_ms) as best_ms'))
+                    ->where('game_key', $gameKey)
+                    ->where('solved', true)
+                    ->where('attempts', '>', 0)
+                    ->whereDate('puzzle_date', Carbon::today())
+                    ->groupBy('user_id')
+                    ->orderBy('best_attempts')
+                    ->orderBy('best_ms')
+                    ->limit(10)
+                    ->get();
+
+                $userIds = $rows->pluck('user_id');
+                $users = User::whereIn('id', $userIds)
+                    ->select('id', 'name', 'profile_picture', 'plan', 'level')
+                    ->get()->keyBy('id');
+
+                $speedBoards[$gameKey] = [
+                    'title' => $meta['title'],
+                    'icon'  => $meta['icon'],
+                    'rank_by' => 'attempts',
+                    'rows'  => $rows->map(fn($r) => [
+                        'user'          => $users->get($r->user_id),
+                        'best_ms'       => (int) $r->best_ms,
+                        'best_attempts' => (int) $r->best_attempts,
+                    ])->filter(fn($r) => $r['user'] !== null)->values(),
+                ];
+            } else {
+                $rows = DailyGameRun::query()
+                    ->select('user_id', DB::raw('MIN(duration_ms) as best_ms'))
+                    ->where('game_key', $gameKey)
+                    ->where('solved', true)
+                    ->whereNotNull('duration_ms')
+                    ->where('duration_ms', '>', 0)
+                    ->whereDate('puzzle_date', Carbon::today())
+                    ->groupBy('user_id')
+                    ->orderBy('best_ms')
+                    ->limit(10)
+                    ->get();
+
+                $userIds = $rows->pluck('user_id');
+                $users = User::whereIn('id', $userIds)
+                    ->select('id', 'name', 'profile_picture', 'plan', 'level')
+                    ->get()->keyBy('id');
+
+                $speedBoards[$gameKey] = [
+                    'title' => $meta['title'],
+                    'icon'  => $meta['icon'],
+                    'rank_by' => 'time',
+                    'rows'  => $rows->map(fn($r) => [
+                        'user'    => $users->get($r->user_id),
+                        'best_ms' => (int) $r->best_ms,
+                    ])->filter(fn($r) => $r['user'] !== null)->values(),
+                ];
+            }
         }
 
         return view('dashboard.leaderboard', [
@@ -397,6 +556,88 @@ class DashboardController extends Controller
             $sdkTime = $mm . ':' . $ss;
         }
 
+        $mgRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'memory-grid')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $mgSolved = (bool)($mgRun?->solved);
+        $mgFailed = (!$mgSolved && !empty($mgRun?->finished_at));
+        $mgTime = null;
+
+        if ($mgSolved && $mgRun?->duration_ms !== null) {
+            $sec = (int) round($mgRun->duration_ms / 1000);
+            $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+            $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+            $mgTime = $mm . ':' . $ss;
+        }
+
+        $cmRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'color-match')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $cmSolved = (bool)($cmRun?->solved);
+        $cmFailed = (!$cmSolved && !empty($cmRun?->finished_at));
+        $cmTime = null;
+
+        if ($cmSolved && $cmRun?->duration_ms !== null) {
+            $sec = (int) round($cmRun->duration_ms / 1000);
+            $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+            $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+            $cmTime = $mm . ':' . $ss;
+        }
+
+        $rtRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'reaction-time')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $rtSolved = (bool)($rtRun?->solved);
+        $rtFailed = (!$rtSolved && !empty($rtRun?->finished_at));
+        $rtTime = null;
+
+        if ($rtSolved && $rtRun?->duration_ms !== null) {
+            $rtTime = ((int) $rtRun->duration_ms) . 'ms';
+        }
+
+        $mrRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'maze-runner')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $mrSolved = (bool)($mrRun?->solved);
+        $mrFailed = (!$mrSolved && !empty($mrRun?->finished_at));
+        $mrTime = null;
+
+        if ($mrSolved && $mrRun?->duration_ms !== null) {
+            $sec = (int) round($mrRun->duration_ms / 1000);
+            $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+            $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+            $mrTime = $mm . ':' . $ss;
+        }
+
+        $csRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'color-sort')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $csSolved = (bool)($csRun?->solved);
+        $csFailed = (!$csSolved && !empty($csRun?->finished_at));
+        $csTime = null;
+
+        if ($csSolved && $csRun?->duration_ms !== null) {
+            $sec = (int) round($csRun->duration_ms / 1000);
+            $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+            $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+            $csTime = $mm . ':' . $ss;
+        }
+
         // Daily games list
         $games = [
             [
@@ -410,7 +651,7 @@ class DashboardController extends Controller
                 'available' => true,
                 'href' => route('games.findtheemoji'),
                 'time' => '~20 sec',
-                'reward_xp' => 150, // ✅
+                'reward_xp' => 25,
                 'number' => 100 + (crc32('find-the-emoji|' . $today->toDateString()) % 900),
                 'status' => $fteSolved ? 'solved' : ($fteFailed ? 'failed' : null),
                 'status_time' => $fteTime,
@@ -426,7 +667,7 @@ class DashboardController extends Controller
                 'available' => true,
                 'href' => route('games.wordforge'),
                 'time' => '~60 sec',
-                'reward_xp' => 150, // ✅
+                'reward_xp' => 50,
                 'number' => 347,
                 'status' => $wfSolved ? 'solved' : ($wfFailed ? 'failed' : null),
                 'status_time' => $wfTime,
@@ -442,7 +683,7 @@ class DashboardController extends Controller
                 'available' => true,
                 'href' => route('games.sequence'),
                 'time' => '~45 sec',
-                'reward_xp' => 150,
+                'reward_xp' => 50,
                 'number' => 100 + (crc32('sequence-rush|' . $today->toDateString()) % 900),
                 'status' => $seqSolved ? 'solved' : ($seqFailed ? 'failed' : null),
                 'status_time' => $seqTime,
@@ -458,7 +699,7 @@ class DashboardController extends Controller
                 'available' => true,
                 'href' => route('games.flagguess'),
                 'time' => '~30 sec',
-                'reward_xp' => 150,
+                'reward_xp' => 25,
                 'number' => 100 + (abs(crc32('flag-guess|' . $today->toDateString())) % 900),
                 'status' => $fgSolved ? 'solved' : ($fgFailed ? 'failed' : null),
                 'status_time' => $fgTime,
@@ -474,7 +715,7 @@ class DashboardController extends Controller
                 'available'  => true,
                 'href'       => route('games.blockdrop'),
                 'time'       => '~2 min',
-                'reward_xp'  => 150,
+                'reward_xp'  => 100,
                 'number'     => 100 + (abs(crc32('block-drop|' . $today->toDateString())) % 900),
                 'status'     => $ttSolved ? 'solved' : ($ttFailed ? 'failed' : null),
                 'status_time' => $ttTime,
@@ -490,10 +731,90 @@ class DashboardController extends Controller
                 'available'  => true,
                 'href'       => route('games.sudoku'),
                 'time'       => '~90 sec',
-                'reward_xp'  => 150,
+                'reward_xp'  => 50,
                 'number'     => 100 + (abs(crc32('sudoku|' . $today->toDateString())) % 900),
                 'status'     => $sdkSolved ? 'solved' : ($sdkFailed ? 'failed' : null),
                 'status_time' => $sdkTime,
+            ],
+            [
+                'key'        => 'memory-grid',
+                'title'      => 'Memory Grid',
+                'desc'       => 'Onthoud de kaarten en vind alle paren.',
+                'icon'       => 'fa-solid fa-brain',
+                'tag'        => 'Daily Game',
+                'difficulty' => 'Medium',
+                'proOnly'    => false,
+                'available'  => true,
+                'href'       => route('games.memorygrid'),
+                'time'       => '~60 sec',
+                'reward_xp'  => 50,
+                'number'     => 100 + (abs(crc32('memory-grid|' . $today->toDateString())) % 900),
+                'status'     => $mgSolved ? 'solved' : ($mgFailed ? 'failed' : null),
+                'status_time' => $mgTime,
+            ],
+            [
+                'key'        => 'color-match',
+                'title'      => 'Color Match',
+                'desc'       => 'Klik op de kleur van de tekst, niet het woord.',
+                'icon'       => 'fa-solid fa-palette',
+                'tag'        => 'Daily Game',
+                'difficulty' => 'Medium',
+                'proOnly'    => false,
+                'available'  => true,
+                'href'       => route('games.colormatch'),
+                'time'       => '~45 sec',
+                'reward_xp'  => 50,
+                'number'     => 100 + (abs(crc32('color-match|' . $today->toDateString())) % 900),
+                'status'     => $cmSolved ? 'solved' : ($cmFailed ? 'failed' : null),
+                'status_time' => $cmTime,
+            ],
+            [
+                'key'        => 'reaction-time',
+                'title'      => 'Reaction Time',
+                'desc'       => 'Klik zo snel mogelijk als het scherm groen wordt.',
+                'icon'       => 'fa-solid fa-bolt',
+                'tag'        => 'Daily Game',
+                'difficulty' => 'Easy',
+                'proOnly'    => false,
+                'available'  => true,
+                'href'       => route('games.reactiontime'),
+                'time'       => '~30 sec',
+                'reward_xp'  => 25,
+                'number'     => 100 + (abs(crc32('reaction-time|' . $today->toDateString())) % 900),
+                'status'     => $rtSolved ? 'solved' : ($rtFailed ? 'failed' : null),
+                'status_time' => $rtTime,
+            ],
+            [
+                'key'        => 'maze-runner',
+                'title'      => 'Maze Runner',
+                'desc'       => 'Navigeer door het doolhof van start naar finish.',
+                'icon'       => 'fa-solid fa-route',
+                'tag'        => 'Daily Game',
+                'difficulty' => 'Medium',
+                'proOnly'    => false,
+                'available'  => true,
+                'href'       => route('games.mazerunner'),
+                'time'       => '~60 sec',
+                'reward_xp'  => 50,
+                'number'     => 100 + (abs(crc32('maze-runner|' . $today->toDateString())) % 900),
+                'status'     => $mrSolved ? 'solved' : ($mrFailed ? 'failed' : null),
+                'status_time' => $mrTime,
+            ],
+            [
+                'key'        => 'color-sort',
+                'title'      => 'Color Sort',
+                'desc'       => 'Sorteer gekleurde blokken op kleur.',
+                'icon'       => 'fa-solid fa-layer-group',
+                'tag'        => 'Daily Game',
+                'difficulty' => 'Hard',
+                'proOnly'    => false,
+                'available'  => true,
+                'href'       => route('games.colorsort'),
+                'time'       => '~2 min',
+                'reward_xp'  => 100,
+                'number'     => 100 + (abs(crc32('color-sort|' . $today->toDateString())) % 900),
+                'status'     => $csSolved ? 'solved' : ($csFailed ? 'failed' : null),
+                'status_time' => $csTime,
             ],
         ];
 
@@ -525,7 +846,7 @@ class DashboardController extends Controller
                 'desc' => 'Voltooi 3 rondes vandaag.',
                 'icon' => 'fa-solid fa-gamepad',
                 'goal' => 3,
-                'reward_xp' => 150,
+                'reward_xp' => 15,
                 'tag' => 'Easy',
                 'type' => 'plays',
             ],
@@ -535,7 +856,7 @@ class DashboardController extends Controller
                 'desc' => 'Win minstens één spel vandaag.',
                 'icon' => 'fa-solid fa-trophy',
                 'goal' => 1,
-                'reward_xp' => 250,
+                'reward_xp' => 50,
                 'tag' => 'Medium',
                 'type' => 'wins',
             ],
@@ -545,7 +866,7 @@ class DashboardController extends Controller
                 'desc' => 'Speel vandaag een willekeurig spel.',
                 'icon' => 'fa-solid fa-fire-flame-curved',
                 'goal' => 1,
-                'reward_xp' => 150,
+                'reward_xp' => 25,
                 'tag' => 'Easy',
                 'type' => 'any_play',
             ],
@@ -555,7 +876,7 @@ class DashboardController extends Controller
                 'desc' => 'Voltooi Woord Raden vandaag.',
                 'icon' => 'fa-solid fa-font',
                 'goal' => 1,
-                'reward_xp' => 150,
+                'reward_xp' => 25,
                 'tag' => 'Medium',
                 'type' => 'game_win',
                 'game' => 'word-forge',
@@ -566,7 +887,7 @@ class DashboardController extends Controller
                 'desc' => 'Vind de Emoji in max. 15 seconden.',
                 'icon' => 'fa-solid fa-bolt',
                 'goal' => 1,
-                'reward_xp' => 200,
+                'reward_xp' => 75,
                 'tag' => 'Hard',
                 'type' => 'game_win_under',
                 'game' => 'find-the-emoji',
@@ -578,7 +899,7 @@ class DashboardController extends Controller
                 'desc' => 'Raad vandaag een vlag correct.',
                 'icon' => 'fa-solid fa-flag',
                 'goal' => 1,
-                'reward_xp' => 150,
+                'reward_xp' => 15,
                 'tag' => 'Easy',
                 'type' => 'game_win',
                 'game' => 'flag-guess',
@@ -595,7 +916,7 @@ class DashboardController extends Controller
                 'desc' => 'Voltooi 10 rondes deze week.',
                 'icon' => 'fa-solid fa-gamepad',
                 'goal' => 10,
-                'reward_xp' => 500,
+                'reward_xp' => 50,
                 'tag' => 'Medium',
                 'type' => 'weekly_plays',
             ],
@@ -605,7 +926,7 @@ class DashboardController extends Controller
                 'desc' => 'Win minstens 5 spellen deze week.',
                 'icon' => 'fa-solid fa-trophy',
                 'goal' => 5,
-                'reward_xp' => 750,
+                'reward_xp' => 75,
                 'tag' => 'Hard',
                 'type' => 'weekly_wins',
             ],
@@ -615,7 +936,7 @@ class DashboardController extends Controller
                 'desc' => 'Voltooi Woord Raden 3× deze week.',
                 'icon' => 'fa-solid fa-font',
                 'goal' => 3,
-                'reward_xp' => 350,
+                'reward_xp' => 40,
                 'tag' => 'Medium',
                 'type' => 'weekly_game_wins',
                 'game' => 'word-forge',
@@ -626,7 +947,7 @@ class DashboardController extends Controller
                 'desc' => 'Win Voltooi Reeks 3× deze week.',
                 'icon' => 'fa-solid fa-list-ol',
                 'goal' => 3,
-                'reward_xp' => 350,
+                'reward_xp' => 40,
                 'tag' => 'Medium',
                 'type' => 'weekly_game_wins',
                 'game' => 'sequence-rush',
@@ -637,7 +958,7 @@ class DashboardController extends Controller
                 'desc' => 'Win Blok Drop één keer deze week.',
                 'icon' => 'fa-solid fa-table-cells',
                 'goal' => 1,
-                'reward_xp' => 300,
+                'reward_xp' => 60,
                 'tag' => 'Hard',
                 'type' => 'weekly_game_wins',
                 'game' => 'block-drop',
@@ -648,7 +969,7 @@ class DashboardController extends Controller
                 'desc' => 'Speel elk dagelijks spel één keer.',
                 'icon' => 'fa-solid fa-layer-group',
                 'goal' => 5,
-                'reward_xp' => 600,
+                'reward_xp' => 75,
                 'tag' => 'Hard',
                 'type' => 'weekly_unique_games',
             ],
@@ -856,6 +1177,9 @@ class DashboardController extends Controller
         $quest = collect($quests)->firstWhere('key', $questKey);
 
         if (!$quest || !$quest['is_done'] || $quest['claimed']) {
+            if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json(['ok' => false, 'message' => 'Quest cannot be claimed.'], 422);
+            }
             return back()->with('error', 'Quest cannot be claimed.');
         }
 
@@ -870,6 +1194,10 @@ class DashboardController extends Controller
             $user->addXp((int) $quest['reward_xp']);
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
             // Already claimed (race condition) — ignore silently
+        }
+
+        if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json(['ok' => true, 'reward_xp' => (int) $quest['reward_xp']]);
         }
 
         return back()->with('quest_rewarded', $quest['reward_xp']);
@@ -889,9 +1217,15 @@ class DashboardController extends Controller
             'sys_get_temp_dir' => sys_get_temp_dir(),
         ]);
 
+        $isPro = ($user->plan ?? 'free') === 'pro';
+        $avatarMimes = $isPro ? 'jpg,jpeg,png,webp,gif' : 'jpg,jpeg,png,webp';
+        $bannerMimes = $isPro ? 'jpg,jpeg,png,webp,gif' : 'jpg,jpeg,png,webp';
+        $avatarMax = $isPro ? 5120 : 2048;
+        $bannerMax = $isPro ? 8192 : 4096;
+
         $request->validate([
-            'profile_picture' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'profile_banner'  => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'profile_picture' => ['nullable', 'file', 'mimes:' . $avatarMimes, 'max:' . $avatarMax],
+            'profile_banner'  => ['nullable', 'file', 'mimes:' . $bannerMimes, 'max:' . $bannerMax],
         ]);
 
         $base = storage_path('app/public');
@@ -951,6 +1285,10 @@ class DashboardController extends Controller
         };
 
         try {
+            // Track whether this is the first avatar/banner for XP rewards
+            $hadAvatar = !empty($user->profile_picture);
+            $hadBanner = !empty($user->profile_banner);
+
             $handle('profile_banner',  'profile/banners', 'profile_banner');
             $handle('profile_picture', 'profile/avatars', 'profile_picture');
 
@@ -960,10 +1298,23 @@ class DashboardController extends Controller
 
             $user->save();
 
+            // Award XP for first-time avatar/banner upload
+            $xpAwarded = 0;
+            if (!$hadAvatar && !empty($user->profile_picture)) {
+                $xpAwarded += 100;
+            }
+            if (!$hadBanner && !empty($user->profile_banner)) {
+                $xpAwarded += 100;
+            }
+            if ($xpAwarded > 0) {
+                $user->addXp($xpAwarded);
+            }
+
             Log::debug('[PROFILE_MEDIA_MOVE] saved user', [
                 'rid' => $rid,
                 'profile_banner' => $user->profile_banner,
                 'profile_picture' => $user->profile_picture,
+                'xp_awarded' => $xpAwarded,
             ]);
 
             return back();
@@ -983,7 +1334,7 @@ class DashboardController extends Controller
         $today = now()->startOfDay();
         $key   = (string) $request->input('game_key', '');
 
-        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku'];
+        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku', 'memory-grid', 'color-match', 'reaction-time', 'maze-runner', 'color-sort'];
         if (!in_array($key, $allowed, true)) {
             return response()->json(['ok' => false], 422);
         }
@@ -1002,6 +1353,15 @@ class DashboardController extends Controller
         $run->finished_at = now();
         $run->save();
 
+        // Count as played game for free-user limit
+        $todayStr = now()->toDateString();
+        if (!$user->daily_challenges_date || $user->daily_challenges_date->toDateString() !== $todayStr) {
+            $user->daily_challenges_done = 0;
+            $user->daily_challenges_date = $todayStr;
+        }
+        $user->daily_challenges_done = (int) $user->daily_challenges_done + 1;
+        $user->save();
+
         return response()->json(['ok' => true]);
     }
 
@@ -1011,7 +1371,7 @@ class DashboardController extends Controller
         $today = now()->startOfDay();
         $key   = (string) $request->input('game_key', '');
 
-        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku'];
+        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku', 'memory-grid', 'color-match', 'reaction-time', 'maze-runner', 'color-sort'];
         if (!in_array($key, $allowed, true)) {
             return response()->json(['ok' => false], 422);
         }
@@ -1033,5 +1393,159 @@ class DashboardController extends Controller
         $run->save();
 
         return response()->json(['ok' => true, 'started_ms' => $nowMs]);
+    }
+
+    private const GAME_NAMES = [
+        'find-the-emoji' => 'Vind de Emoji',
+        'word-forge'     => 'Woord Raden',
+        'sequence-rush'  => 'Voltooi Reeks',
+        'flag-guess'     => 'Vlag Raden',
+        'block-drop'     => 'Blok Drop',
+        'sudoku'         => 'Mini Sudoku',
+        'memory-grid'    => 'Memory Grid',
+        'color-match'    => 'Color Match',
+        'reaction-time'  => 'Reaction Time',
+        'maze-runner'    => 'Maze Runner',
+        'color-sort'     => 'Color Sort',
+    ];
+
+    private const GAME_ROUTES = [
+        'find-the-emoji' => 'games.findtheemoji',
+        'word-forge'     => 'games.wordforge',
+        'sequence-rush'  => 'games.sequence',
+        'flag-guess'     => 'games.flagguess',
+        'block-drop'     => 'games.blockdrop',
+        'sudoku'         => 'games.sudoku',
+        'memory-grid'    => 'games.memorygrid',
+        'color-match'    => 'games.colormatch',
+        'reaction-time'  => 'games.reactiontime',
+        'maze-runner'    => 'games.mazerunner',
+        'color-sort'     => 'games.colorsort',
+    ];
+
+    /**
+     * Get default share message + percentile for the share modal.
+     */
+    public function sharePreview(Request $request)
+    {
+        $user = $request->user();
+        $gameKey = (string) $request->input('game_key');
+        $today = now()->startOfDay();
+
+        if (!isset(self::GAME_NAMES[$gameKey])) {
+            return response()->json(['ok' => false], 422);
+        }
+
+        $run = DailyGameRun::where('user_id', $user->id)
+            ->where('game_key', $gameKey)
+            ->where('puzzle_date', $today->toDateString())
+            ->where('solved', true)
+            ->first();
+
+        if (!$run) {
+            return response()->json(['ok' => false], 422);
+        }
+
+        $gameName = self::GAME_NAMES[$gameKey];
+        $fmtTime = $this->formatMs($run->duration_ms);
+        $percentile = $this->calcPercentile($gameKey, $today, $run->duration_ms);
+
+        $msg = "Ik heb vandaag {$gameName} opgelost";
+        if ($fmtTime) {
+            $msg .= " in {$fmtTime}";
+        }
+        if ($percentile !== null) {
+            $msg .= " en was daarmee sneller dan {$percentile}% van de spelers";
+        }
+        $msg .= '! 🧠🔥';
+
+        if (isset(self::GAME_ROUTES[$gameKey])) {
+            $msg .= "\n\nSpeel zelf: " . route(self::GAME_ROUTES[$gameKey]);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'default_message' => $msg,
+            'percentile' => $percentile,
+            'formatted_time' => $fmtTime,
+        ]);
+    }
+
+    public function shareScore(Request $request)
+    {
+        $user = $request->user();
+        $gameKey = (string) $request->input('game_key');
+        $message = (string) $request->input('message', '');
+        $today = now()->startOfDay();
+
+        if (!isset(self::GAME_NAMES[$gameKey])) {
+            return response()->json(['ok' => false, 'error' => 'Onbekend spel'], 422);
+        }
+
+        $run = DailyGameRun::where('user_id', $user->id)
+            ->where('game_key', $gameKey)
+            ->where('puzzle_date', $today->toDateString())
+            ->where('solved', true)
+            ->first();
+
+        if (!$run) {
+            return response()->json(['ok' => false, 'error' => 'Geen opgeloste game gevonden'], 422);
+        }
+
+        $fmtTime = $this->formatMs($run->duration_ms);
+        $percentile = $this->calcPercentile($gameKey, $today, $run->duration_ms);
+
+        // Sanitize message
+        $message = mb_substr(trim($message), 0, 500);
+
+        $post = ScorePost::updateOrCreate(
+            [
+                'user_id'     => $user->id,
+                'game_key'    => $gameKey,
+                'puzzle_date' => $today->toDateString(),
+            ],
+            [
+                'game_name'      => self::GAME_NAMES[$gameKey],
+                'solved'         => true,
+                'duration_ms'    => $run->duration_ms,
+                'attempts'       => $run->attempts,
+                'formatted_time' => $fmtTime,
+                'message'        => $message ?: null,
+                'percentile'     => $percentile,
+            ]
+        );
+
+        return response()->json(['ok' => true, 'post_id' => $post->id]);
+    }
+
+    private function formatMs(?int $ms): ?string
+    {
+        if (!$ms) return null;
+        $sec = (int) round($ms / 1000);
+        $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+        $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+        return $mm . ':' . $ss;
+    }
+
+    private function calcPercentile(string $gameKey, $today, ?int $durationMs): ?int
+    {
+        if (!$durationMs) return null;
+
+        $totalToday = DailyGameRun::where('game_key', $gameKey)
+            ->where('puzzle_date', $today->toDateString())
+            ->where('solved', true)
+            ->whereNotNull('duration_ms')
+            ->count();
+
+        if ($totalToday <= 1) return null;
+
+        $slowerCount = DailyGameRun::where('game_key', $gameKey)
+            ->where('puzzle_date', $today->toDateString())
+            ->where('solved', true)
+            ->whereNotNull('duration_ms')
+            ->where('duration_ms', '>', $durationMs)
+            ->count();
+
+        return (int) round(($slowerCount / $totalToday) * 100);
     }
 }

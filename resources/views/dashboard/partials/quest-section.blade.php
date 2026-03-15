@@ -3,6 +3,7 @@
     $questList   = collect($questList ?? [])->values()->all();
 
     $diffOrder = ['Easy', 'Medium', 'Hard', 'Extreme'];
+    $diffLabelsNl = ['easy' => 'Makkelijk', 'medium' => 'Gemiddeld', 'hard' => 'Moeilijk', 'extreme' => 'Extreem'];
     $groupedQuests = collect($questList)->groupBy(fn($q) => ucfirst(strtolower($q['tag'] ?? 'Other')));
     $tagStyleMap = [
         'easy'    => 'bg-[#8E936D]/15 text-[#6b7052]',
@@ -12,7 +13,7 @@
     ];
 @endphp
 
-<div class="w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
+<div class="w-full bg-white rounded-2xl p-8 border border-[#564D4A]/6">
 
     {{-- Header --}}
     <div class="flex items-start justify-between gap-4">
@@ -29,7 +30,7 @@
     {{-- Quest cards grouped by difficulty in one continuous grid --}}
     <div class="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
         @if(empty($questList))
-            <div class="col-span-3 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+            <div class="col-span-3 rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-5">
                 <p class="text-sm font-semibold text-[#564D4A]/60">Geen quests geconfigureerd.</p>
             </div>
         @else
@@ -48,7 +49,8 @@
                             $tagStyle = $tagStyleMap[$tag] ?? 'bg-[#564D4A]/5 text-[#564D4A]/50';
                         @endphp
 
-                        <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5 flex flex-col">
+                        <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5 flex flex-col"
+                             x-data="{ claimed: @js($claimed), loading: false, error: false }">
 
                             {{-- Top: icon + title + tag --}}
                             <div class="flex items-start justify-between gap-3">
@@ -62,7 +64,7 @@
                                     </div>
                                 </div>
                                 <span class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold {{ $tagStyle }}">
-                                    <i class="fa-solid fa-signal text-[9px]"></i> {{ ucfirst($tag) }}
+                                    <i class="fa-solid fa-signal text-[9px]"></i> {{ $diffLabelsNl[$tag] ?? ucfirst($tag) }}
                                 </span>
                             </div>
 
@@ -89,26 +91,48 @@
 
                             {{-- Claim button --}}
                             <div class="mt-4 pt-3 border-t border-[#564D4A]/8">
-                                @if($claimed)
+                                @if(!$isDone)
                                     <button disabled
+                                        class="w-full inline-flex items-center justify-center rounded-xl py-2.5 text-xs font-semibold bg-white border border-[#564D4A]/6 text-[#564D4A]/40 cursor-not-allowed">
+                                        <i class="fa-solid fa-lock mr-2"></i> Nog niet voltooid
+                                    </button>
+                                @else
+                                    {{-- Claimed state --}}
+                                    <button x-show="claimed" disabled
                                         class="w-full inline-flex items-center justify-center rounded-xl py-2.5 text-xs font-semibold bg-[#8E936D]/15 text-[#6b7052] cursor-not-allowed">
                                         <i class="fa-solid fa-check mr-2"></i> Geclaimd
                                     </button>
-                                @elseif($isDone)
-                                    <form method="POST" action="{{ route('dashboard.daily.quests.claim.single') }}">
-                                        @csrf
-                                        <input type="hidden" name="quest_key"  value="{{ $q['key'] }}">
-                                        <input type="hidden" name="quest_type" value="{{ $q['quest_type'] ?? 'daily' }}">
-                                        <button type="submit"
-                                            class="w-full inline-flex items-center justify-center rounded-xl py-2.5 text-xs font-semibold bg-[#5B2333] hover:bg-[#5B2333]/85 text-white transition">
-                                            <i class="fa-solid fa-gift mr-2"></i> Beloning claimen
-                                        </button>
-                                    </form>
-                                @else
-                                    <button disabled
-                                        class="w-full inline-flex items-center justify-center rounded-xl py-2.5 text-xs font-semibold bg-white border border-[#564D4A]/10 text-[#564D4A]/40 cursor-not-allowed">
-                                        <i class="fa-solid fa-lock mr-2"></i> Nog niet voltooid
+
+                                    {{-- Claimable state --}}
+                                    <button x-show="!claimed" :disabled="loading"
+                                        @click.prevent="(async () => {
+                                            loading = true;
+                                            try {
+                                                const r = await fetch('{{ route('dashboard.daily.quests.claim.single') }}', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                        'X-Requested-With': 'XMLHttpRequest',
+                                                    },
+                                                    body: JSON.stringify({ quest_key: '{{ addslashes($q['key']) }}', quest_type: '{{ addslashes($q['quest_type'] ?? 'daily') }}' }),
+                                                });
+                                                const data = await r.json();
+                                                if (data.ok) { claimed = true; error = false; }
+                                                else { error = true; }
+                                            } catch (e) { error = true; }
+                                            loading = false;
+                                        })()"
+                                        :class="loading ? 'opacity-60 cursor-wait' : 'hover:bg-[#5B2333]/85 cursor-pointer'"
+                                        class="w-full inline-flex items-center justify-center rounded-xl py-2.5 text-xs font-semibold bg-[#5B2333] text-white transition">
+                                        <i class="fa-solid fa-gift mr-2"></i>
+                                        <span x-text="loading ? 'Bezig...' : 'Beloning claimen'"></span>
                                     </button>
+
+                                    {{-- Error feedback --}}
+                                    <p x-show="error" x-cloak class="mt-2 text-[11px] font-semibold text-red-500 text-center">
+                                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Claimen mislukt. Probeer het opnieuw.
+                                    </p>
                                 @endif
                             </div>
                         </div>

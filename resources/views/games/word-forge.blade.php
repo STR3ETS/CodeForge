@@ -11,7 +11,7 @@
         $attemptsUsed = count($attemptRows);
         $attemptsLeft = max(0, $maxAttempts - $attemptsUsed);
 
-        $isFailed = (!$isSolved && ($run->finished_at && $attemptsLeft <= 0));
+        $isFailed = (!$isSolved && !empty($run->finished_at));
 
         $startMs = (int)($state['started_ms'] ?? (
             $run->started_at ? $run->started_at->getTimestampMs() : now()->getTimestampMs()
@@ -86,87 +86,72 @@
 
     <div x-data="wordForge(window.__WF_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
 
-        {{-- HERO HEADER --}}
-        <div class="relative z-[1] overflow-hidden rounded-2xl border border-[#564D4A]/10 bg-[#5B2333]">
-            <img src="/assets/stacked-waves-haikei.png" class="absolute inset-0 w-full h-full object-cover opacity-20" alt="">
-            <div class="absolute inset-0 bg-gradient-to-r from-[#5B2333]/95 via-[#5B2333]/80 to-transparent"></div>
-
-            <div class="relative p-8">
-                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-                    <div class="max-w-xl">
-                        <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold w-fit">
-                            <i class="fa-solid fa-font"></i>
-                            Dagelijks spel
-                        </div>
-
-                        <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
-                            <template x-if="!isSolved">
-                                <span>
-                                    Woord Raden
-                                    <span class="text-white/70">
-                                        #<span x-text="puzzle.number">{{ (int)$puzzle['number'] }}</span>
-                                    </span>
+        {{-- HEADER --}}
+        <div class="relative z-[1]">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-[1.5rem] md:text-[1.8rem] font-black text-[#564D4A] tracking-tight leading-tight">
+                        <template x-if="!isSolved && !isFailed">
+                            <span>
+                                Woord Raden
+                                <span class="text-[#564D4A]/40">
+                                    #<span x-text="puzzle.number">{{ (int)$puzzle['number'] }}</span>
                                 </span>
-                            </template>
-                            <template x-if="isSolved"><span>Goed gedaan! Je hebt het 🎉</span></template>
-                        </h1>
+                            </span>
+                        </template>
+                        <template x-if="isSolved"><span>Goed gedaan! Je hebt het 🎉</span></template>
+                        <template x-if="isFailed"><span>Oei… volgende keer beter! 😅</span></template>
+                    </h1>
+                    <p class="mt-1 text-xs md:text-sm font-semibold text-[#564D4A]/50 leading-[1.3]">
+                        <template x-if="!isSolved && !isFailed">
+                            <span>
+                                Hint: dit woord gaat over
+                                <span class="font-black text-[#564D4A]" x-text="puzzle.category">{{ $puzzle['category'] }}</span>
+                            </span>
+                        </template>
+                        <template x-if="isSolved">
+                            <span>Je hebt het woord correct geraden. Kom morgen terug voor een nieuw woord.</span>
+                        </template>
+                        <template x-if="isFailed">
+                            <span>Het woord was niet geraden. Probeer het morgen opnieuw!</span>
+                        </template>
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <span x-show="!isSolved" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#564D4A]/6 bg-white text-[#564D4A] text-xs font-semibold">
+                        <template x-if="isFailed">
+                            <span class="inline-flex items-center gap-2">
+                                <i class="fa-solid fa-xmark text-red-500"></i>
+                                <span>Mislukt</span>
+                            </span>
+                        </template>
+                        <template x-if="!isFailed">
+                            <span class="inline-flex items-center gap-2">
+                                <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
+                                <span x-text="timerText">00:00</span>
+                            </span>
+                        </template>
+                    </span>
 
-                        <p class="mt-2 text-xs md:text-sm font-semibold text-white/80 leading-[1.3] italic">
-                            <template x-if="!isSolved">
-                                <span>
-                                    Psstt... ik geef je een kleine hint,<br>
-                                    dit Woord Raden gaat over
-                                    <span class="font-black text-white" x-text="puzzle.category">{{ $puzzle['category'] }}</span>
-                                </span>
-                            </template>
+                    <span x-show="!isSolved" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#564D4A]/6 bg-white text-[#564D4A] text-xs font-semibold">
+                        <i class="fa-solid fa-bullseye-arrow text-[#5B2333]"></i>
+                        Pogingen: <span x-text="attemptsUsed">{{ $attemptsUsed }}</span> / <span x-text="state.max">{{ $maxAttempts }}</span>
+                    </span>
 
-                            <template x-if="isSolved">
-                                <span>
-                                    Je hebt het woord correct geraden.<br>
-                                    Kom morgen terug voor een nieuw woord.
-                                </span>
-                            </template>
-                        </p>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span x-show="!isSolved" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold">
-                            <template x-if="isFailed">
-                                <span class="inline-flex items-center gap-2">
-                                    <i class="fa-solid fa-xmark"></i>
-                                    <span>Mislukt</span>
-                                </span>
-                            </template>
-
-                            <template x-if="!isFailed">
-                                <span class="inline-flex items-center gap-2">
-                                    <i class="fa-solid fa-stopwatch"></i>
-                                    <span x-text="timerText">00:00</span>
-                                </span>
-                            </template>
-                        </span>
-
-                        <span x-show="!isSolved" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold">
-                            <i class="fa-solid fa-bullseye-arrow"></i>
-                            Pogingen: <span x-text="attemptsUsed">{{ $attemptsUsed }}</span> / <span x-text="state.max">{{ $maxAttempts }}</span>
-                        </span>
-
-                        <a href="{{ route('dashboard.daily') }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#5B2333] text-xs font-semibold hover:bg-white/90 transition">
-                            <i class="fa-solid fa-arrow-left"></i>
-                            Terug
-                        </a>
-                    </div>
+                    <a href="{{ route('dashboard.daily') }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#5B2333] text-white text-xs font-semibold hover:bg-[#5B2333]/85 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Terug
+                    </a>
                 </div>
             </div>
         </div>
 
         {{-- GAME CARD --}}
-        <div x-ref="gameCard" class="relative z-[1] w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
+        <div x-ref="gameCard" class="relative z-[1] w-full bg-white rounded-2xl p-8 border border-[#564D4A]/6">
 
             {{-- SOLVED --}}
             <div x-show="(isSolved || isFailed)" x-cloak>
-                <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                <div class="rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-5">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div class="flex items-center gap-3">
                             <!-- ✅ ICON: groen check bij win / rood kruis bij fail -->
@@ -194,16 +179,16 @@
                     </div>
 
                     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                        <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
                             <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45"
                                 x-text="isFailed ? 'VOLGENDE KEER BETER' : 'TIJD'"></p>
                             <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]"
-                                x-text="isFailed ? ‘Mislukt!’ : (finalTime || timerText)">00:00</p>
+                                x-text="isFailed ? ‘Mislukt!’ : (leaderboardRows.find(r => parseInt(r.user?.id) === meId)?.time || finalTime || timerText)">00:00</p>
                             <p class="mt-2 text-xs font-semibold text-[#564D4A]/55"
                                 x-text="isFailed ? ‘Kom morgen terug voor een nieuw woord.’ : ‘Opgeslagen als resultaat van vandaag.’"></p>
                         </div>
 
-                        <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                        <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
                             <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Woord</p>
                             <p class="mt-2 text-[1.8rem] leading-none font-black tracking-wider uppercase text-[#564D4A]" x-text="answerWord">
                                 {{ $isSolved ? $puzzle['word'] : '' }}
@@ -214,14 +199,16 @@
 
                     <div class="mt-4">
                         <a href="{{ route('dashboard.daily') }}"
-                           class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white border border-[#564D4A]/10 hover:border-[#564D4A]/20 transition text-xs font-semibold text-[#564D4A]">
+                           class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white border border-[#564D4A]/6 hover:border-[#564D4A]/20 transition text-xs font-semibold text-[#564D4A]">
                             <i class="fa-solid fa-arrow-left"></i>
                             Terug naar Dagelijkse Uitdagingen
                         </a>
                     </div>
 
+                    @include('games.partials.share-score-button', ['gameKey' => 'word-forge'])
+
                     {{-- ✅ Leaderboard --}}
-                    <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                    <div class="mt-6 rounded-2xl border border-[#564D4A]/6 bg-white p-5">
                         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                             <div>
                                 <h2 class="text-[1.05rem] font-extrabold text-[#564D4A]">Scorebord</h2>
@@ -258,13 +245,13 @@
                                     $time = $row['time'] ?? '--:--';
                                 @endphp
 
-                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/10 bg-white hover:bg-[#F7F4F3] transition p-4 {{ $isMe ? 'ring-2 ring-[#5B2333]/20' : '' }}">
+                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/6 bg-white hover:bg-[#F7F4F3] transition p-4 {{ $isMe ? 'ring-2 ring-[#5B2333]/20' : '' }}">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 flex items-center justify-center shrink-0">
+                                        <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 flex items-center justify-center shrink-0">
                                             <span class="text-xs font-black text-[#564D4A]/60">#{{ $rank }}</span>
                                         </div>
 
-                                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/10 shrink-0">
+                                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/6 shrink-0">
                                             @if($av)
                                                 <img src="{{ $av }}" class="w-full h-full object-cover" alt="">
                                             @else
@@ -285,13 +272,13 @@
                                         </div>
                                     </div>
 
-                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
+                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A] shrink-0">
                                         <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
                                         {{ $time }}
                                     </span>
                                 </div>
                             @empty
-                                <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                                <div class="rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-5">
                                     <p class="text-sm font-semibold text-[#564D4A]/60">Nog geen tijden.</p>
                                 </div>
                             @endforelse
@@ -300,20 +287,20 @@
                         {{-- Alpine live list --}}
                         <div x-show="leaderboardReady" x-cloak class="mt-4 grid gap-2">
                             <template x-if="leaderboardRows.length === 0">
-                                <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                                <div class="rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-5">
                                     <p class="text-sm font-semibold text-[#564D4A]/60">Nog geen tijden.</p>
                                 </div>
                             </template>
 
                             <template x-for="(row, idx) in leaderboardRows" :key="row.user.id + ':' + row.duration_ms">
-                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/10 bg-white transition p-4"
+                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/6 bg-white transition p-4"
                                      :class="(parseInt(row.user.id) === meId) ? 'ring-2 ring-[#5B2333]/20' : ''">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 flex items-center justify-center shrink-0">
+                                        <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 flex items-center justify-center shrink-0">
                                             <span class="text-xs font-black text-[#564D4A]/60">#<span x-text="idx + 1"></span></span>
                                         </div>
 
-                                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/10 shrink-0">
+                                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/6 shrink-0">
                                             <template x-if="row.user.profile_picture_url">
                                                 <img :src="row.user.profile_picture_url" class="w-full h-full object-cover" alt="">
                                             </template>
@@ -337,7 +324,7 @@
                                         </div>
                                     </div>
 
-                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
+                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A] shrink-0">
                                         <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
                                         <span x-text="row.time"></span>
                                     </span>
@@ -345,9 +332,9 @@
                             </template>
 
                             <template x-if="myRank && myRank > leaderboardRows.length">
-                                <div class="mt-2 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4 flex items-center justify-between">
+                                <div class="mt-2 rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-4 flex items-center justify-between">
                                     <p class="text-xs font-semibold text-[#564D4A]/60">Jouw positie</p>
-                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A]">
+                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A]">
                                         #<span x-text="myRank"></span>
                                     </span>
                                 </div>
@@ -392,10 +379,10 @@
                 </div>
 
                 {{-- Reveal answer on fail --}}
-                <div x-show="isFailed" x-cloak class="mt-5 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                <div x-show="isFailed" x-cloak class="mt-5 rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-5">
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white border border-[#564D4A]/10 flex items-center justify-center">
+                            <div class="w-10 h-10 rounded-xl bg-white border border-[#564D4A]/6 flex items-center justify-center">
                                 <i class="fa-solid fa-eye text-[#5B2333]"></i>
                             </div>
                             <div>
@@ -405,14 +392,14 @@
                             </div>
                         </div>
 
-                        <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-semibold text-[#564D4A]/70">
+                        <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/6 text-xs font-semibold text-[#564D4A]/70">
                             Kom morgen terug
                         </span>
                     </div>
                 </div>
 
                 {{-- Pattern row --}}
-                <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-6">
+                <div class="mt-6 rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-6">
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Huidige poging</p>
 
                     {{-- Typen in blokjes (letter voor letter) --}}
@@ -457,21 +444,21 @@
 
                 {{-- How to play (collapsed) --}}
                 <div>
-                    <details x-data="{ open:false }" @toggle="open = $el.open" class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                    <details x-data="{ open:false }" @toggle="open = $el.open" class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
                         <summary class="cursor-pointer list-none flex items-center justify-between">
                             <span class="text-sm font-extrabold text-[#564D4A]">Hoe te spelen</span>
                             <i class="fa-solid fa-chevron-down text-[#564D4A]/50 transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
                         </summary>
 
                         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
+                            <div class="rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-4">
                                 <p class="text-xs font-extrabold text-[#564D4A]">1) Gebruik de categorie</p>
                                 <p class="mt-1 text-[11px] font-semibold text-[#564D4A]/55 leading-[1.35]">
                                     Je krijgt altijd een categorie + de eerste letter.
                                 </p>
                             </div>
 
-                            <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
+                            <div class="rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-4">
                                 <p class="text-xs font-extrabold text-[#564D4A]">2) Raad tot {{ $maxAttempts }} keer</p>
                                 <p class="mt-1 text-[11px] font-semibold text-[#564D4A]/55 leading-[1.35]">
                                     Na elke gok worden letters op de juiste positie zichtbaar.
@@ -539,11 +526,18 @@
                     this.$watch('isSolved', v => { if (v) window.__gameFinished = true; });
                     this.$watch('isFailed', v => { if (v) window.__gameFinished = true; });
 
-                    // Ensure finalTime is always set when solved, even if final_time was missing
-                    if (this.isSolved && !this.finalTime && init.run.duration_ms != null) {
-                        const sec = Math.round(init.run.duration_ms / 1000);
+                    // Compute finalTime: prefer leaderboard row (separate DB query, authoritative),
+                    // then raw duration_ms, then final_time string
+                    if (this.isSolved) {
                         const pad = n => String(n).padStart(2, '0');
-                        this.finalTime = pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
+                        const myRow = (init.leaderboard?.rows || []).find(r => parseInt(r.user?.id) === this.meId);
+                        if (myRow?.time && myRow.time !== '00:00') {
+                            this.finalTime = myRow.time;
+                        } else if (init.run.duration_ms > 0) {
+                            const sec = Math.round(init.run.duration_ms / 1000);
+                            this.finalTime = pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
+                        }
+                        // else: keep init.run.final_time (set on line above)
                     }
 
                     if (this.isSolved || this.isFailed) {
@@ -665,7 +659,7 @@
                         return 'bg-white border-[#564D4A]/20 text-[#564D4A]';
                     }
 
-                    return 'bg-white/60 border-[#564D4A]/10 text-[#564D4A]/35';
+                    return 'bg-white/60 border-[#564D4A]/6 text-[#564D4A]/35';
                 },
 
                 // ===== input events =====
@@ -846,10 +840,16 @@
 
                         if (data.answer) this.answerWord = data.answer;
                         if (this.isSolved) {
-                            // Use final_time from server; fallback: find own row in leaderboard
-                            this.finalTime = data.final_time
-                                || (data.leaderboard?.rows?.find(r => parseInt(r.user.id) === this.meId)?.time)
-                                || this.finalTime;
+                            const pad = n => String(n).padStart(2, '0');
+                            const lbRow = data.leaderboard?.rows?.find(r => parseInt(r.user?.id) === this.meId);
+                            if (lbRow?.time && lbRow.time !== '00:00') {
+                                this.finalTime = lbRow.time;
+                            } else if (data.duration_ms > 0) {
+                                const sec = Math.round(data.duration_ms / 1000);
+                                this.finalTime = pad(Math.floor(sec / 60)) + ':' + pad(sec % 60);
+                            } else if (data.final_time && data.final_time !== '00:00') {
+                                this.finalTime = data.final_time;
+                            }
                             if (this.finalTime) this.timerText = this.finalTime;
                         }
 

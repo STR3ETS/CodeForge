@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, Billable;
 
     protected $fillable = [
         'name',
@@ -19,6 +20,8 @@ class User extends Authenticatable
         'xp',
         'level',
         'streak',
+        'is_admin',
+        'coins',
         'daily_challenges_done',
         'daily_challenges_date',
         'last_challenge_completed_at',
@@ -30,9 +33,60 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
+        'is_admin' => 'boolean',
         'daily_challenges_date' => 'date',
         'last_challenge_completed_at' => 'datetime',
     ];
+
+    /**
+     * All accepted friends (both directions).
+     * Returns a Builder so ->pluck('users.id') works for leaderboard.
+     */
+    public function friends()
+    {
+        $sentIds = Friendship::where('user_id', $this->id)
+            ->where('status', 'accepted')
+            ->pluck('friend_id');
+
+        $receivedIds = Friendship::where('friend_id', $this->id)
+            ->where('status', 'accepted')
+            ->pluck('user_id');
+
+        return self::whereIn('id', $sentIds->merge($receivedIds)->unique());
+    }
+
+    public function cosmetics()
+    {
+        return $this->belongsToMany(ShopItem::class, 'user_cosmetics')
+            ->withPivot('equipped', 'custom_value')
+            ->withTimestamps();
+    }
+
+    public function equippedCosmetics()
+    {
+        return $this->cosmetics()->wherePivot('equipped', true);
+    }
+
+    public function pendingFriendRequestsReceived()
+    {
+        return $this->hasMany(Friendship::class, 'friend_id')
+            ->where('status', 'pending');
+    }
+
+    public function pendingFriendRequestsSent()
+    {
+        return $this->hasMany(Friendship::class, 'user_id')
+            ->where('status', 'pending');
+    }
+
+    public function friendshipWith(User $other): ?Friendship
+    {
+        return Friendship::where(function ($q) use ($other) {
+            $q->where('user_id', $this->id)->where('friend_id', $other->id);
+        })->orWhere(function ($q) use ($other) {
+            $q->where('user_id', $other->id)->where('friend_id', $this->id);
+        })->first();
+    }
 
     /**
      * Geef XP + update level automatisch.
@@ -42,12 +96,20 @@ class User extends Authenticatable
     {
         $amount = max(0, $amount);
 
+        $oldLevel = (int) $this->level;
+
         $this->xp = (int) $this->xp + $amount;
 
         $meta = $this->levelMetaFromXp((int) $this->xp);
 
-        // level opslaan
         $this->level = (int) $meta['level'];
+
+        // Award coins on level up: 25 coins per level gained
+        $levelsGained = (int) $meta['level'] - $oldLevel;
+        if ($levelsGained > 0) {
+            $this->coins = (int) $this->coins + ($levelsGained * 25);
+            $meta['coins_earned'] = $levelsGained * 25;
+        }
 
         $this->save();
 

@@ -95,73 +95,58 @@
 
     <div x-data="sequenceRush(window.__SEQ_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
 
-        {{-- HERO --}}
-        <div class="relative z-[1] overflow-hidden rounded-2xl border border-[#564D4A]/10 bg-[#5B2333]">
-            <img src="/assets/stacked-waves-haikei.png" class="absolute inset-0 w-full h-full object-cover opacity-20" alt="">
-            <div class="absolute inset-0 bg-gradient-to-r from-[#5B2333]/95 via-[#5B2333]/80 to-transparent"></div>
-
-            <div class="relative p-8">
-                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-                    <div class="max-w-xl">
-                        <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold w-fit">
-                            <i class="fa-solid fa-list-ol"></i>
-                            Dagelijks spel
-                        </div>
-
-                        <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
-                            <template x-if="!isSolved && !isFailed">
-                                <span>Voltooi Reeks <span class="text-white/70">#<span x-text="puzzle.number"></span></span></span>
-                            </template>
-                            <template x-if="isSolved"><span>Mooi! Perfect gedaan 🎉</span></template>
-                            <template x-if="isFailed"><span>Helaas… gefaald 😅</span></template>
-                        </h1>
-
-                        <p class="mt-2 text-xs md:text-sm font-semibold text-white/80 leading-[1.3] italic">
-                            <template x-if="!isSolved && !isFailed">
-                                <span>Kies het juiste getal voor <span class="font-black text-white">?</span>. Max <span class="font-black text-white" x-text="puzzle.max_wrong"></span> fouten.</span>
-                            </template>
-                            <template x-if="isSolved"><span>Opgeslagen als resultaat van vandaag. Kom morgen terug voor een nieuwe.</span></template>
-                            <template x-if="isFailed"><span>Te veel fouten. Probeer het morgen opnieuw.</span></template>
-                        </p>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span x-show="!isSolved && !isFailed" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold">
-                            <i class="fa-solid fa-stopwatch"></i>
-                            <span x-text="timerText">00:00</span>
-                        </span>
-
-                        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            Fouten: <span class="font-black" x-text="wrong"></span>/<span x-text="puzzle.max_wrong"></span>
-                        </span>
-
-                        <a href="{{ route('dashboard.daily') }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#5B2333] text-xs font-semibold hover:bg-white/90 transition">
-                            <i class="fa-solid fa-arrow-left"></i>
-                            Terug
-                        </a>
-                    </div>
+        {{-- HEADER --}}
+        <div class="relative z-[1]">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-[1.5rem] md:text-[1.8rem] font-black text-[#564D4A] tracking-tight leading-tight">
+                        <template x-if="!isSolved && !isFailed">
+                            <span>Voltooi Reeks <span class="text-[#564D4A]/40">#<span x-text="puzzle.number"></span></span></span>
+                        </template>
+                        <template x-if="isSolved"><span>Mooi! Perfect gedaan 🎉</span></template>
+                        <template x-if="isFailed"><span>Oei… volgende keer beter! 😅</span></template>
+                    </h1>
+                    <p class="mt-1 text-xs md:text-sm font-semibold text-[#564D4A]/50 leading-[1.3]">
+                        <template x-if="!isSolved && !isFailed">
+                            <span>Kies het juiste getal voor <span class="font-black text-[#564D4A]">?</span>. Max <span class="font-black text-[#564D4A]" x-text="puzzle.max_wrong"></span> fouten.</span>
+                        </template>
+                        <template x-if="isSolved"><span>Opgeslagen als resultaat van vandaag. Kom morgen terug voor een nieuwe.</span></template>
+                        <template x-if="isFailed"><span>Te veel fouten. Probeer het morgen opnieuw!</span></template>
+                    </p>
                 </div>
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <span x-show="!isSolved && !isFailed" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#564D4A]/6 bg-white text-[#564D4A] text-xs font-semibold">
+                        <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
+                        <span x-text="timerText">00:00</span>
+                    </span>
+                    <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#564D4A]/6 bg-white text-[#564D4A] text-xs font-semibold">
+                        <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
+                        Fouten: <span class="font-black" x-text="wrong"></span>/<span x-text="puzzle.max_wrong"></span>
+                    </span>
+                    <a href="{{ route('dashboard.daily') }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#5B2333] text-white text-xs font-semibold hover:bg-[#5B2333]/85 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Terug
+                    </a>
+                </div>
+            </div>
 
-                <div class="mt-5">
-                    <div class="flex items-center justify-between text-[11px] font-semibold text-white/80">
-                        <span>Voortgang</span>
-                        <span><span x-text="Math.min(currentIdx, puzzle.total)"></span> / <span x-text="puzzle.total"></span></span>
-                    </div>
-                    <div class="mt-2 w-full h-[7px] rounded-full bg-white/15 overflow-hidden">
-                        <div class="h-full rounded-full bg-white" :style="`width: ${progressPercent()}%`"></div>
-                    </div>
+            <div class="mt-4">
+                <div class="flex items-center justify-between text-[11px] font-semibold text-[#564D4A]/55">
+                    <span>Voortgang</span>
+                    <span><span x-text="Math.min(currentIdx, puzzle.total)"></span> / <span x-text="puzzle.total"></span></span>
+                </div>
+                <div class="mt-2 w-full h-[6px] rounded-full bg-[#564D4A]/10 overflow-hidden">
+                    <div class="h-full rounded-full bg-[#5B2333]" :style="`width: ${progressPercent()}%`"></div>
                 </div>
             </div>
         </div>
 
         {{-- GAME CARD --}}
-        <div class="relative z-[1] w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
+        <div class="relative z-[1] w-full bg-white rounded-2xl p-8 border border-[#564D4A]/6">
 
             {{-- FINISHED --}}
             <div x-show="isSolved || isFailed" x-cloak>
-                <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                <div class="rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-5">
                     <div class="flex items-center gap-3">
                         <template x-if="isSolved">
                             <div class="w-10 h-10 rounded-xl bg-[#8E936D] border border-[#8E936D]/10 flex items-center justify-center">
@@ -182,7 +167,7 @@
                     </div>
 
                     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                        <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
                             <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Tijd</p>
                             <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]" x-text="finalTime || '--:--'">--:--</p>
                             <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">
@@ -190,7 +175,7 @@
                             </p>
                         </div>
 
-                        <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                        <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
                             <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Fouten</p>
                             <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]">
                                 <span x-text="wrong"></span>
@@ -199,8 +184,10 @@
                         </div>
                     </div>
 
+                    @include('games.partials.share-score-button', ['gameKey' => 'sequence-rush'])
+
                     {{-- Leaderboard (only meaningful on solved) --}}
-                    <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-white p-5" x-show="isSolved" x-cloak>
+                    <div class="mt-6 rounded-2xl border border-[#564D4A]/6 bg-white p-5" x-show="isSolved" x-cloak>
                         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                             <div>
                                 <h2 class="text-[1.05rem] font-extrabold text-[#564D4A]">Scorebord</h2>
@@ -228,20 +215,20 @@
 
                         <div x-show="leaderboardReady" x-cloak class="mt-4 grid gap-2">
                             <template x-if="leaderboardRows.length === 0">
-                                <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                                <div class="rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-5">
                                     <p class="text-sm font-semibold text-[#564D4A]/60">Nog geen tijden.</p>
                                 </div>
                             </template>
 
                             <template x-for="(row, idx) in leaderboardRows" :key="row.user.id + ':' + row.duration_ms">
-                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/10 bg-white transition p-4"
+                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/6 bg-white transition p-4"
                                      :class="(parseInt(row.user.id) === meId) ? 'ring-2 ring-[#5B2333]/20' : ''">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 flex items-center justify-center shrink-0">
+                                        <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 flex items-center justify-center shrink-0">
                                             <span class="text-xs font-black text-[#564D4A]/60">#<span x-text="idx + 1"></span></span>
                                         </div>
 
-                                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/10 shrink-0">
+                                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/6 shrink-0">
                                             <template x-if="row.user.profile_picture_url">
                                                 <img :src="row.user.profile_picture_url" class="w-full h-full object-cover" alt="">
                                             </template>
@@ -265,7 +252,7 @@
                                         </div>
                                     </div>
 
-                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
+                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A] shrink-0">
                                         <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
                                         <span x-text="row.time"></span>
                                     </span>
@@ -273,9 +260,9 @@
                             </template>
 
                             <template x-if="myRank && myRank > leaderboardRows.length">
-                                <div class="mt-2 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4 flex items-center justify-between">
+                                <div class="mt-2 rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-4 flex items-center justify-between">
                                     <p class="text-xs font-semibold text-[#564D4A]/60">Jouw positie</p>
-                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A]">
+                                    <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A]">
                                         #<span x-text="myRank"></span>
                                     </span>
                                 </div>
@@ -312,10 +299,10 @@
                     </span>
                 </div>
 
-                <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-6">
+                <div class="mt-6 rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-6">
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Reeks</p>
 
-                    <div class="mt-3 rounded-2xl border border-[#564D4A]/10 bg-white p-6">
+                    <div class="mt-3 rounded-2xl border border-[#564D4A]/6 bg-white p-6">
                         <p class="text-[1.6rem] md:text-[2rem] font-black text-[#564D4A] tracking-tight leading-tight text-center"
                            x-text="question.prompt"></p>
 
@@ -448,7 +435,7 @@
                 // ✅ knop styling afhankelijk van outcome
                 optionClass(opt) {
                     const base =
-                        'bg-white border-[#564D4A]/10 text-[#564D4A] hover:border-[#5B2333]/40 hover:bg-[#F7F4F3] active:scale-[0.99]';
+                        'bg-white border-[#564D4A]/6 text-[#564D4A] hover:border-[#5B2333]/40 hover:bg-[#F7F4F3] active:scale-[0.99]';
 
                     if (this.pickedOpt === opt && this.pickedOk === true) {
                         return 'bg-[#8E936D] border-[#8E936D] text-white scale-[1.01]';

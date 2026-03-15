@@ -27,9 +27,9 @@
                         <i class="fa-solid fa-fire text-sm"></i>
                     </div>
                     <div>
-                        <p class="font-semibold text-sm">Build your streak</p>
+                        <p class="font-semibold text-sm">Bouw je streak op</p>
                         <p class="text-xs text-white/70 mt-1 leading-relaxed">
-                            Do one challenge every day and stay in the flow.<br>Your streak will grow naturally.
+                            Doe elke dag een challenge en blijf in de flow.<br>Je streak groeit vanzelf.
                         </p>
                     </div>
                 </div>
@@ -39,9 +39,9 @@
                         <i class="fa-solid fa-calendar-check text-sm"></i>
                     </div>
                     <div>
-                        <p class="font-semibold text-sm">A new challenge every day</p>
+                        <p class="font-semibold text-sm">Elke dag een nieuwe uitdaging</p>
                         <p class="text-xs text-white/70 mt-1 leading-relaxed">
-                            Short assignments that you actually complete.<br>Choose easy, normal or hard.
+                            Korte opdrachten die je écht afmaakt.<br>Kies makkelijk, normaal of moeilijk.
                         </p>
                     </div>
                 </div>
@@ -51,9 +51,9 @@
                         <i class="fa-solid fa-medal text-sm"></i>
                     </div>
                     <div>
-                        <p class="font-semibold text-sm">Earn XP & badges</p>
+                        <p class="font-semibold text-sm">Verdien XP & badges</p>
                         <p class="text-xs text-white/70 mt-1 leading-relaxed">
-                            Each completed challenge gives you XP.<br>Unlock badges and climb the leaderboard.
+                            Elke voltooide challenge geeft XP.<br>Unlock badges en stijg op het leaderboard.
                         </p>
                     </div>
                 </div>
@@ -62,7 +62,12 @@
     </div>
 
     {{-- Right panel --}}
-    <div class="min-h-screen flex justify-center items-center px-6 py-10">
+    <div class="min-h-screen flex justify-center items-center px-6 py-10 relative">
+        {{-- Terug naar website --}}
+        <a href="{{ route('home') }}" class="absolute top-6 left-6 inline-flex items-center gap-2 text-sm font-semibold text-[#564D4A]/40 hover:text-[#564D4A] transition">
+            <i class="fa-solid fa-arrow-left text-[11px]"></i> Terug naar website
+        </a>
+
         {{ $slot }}
     </div>
 </body>

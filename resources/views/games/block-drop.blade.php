@@ -63,65 +63,51 @@
 
     <div x-data="blockDropUi(window.__TT_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
 
-        {{-- HERO --}}
-        <div class="relative z-[1] overflow-hidden rounded-2xl border border-[#564D4A]/10 bg-[#5B2333]">
-            <img src="/assets/stacked-waves-haikei.png" class="absolute inset-0 w-full h-full object-cover opacity-20" alt="">
-            <div class="absolute inset-0 bg-gradient-to-r from-[#5B2333]/95 via-[#5B2333]/80 to-transparent"></div>
-
-            <div class="relative p-8">
-                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-                    <div class="max-w-xl">
-                        <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold w-fit">
-                            <i class="fa-solid fa-table-cells"></i>
-                            Dagelijks spel
-                        </div>
-
-                        <h1 class="mt-3 text-[1.5rem] md:text-[1.8rem] font-black text-white tracking-tight leading-tight">
-                            <template x-if="!isSolved && !isFailed">
-                                <span>Blok Drop <span class="text-white/70">#<span x-text="puzzle.number"></span></span></span>
-                            </template>
-                            <template x-if="isSolved"><span>Mooi! 10 rijen gewist 🎉</span></template>
-                            <template x-if="isFailed"><span>Helaas… board vol 😅</span></template>
-                        </h1>
-
-                        <p class="mt-2 text-xs md:text-sm font-semibold text-white/80 leading-[1.3] italic">
-                            <template x-if="!isSolved && !isFailed">
-                                <span>Wis <span class="font-black text-white">10 rijen</span> zo snel mogelijk. Board vol = game over.</span>
-                            </template>
-                            <template x-if="isSolved"><span>Opgeslagen als resultaat van vandaag. Kom morgen terug voor een nieuwe.</span></template>
-                            <template x-if="isFailed"><span>Board vol gelopen. Probeer het morgen opnieuw.</span></template>
-                        </p>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span x-show="!isSolved && !isFailed" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-semibold">
-                            <i class="fa-solid fa-stopwatch"></i>
-                            <span x-text="timerText">00:00</span>
-                        </span>
-
-                        <a href="{{ route('dashboard.daily') }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-[#5B2333] text-xs font-semibold hover:bg-white/90 transition">
-                            <i class="fa-solid fa-arrow-left"></i>
-                            Terug
-                        </a>
-                    </div>
+        {{-- HEADER --}}
+        <div class="relative z-[1]">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-[1.5rem] md:text-[1.8rem] font-black text-[#564D4A] tracking-tight leading-tight">
+                        <template x-if="!isSolved && !isFailed">
+                            <span>Blok Drop <span class="text-[#564D4A]/40">#<span x-text="puzzle.number"></span></span></span>
+                        </template>
+                        <template x-if="isSolved"><span>Mooi! 10 rijen gewist 🎉</span></template>
+                        <template x-if="isFailed"><span>Oei… board vol! 😅</span></template>
+                    </h1>
+                    <p class="mt-1 text-xs md:text-sm font-semibold text-[#564D4A]/50 leading-[1.3]">
+                        <template x-if="!isSolved && !isFailed">
+                            <span>Wis <span class="font-black text-[#564D4A]">10 rijen</span> zo snel mogelijk. Board vol = game over.</span>
+                        </template>
+                        <template x-if="isSolved"><span>Opgeslagen als resultaat van vandaag. Kom morgen terug voor een nieuwe.</span></template>
+                        <template x-if="isFailed"><span>Board vol gelopen. Probeer het morgen opnieuw!</span></template>
+                    </p>
                 </div>
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <span x-show="!isSolved && !isFailed" x-cloak class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#564D4A]/6 bg-white text-[#564D4A] text-xs font-semibold">
+                        <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
+                        <span x-text="timerText">00:00</span>
+                    </span>
+                    <a href="{{ route('dashboard.daily') }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#5B2333] text-white text-xs font-semibold hover:bg-[#5B2333]/85 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Terug
+                    </a>
+                </div>
+            </div>
 
-                <div class="mt-5">
-                    <div class="flex items-center justify-between text-[11px] font-semibold text-white/80">
-                        <span>Voortgang</span>
-                        <span><span x-text="linesCleared"></span> / 10 rijen</span>
-                    </div>
-                    <div class="mt-2 w-full h-[7px] rounded-full bg-white/15 overflow-hidden">
-                        <div class="h-full rounded-full bg-white transition-all duration-300" :style="`width: ${Math.round((linesCleared/10)*100)}%`"></div>
-                    </div>
+            <div class="mt-4">
+                <div class="flex items-center justify-between text-[11px] font-semibold text-[#564D4A]/55">
+                    <span>Voortgang</span>
+                    <span><span x-text="linesCleared"></span> / 10 rijen</span>
+                </div>
+                <div class="mt-2 w-full h-[6px] rounded-full bg-[#564D4A]/10 overflow-hidden">
+                    <div class="h-full rounded-full bg-[#5B2333] transition-all duration-300" :style="`width: ${Math.round((linesCleared/10)*100)}%`"></div>
                 </div>
             </div>
         </div>
 
         {{-- RESULT SCREEN --}}
-        <div x-show="isSolved || isFailed" x-cloak class="relative z-[1] w-full bg-white rounded-2xl p-8 border border-[#564D4A]/10">
-            <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+        <div x-show="isSolved || isFailed" x-cloak class="relative z-[1] w-full bg-white rounded-2xl p-8 border border-[#564D4A]/6">
+            <div class="rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-5">
                 <div class="flex items-center gap-3">
                     <template x-if="isSolved">
                         <div class="w-10 h-10 rounded-xl bg-[#8E936D] border border-[#8E936D]/10 flex items-center justify-center">
@@ -141,20 +127,22 @@
                 </div>
 
                 <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                    <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Tijd</p>
                         <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]" x-text="finalTime || '--:--'"></p>
                         <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Tijd om 10 rijen te wissen</p>
                     </div>
-                    <div class="rounded-2xl border border-[#564D4A]/10 bg-white p-5">
+                    <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Rijen gewist</p>
                         <p class="mt-2 text-[1.8rem] leading-none font-black text-[#564D4A]" x-text="linesCleared"></p>
                         <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Doel: 10 rijen</p>
                     </div>
                 </div>
 
+                @include('games.partials.share-score-button', ['gameKey' => 'block-drop'])
+
                 {{-- Leaderboard --}}
-                <div class="mt-6 rounded-2xl border border-[#564D4A]/10 bg-white p-5" x-show="isSolved" x-cloak>
+                <div class="mt-6 rounded-2xl border border-[#564D4A]/6 bg-white p-5" x-show="isSolved" x-cloak>
                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                         <div>
                             <h2 class="text-[1.05rem] font-extrabold text-[#564D4A]">Scorebord</h2>
@@ -180,19 +168,19 @@
 
                     <div x-show="leaderboardReady" x-cloak class="mt-4 grid gap-2">
                         <template x-if="leaderboardRows.length === 0">
-                            <div class="rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-5">
+                            <div class="rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-5">
                                 <p class="text-sm font-semibold text-[#564D4A]/60">Nog geen tijden.</p>
                             </div>
                         </template>
 
                         <template x-for="(row, idx) in leaderboardRows" :key="row.user.id + ':' + row.duration_ms">
-                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/10 bg-white transition p-4"
+                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-[#564D4A]/6 bg-white transition p-4"
                                  :class="(parseInt(row.user.id) === meId) ? 'ring-2 ring-[#5B2333]/20' : ''">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 flex items-center justify-center shrink-0">
+                                    <div class="w-10 h-10 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 flex items-center justify-center shrink-0">
                                         <span class="text-xs font-black text-[#564D4A]/60">#<span x-text="idx + 1"></span></span>
                                     </div>
-                                    <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/10 shrink-0">
+                                    <div class="w-10 h-10 rounded-xl overflow-hidden bg-white border border-[#564D4A]/6 shrink-0">
                                         <template x-if="row.user.profile_picture_url">
                                             <img :src="row.user.profile_picture_url" class="w-full h-full object-cover" alt="">
                                         </template>
@@ -212,7 +200,7 @@
                                         <p class="text-[11px] font-semibold text-[#564D4A]/55">Level <span x-text="row.user.level || 1"></span></p>
                                     </div>
                                 </div>
-                                <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A] shrink-0">
+                                <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A] shrink-0">
                                     <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
                                     <span x-text="row.time"></span>
                                 </span>
@@ -220,9 +208,9 @@
                         </template>
 
                         <template x-if="myRank && myRank > leaderboardRows.length">
-                            <div class="mt-2 rounded-2xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4 flex items-center justify-between">
+                            <div class="mt-2 rounded-2xl border border-[#564D4A]/6 bg-[#F7F4F3] p-4 flex items-center justify-between">
                                 <p class="text-xs font-semibold text-[#564D4A]/60">Jouw positie</p>
-                                <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/10 text-xs font-extrabold text-[#564D4A]">
+                                <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A]">
                                     #<span x-text="myRank"></span>
                                 </span>
                             </div>
@@ -233,31 +221,31 @@
         </div>
 
         {{-- GAME AREA --}}
-        <div x-show="!isSolved && !isFailed" x-cloak class="relative z-[1] w-full bg-white rounded-2xl p-6 border border-[#564D4A]/10">
+        <div x-show="!isSolved && !isFailed" x-cloak class="relative z-[1] w-full bg-white rounded-2xl p-6 border border-[#564D4A]/6">
 
             <div x-show="!started" class="text-center py-8">
                 <p class="text-xl font-extrabold text-[#564D4A]">Ben je er klaar voor?</p>
                 <p class="mt-2 text-xs font-semibold text-[#564D4A]/55">Gebruik pijltjestoetsen om te bewegen en draaien. Spatie = hard drop.</p>
                 <div class="mt-4 grid grid-cols-3 gap-2 max-w-[200px] mx-auto text-xs font-semibold text-[#564D4A]/70">
                     <div></div>
-                    <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 text-center flex flex-col items-center gap-1">
+                    <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/6 px-2 py-2 text-center flex flex-col items-center gap-1">
                         <i class="fa-solid fa-arrow-up text-[13px]"></i>
                         <span class="text-[10px]">Draaien</span>
                     </div>
                     <div></div>
-                    <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 text-center flex flex-col items-center gap-1">
+                    <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/6 px-2 py-2 text-center flex flex-col items-center gap-1">
                         <i class="fa-solid fa-arrow-left text-[13px]"></i>
                         <span class="text-[10px]">Links</span>
                     </div>
-                    <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 text-center flex flex-col items-center gap-1">
+                    <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/6 px-2 py-2 text-center flex flex-col items-center gap-1">
                         <i class="fa-solid fa-arrow-down text-[13px]"></i>
                         <span class="text-[10px]">Zacht</span>
                     </div>
-                    <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 text-center flex flex-col items-center gap-1">
+                    <div class="rounded-lg bg-[#F7F4F3] border border-[#564D4A]/6 px-2 py-2 text-center flex flex-col items-center gap-1">
                         <i class="fa-solid fa-arrow-right text-[13px]"></i>
                         <span class="text-[10px]">Rechts</span>
                     </div>
-                    <div class="col-span-3 rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 px-2 py-2 flex items-center justify-center gap-2">
+                    <div class="col-span-3 rounded-lg bg-[#F7F4F3] border border-[#564D4A]/6 px-2 py-2 flex items-center justify-center gap-2">
                         <i class="fa-solid fa-angles-down text-[13px]"></i>
                         <span class="text-[10px]">Spatie - Hard drop</span>
                     </div>
@@ -280,42 +268,42 @@
 
                     {{-- Hold + Next side by side --}}
                     <div class="flex gap-3">
-                        <div class="flex-1 rounded-xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
+                        <div class="flex-1 rounded-xl border border-[#564D4A]/6 bg-[#F7F4F3] p-4">
                             <p class="text-[10px] font-semibold uppercase tracking-wider text-[#564D4A]/45 mb-2">Hold</p>
                             <canvas id="holdCanvas" width="80" height="48" class="block mx-auto rounded-lg" style="background:#F7F4F3;"></canvas>
                         </div>
 
-                        <div class="flex-[2] rounded-xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
+                        <div class="flex-[2] rounded-xl border border-[#564D4A]/6 bg-[#F7F4F3] p-4">
                             <p class="text-[10px] font-semibold uppercase tracking-wider text-[#564D4A]/45 mb-2">Next</p>
                             <canvas id="nextCanvas" width="240" height="48" class="block mx-auto rounded-lg" style="background:#F7F4F3;"></canvas>
                         </div>
                     </div>
 
                     {{-- Lines cleared --}}
-                    <div class="rounded-xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
+                    <div class="rounded-xl border border-[#564D4A]/6 bg-[#F7F4F3] p-4">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-[#564D4A]/45">Rijen gewist</p>
                         <p class="mt-1 text-2xl font-black text-[#564D4A]" x-text="linesCleared + ' / 10'"></p>
                     </div>
 
                     {{-- Controls --}}
-                    <div class="rounded-xl border border-[#564D4A]/10 bg-[#F7F4F3] p-4">
+                    <div class="rounded-xl border border-[#564D4A]/6 bg-[#F7F4F3] p-4">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-[#564D4A]/45 mb-2">Bediening</p>
                         <div class="flex flex-col gap-2 text-xs">
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-[#564D4A]/60">Bewegen</span>
-                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/10 rounded-lg px-2 py-1">← →</span>
+                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/6 rounded-lg px-2 py-1">← →</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-[#564D4A]/60">Draaien</span>
-                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/10 rounded-lg px-2 py-1">↑ / Z</span>
+                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/6 rounded-lg px-2 py-1">↑ / Z</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-[#564D4A]/60">Hard drop</span>
-                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/10 rounded-lg px-2 py-1">Spatie</span>
+                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/6 rounded-lg px-2 py-1">Spatie</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="font-semibold text-[#564D4A]/60">Vasthouden</span>
-                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/10 rounded-lg px-2 py-1">C / ⇧</span>
+                                <span class="font-bold text-[#564D4A] bg-white border border-[#564D4A]/6 rounded-lg px-2 py-1">C / ⇧</span>
                             </div>
                         </div>
                     </div>
@@ -887,7 +875,7 @@
             finalTime: init.run.final_time || null,
 
             linesCleared: 0,
-            started: false,
+            started: !!(init.run.solved || init.run.failed),
             startMs: 0,
 
             timerText: '00:00',
@@ -1014,18 +1002,22 @@
 
                 if (this._engine) this._engine.destroy();
 
+                const sendFail = () => fetch(init.routes.finish, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': init.csrf,
+                    },
+                    body: JSON.stringify({ failed: true }),
+                });
                 try {
-                    await fetch(init.routes.finish, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': init.csrf,
-                        },
-                        body: JSON.stringify({ failed: true }),
-                    });
-                } catch (e) {}
+                    await sendFail();
+                } catch (e) {
+                    // Retry once after 2s so server records the failure
+                    setTimeout(() => { try { sendFail(); } catch(_){} }, 2000);
+                }
             },
         };
     }
