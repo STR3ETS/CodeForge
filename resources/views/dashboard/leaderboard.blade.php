@@ -47,11 +47,11 @@
         $meRankInTop = $meRankInTop === false ? null : ($meRankInTop + 1);
     @endphp
 
-    <div class="flex flex-col gap-8">
+    <div class="flex flex-col gap-10">
 
         {{-- CLEAN TEXT HEADER --}}
         <div>
-            <h1 class="text-[1.5rem] md:text-[1.8rem] font-black text-[#564D4A] tracking-tight leading-tight">
+            <h1 class="text-[1.5rem] md:text-2xl font-black text-[#564D4A] tracking-tight leading-tight">
                 Scorebord
             </h1>
             <p class="mt-1 text-xs md:text-sm font-semibold text-[#564D4A]/50 leading-[1.3]">

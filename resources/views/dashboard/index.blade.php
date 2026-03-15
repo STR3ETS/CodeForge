@@ -91,7 +91,7 @@
         $subCancelled = $subscription?->cancelled() ?? false;
     @endphp
 
-    <div class="flex flex-col gap-6" x-data="{ showUpgrade: false }">
+    <div class="flex flex-col gap-10" x-data="{ showUpgrade: false }">
 
         {{-- WELCOME --}}
         <div>
@@ -183,54 +183,6 @@
                 </div>
             </div>
         @endif
-
-        {{-- STATS --}}
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-[#5B2333]/8 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-gamepad text-[#5B2333] text-sm"></i>
-                    </div>
-                    <div>
-                        <p class="text-xl font-black text-[#564D4A] leading-none">{{ $totalGamesPlayed }}</p>
-                        <p class="text-[10px] font-semibold text-[#564D4A]/35 uppercase tracking-wider mt-0.5">Gespeeld</p>
-                    </div>
-                </div>
-            </div>
-            <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-fire text-orange-500 text-sm"></i>
-                    </div>
-                    <div>
-                        <p class="text-xl font-black text-[#564D4A] leading-none">{{ $currentStreak }}</p>
-                        <p class="text-[10px] font-semibold text-[#564D4A]/35 uppercase tracking-wider mt-0.5">Streak</p>
-                    </div>
-                </div>
-            </div>
-            <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-[#564D4A]/8 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-user-group text-[#564D4A]/50 text-sm"></i>
-                    </div>
-                    <div>
-                        <p class="text-xl font-black text-[#564D4A] leading-none">{{ $friendCount }}</p>
-                        <p class="text-[10px] font-semibold text-[#564D4A]/35 uppercase tracking-wider mt-0.5">Vrienden</p>
-                    </div>
-                </div>
-            </div>
-            <div class="rounded-2xl border border-[#564D4A]/6 bg-white p-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-trophy text-yellow-600 text-sm"></i>
-                    </div>
-                    <div>
-                        <p class="text-xl font-black text-[#564D4A] leading-none">{{ $bestStreak }}</p>
-                        <p class="text-[10px] font-semibold text-[#564D4A]/35 uppercase tracking-wider mt-0.5">Beste streak</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         {{-- PROFILE COMPLETION --}}
         @php

@@ -1,5 +1,6 @@
 <x-layouts.marketing>
-    <x-slot:title>Pricing - BrainForge</x-slot:title>
+    <x-slot:title>Pricing - Gratis of Pro | BrainForge</x-slot:title>
+    <x-slot:description>BrainForge is gratis met 5 games per dag. Upgrade naar Pro voor onbeperkte games, IQ Test, cosmetics en meer vanaf €1,99/maand.</x-slot:description>
 
     {{-- Page header --}}
     <section class="pt-28 pb-16 bg-white border-b border-[#564D4A]/6">

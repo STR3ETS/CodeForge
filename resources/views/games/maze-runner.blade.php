@@ -88,7 +88,7 @@
         });
     </script>
 
-    <div x-data="mazeRunner(window.__MR_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto">
+    <div x-data="mazeRunner(window.__MR_INIT__)" x-init="init()" class="flex flex-col gap-10 max-w-3xl mx-auto">
 
         {{-- HEADER --}}
         <div>

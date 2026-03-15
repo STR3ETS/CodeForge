@@ -1,5 +1,6 @@
 <x-layouts.marketing>
-    <x-slot:title>Games - BrainForge</x-slot:title>
+    <x-slot:title>Alle Games - Online Breinspellen | BrainForge</x-slot:title>
+    <x-slot:description>Ontdek alle 11 breinspellen op BrainForge. Van woordpuzzels tot geheugentraining — elke dag nieuwe uitdagingen in 3 moeilijkheden.</x-slot:description>
 
     {{-- Page header --}}
     <section class="pt-28 pb-16 bg-white border-b border-[#564D4A]/6">

@@ -1,5 +1,6 @@
 <x-layouts.marketing>
     <x-slot:title>Hoe het werkt - BrainForge</x-slot:title>
+    <x-slot:description>Ontdek hoe BrainForge werkt. Maak een account, kies je moeilijkheid, speel dagelijkse puzzels en bouw je streak op. Start gratis!</x-slot:description>
 
     {{-- Page header --}}
     <section class="pt-28 pb-16 bg-white border-b border-[#564D4A]/6">

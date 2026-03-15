@@ -1,5 +1,6 @@
 <x-layouts.marketing :navDark="true">
     <x-slot:title>BrainForge - Train je brein, elke dag opnieuw</x-slot:title>
+    <x-slot:description>Train je brein met 11 dagelijkse puzzels en breinspellen. Bouw je streak op, verdien XP, daag vrienden uit en klim het leaderboard. Gratis te spelen!</x-slot:description>
     <x-slot:head>
         <style>
             .float-animation { animation: bfFloat 6s ease-in-out infinite; }

@@ -215,12 +215,12 @@
                 <div>
                     <p class="font-bold text-sm text-[#564D4A] mb-4">Games</p>
                     <ul class="grid gap-2.5">
-                        <li><a href="{{ route('pages.games') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Word Forge</a></li>
-                        <li><a href="{{ route('pages.games') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Find the Emoji</a></li>
-                        <li><a href="{{ route('pages.games') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Sequence Rush</a></li>
-                        <li><a href="{{ route('pages.games') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Flag Guess</a></li>
-                        <li><a href="{{ route('pages.games') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Block Drop</a></li>
-                        <li><a href="{{ route('pages.games') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Sudoku</a></li>
+                        <li><a href="{{ route('pages.games.word-forge') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Word Forge</a></li>
+                        <li><a href="{{ route('pages.games.find-the-emoji') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Find the Emoji</a></li>
+                        <li><a href="{{ route('pages.games.sequence-rush') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Sequence Rush</a></li>
+                        <li><a href="{{ route('pages.games.flag-guess') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Flag Guess</a></li>
+                        <li><a href="{{ route('pages.games.sudoku') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Sudoku</a></li>
+                        <li><a href="{{ route('pages.games') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Alle games →</a></li>
                     </ul>
                 </div>
 
@@ -230,6 +230,8 @@
                     <ul class="grid gap-2.5">
                         <li><a href="{{ route('pages.how') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Hoe het werkt</a></li>
                         <li><a href="{{ route('pages.pricing') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Pricing</a></li>
+                        <li><a href="{{ route('pages.categorie.hersenkrakers') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Hersenkrakers</a></li>
+                        <li><a href="{{ route('pages.categorie.geheugentraining') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Geheugentraining</a></li>
                         <li><a href="{{ route('register') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Account aanmaken</a></li>
                         <li><a href="{{ route('login') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Inloggen</a></li>
                     </ul>
@@ -239,9 +241,9 @@
                 <div>
                     <p class="font-bold text-sm text-[#564D4A] mb-4">Juridisch</p>
                     <ul class="grid gap-2.5">
-                        <li><a href="#" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Algemene voorwaarden</a></li>
-                        <li><a href="#" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Privacybeleid</a></li>
-                        <li><a href="#" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Cookiebeleid</a></li>
+                        <li><a href="{{ route('pages.terms') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Algemene voorwaarden</a></li>
+                        <li><a href="{{ route('pages.privacy') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Privacybeleid</a></li>
+                        <li><a href="{{ route('pages.cookies') }}" class="text-sm text-[#564D4A]/50 hover:text-[#564D4A] transition">Cookiebeleid</a></li>
                     </ul>
                 </div>
             </div>

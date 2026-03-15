@@ -78,7 +78,7 @@
         });
     </script>
 
-    <div x-data="findTheEmoji(window.__FTE_INIT__)" x-init="init()" class="flex flex-col gap-8 max-w-3xl mx-auto relative overflow-hidden">
+    <div x-data="findTheEmoji(window.__FTE_INIT__)" x-init="init()" class="flex flex-col gap-10 max-w-3xl mx-auto relative overflow-hidden">
 
         {{-- HEADER --}}
         <div class="relative z-[1]">

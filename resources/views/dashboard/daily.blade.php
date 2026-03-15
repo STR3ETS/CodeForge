@@ -33,7 +33,7 @@
         $totalCount = $filteredGames->count();
     @endphp
 
-    <div class="flex flex-col gap-6" x-data="{ showUpgrade: false }">
+    <div class="flex flex-col gap-10" x-data="{ showUpgrade: false }">
 
         {{-- HEADER --}}
         <div>
@@ -68,134 +68,136 @@
         @endif
 
         {{-- GAMES BY DIFFICULTY --}}
-        @foreach($diffOrder as $diffLabel)
-            @if($groupedGames->has($diffLabel))
-                @php
-                    $gamesInGroup = $groupedGames->get($diffLabel);
-                    $diffStyle = match($diffLabel) {
-                        'Easy'    => 'text-[#6b7052]',
-                        'Medium'  => 'text-[#b8712d]',
-                        'Hard'    => 'text-[#a04f43]',
-                        'Extreme' => 'text-[#5B2333]',
-                        default   => 'text-[#564D4A]',
-                    };
-                    $diffBadge = match($diffLabel) {
-                        'Easy'    => 'bg-[#8E936D]/15 text-[#6b7052]',
-                        'Medium'  => 'bg-[#F4A261]/15 text-[#b8712d]',
-                        'Hard'    => 'bg-[#CE796B]/15 text-[#a04f43]',
-                        'Extreme' => 'bg-[#5B2333]/15 text-[#5B2333]',
-                        default   => 'bg-[#564D4A]/8 text-[#564D4A]',
-                    };
-                    $groupSolved = $gamesInGroup->filter(fn($g) => ($g['status'] ?? null) === 'solved')->count();
-                @endphp
+        <div class="flex flex-col gap-6">
+            @foreach($diffOrder as $diffLabel)
+                @if($groupedGames->has($diffLabel))
+                    @php
+                        $gamesInGroup = $groupedGames->get($diffLabel);
+                        $diffStyle = match($diffLabel) {
+                            'Easy'    => 'text-[#6b7052]',
+                            'Medium'  => 'text-[#b8712d]',
+                            'Hard'    => 'text-[#a04f43]',
+                            'Extreme' => 'text-[#5B2333]',
+                            default   => 'text-[#564D4A]',
+                        };
+                        $diffBadge = match($diffLabel) {
+                            'Easy'    => 'bg-[#8E936D]/15 text-[#6b7052]',
+                            'Medium'  => 'bg-[#F4A261]/15 text-[#b8712d]',
+                            'Hard'    => 'bg-[#CE796B]/15 text-[#a04f43]',
+                            'Extreme' => 'bg-[#5B2333]/15 text-[#5B2333]',
+                            default   => 'bg-[#564D4A]/8 text-[#564D4A]',
+                        };
+                        $groupSolved = $gamesInGroup->filter(fn($g) => ($g['status'] ?? null) === 'solved')->count();
+                    @endphp
 
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2.5">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold {{ $diffBadge }}">
-                                <i class="fa-solid fa-signal text-[9px]"></i> {{ $diffLabelsNl[$diffLabel] ?? $diffLabel }}
-                            </span>
-                            <span class="text-[11px] font-semibold text-[#564D4A]/30">{{ $groupSolved }}/{{ $gamesInGroup->count() }} afgerond</span>
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2.5">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold {{ $diffBadge }}">
+                                    <i class="fa-solid fa-signal text-[9px]"></i> {{ $diffLabelsNl[$diffLabel] ?? $diffLabel }}
+                                </span>
+                                <span class="text-[11px] font-semibold text-[#564D4A]/30">{{ $groupSolved }}/{{ $gamesInGroup->count() }} afgerond</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        @foreach($gamesInGroup as $g)
-                            @php
-                                $key = $g['key'] ?? ('game-' . $loop->index);
-                                $requiresPro = !empty($g['proOnly']);
-                                $locked = $requiresPro && $isFree;
-                                $gameStatus = $g['status'] ?? null;
-                                $freeLocked = $limitReached && !$gameStatus;
-                                $available = !empty($g['available']);
-                                $clickable = $available && !$locked && !$freeLocked;
-                                $accent = $accentMap[$key] ?? ['bg' => 'bg-[#EEF1F4]', 'text' => 'text-[#564D4A]'];
-                                $href = ($clickable && !empty($g['href'])) ? $g['href'] : '#';
-                                $dailyNo = $g['number'] ?? (100 + $loop->index);
-                                $rewardXp = (int) ($g['reward_xp'] ?? 0);
-                            @endphp
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            @foreach($gamesInGroup as $g)
+                                @php
+                                    $key = $g['key'] ?? ('game-' . $loop->index);
+                                    $requiresPro = !empty($g['proOnly']);
+                                    $locked = $requiresPro && $isFree;
+                                    $gameStatus = $g['status'] ?? null;
+                                    $freeLocked = $limitReached && !$gameStatus;
+                                    $available = !empty($g['available']);
+                                    $clickable = $available && !$locked && !$freeLocked;
+                                    $accent = $accentMap[$key] ?? ['bg' => 'bg-[#EEF1F4]', 'text' => 'text-[#564D4A]'];
+                                    $href = ($clickable && !empty($g['href'])) ? $g['href'] : '#';
+                                    $dailyNo = $g['number'] ?? (100 + $loop->index);
+                                    $rewardXp = (int) ($g['reward_xp'] ?? 0);
+                                @endphp
 
-                            @if($freeLocked)
-                            <div @click="showUpgrade = true"
-                                class="group rounded-2xl border border-[#564D4A]/6 bg-white overflow-hidden transition cursor-pointer opacity-40 hover:opacity-55">
-                            @elseif(!$clickable)
-                            <span class="group rounded-2xl border border-[#564D4A]/6 bg-white overflow-hidden opacity-50 cursor-not-allowed">
-                            @else
-                            <a href="{{ $href }}"
-                                class="group rounded-2xl border border-[#564D4A]/6 bg-white overflow-hidden transition hover:border-[#5B2333]/30 hover:shadow-sm hover:shadow-[#5B2333]/5">
-                            @endif
+                                @if($freeLocked)
+                                <div @click="showUpgrade = true"
+                                    class="group rounded-2xl border border-[#564D4A]/6 bg-white overflow-hidden transition cursor-pointer opacity-40 hover:opacity-55">
+                                @elseif(!$clickable)
+                                <span class="group rounded-2xl border border-[#564D4A]/6 bg-white overflow-hidden opacity-50 cursor-not-allowed">
+                                @else
+                                <a href="{{ $href }}"
+                                    class="group rounded-2xl border border-[#564D4A]/6 bg-white overflow-hidden transition hover:border-[#5B2333]/30 hover:shadow-sm hover:shadow-[#5B2333]/5">
+                                @endif
 
-                                {{-- Icon area --}}
-                                <div class="h-[80px] {{ $accent['bg'] }} flex items-center justify-center relative">
-                                    <i class="{{ $g['icon'] ?? 'fa-solid fa-gamepad' }} {{ $accent['text'] }} text-2xl"></i>
+                                    {{-- Icon area --}}
+                                    <div class="h-[80px] {{ $accent['bg'] }} flex items-center justify-center relative">
+                                        <i class="{{ $g['icon'] ?? 'fa-solid fa-gamepad' }} {{ $accent['text'] }} text-2xl"></i>
 
-                                    @if($gameStatus === 'solved')
-                                        <span class="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                                            <i class="fa-solid fa-check text-white text-[9px]"></i>
-                                        </span>
-                                    @elseif($gameStatus === 'failed')
-                                        <span class="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center">
-                                            <i class="fa-solid fa-xmark text-white text-[9px]"></i>
-                                        </span>
-                                    @elseif($locked || $freeLocked)
-                                        <span class="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-white/80 border border-[#564D4A]/10 flex items-center justify-center">
-                                            <i class="fa-solid fa-lock text-[#564D4A]/40 text-[9px]"></i>
-                                        </span>
-                                    @endif
+                                        @if($gameStatus === 'solved')
+                                            <span class="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                                                <i class="fa-solid fa-check text-white text-[9px]"></i>
+                                            </span>
+                                        @elseif($gameStatus === 'failed')
+                                            <span class="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center">
+                                                <i class="fa-solid fa-xmark text-white text-[9px]"></i>
+                                            </span>
+                                        @elseif($locked || $freeLocked)
+                                            <span class="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-white/80 border border-[#564D4A]/10 flex items-center justify-center">
+                                                <i class="fa-solid fa-lock text-[#564D4A]/40 text-[9px]"></i>
+                                            </span>
+                                        @endif
 
-                                    @if($requiresPro)
-                                        <span class="absolute top-2.5 left-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 text-[#F46036] text-[9px] font-bold">
-                                            <i class="fa-solid fa-crown text-[8px]"></i> PRO
-                                        </span>
-                                    @endif
-                                </div>
-
-                                {{-- Info --}}
-                                <div class="p-4">
-                                    <p class="text-sm font-black text-[#564D4A]">
-                                        {{ $g['title'] ?? 'Game' }}
-                                        <span class="text-[#564D4A]/30 font-bold">#{{ $dailyNo }}</span>
-                                    </p>
-                                    <p class="mt-0.5 text-[11px] text-[#564D4A]/40 font-medium">{{ $g['desc'] ?? 'Daily game' }}</p>
-
-                                    <div class="mt-3 flex items-center justify-between">
-                                        {{-- Status --}}
-                                        <p class="text-[11px] font-semibold
-                                            {{ $gameStatus === 'solved' ? 'text-green-600' : ($gameStatus === 'failed' ? 'text-red-500' : 'text-[#564D4A]/35') }}">
-                                            @if($gameStatus === 'solved')
-                                                Opgelost @if(!empty($g['status_time'])) in {{ $g['status_time'] }} @endif
-                                            @elseif($gameStatus === 'failed')
-                                                Niet gehaald
-                                            @elseif($locked || $freeLocked)
-                                                Op slot
-                                            @else
-                                                Speel nu
-                                            @endif
-                                        </p>
-
-                                        {{-- XP reward --}}
-                                        @if($rewardXp > 0)
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold
-                                                {{ $gameStatus === 'solved' ? 'bg-green-100 text-green-600' : 'bg-[#5B2333]/8 text-[#5B2333]' }}">
-                                                <i class="fa-solid fa-coins text-[8px]"></i>
-                                                {{ $gameStatus === 'solved' ? '+' . $rewardXp : '+' . $rewardXp . ' XP' }}
+                                        @if($requiresPro)
+                                            <span class="absolute top-2.5 left-2.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 text-[#F46036] text-[9px] font-bold">
+                                                <i class="fa-solid fa-crown text-[8px]"></i> PRO
                                             </span>
                                         @endif
                                     </div>
-                                </div>
 
-                            @if($freeLocked)
-                            </div>
-                            @elseif(!$clickable)
-                            </span>
-                            @else
-                            </a>
-                            @endif
-                        @endforeach
+                                    {{-- Info --}}
+                                    <div class="p-4">
+                                        <p class="text-sm font-black text-[#564D4A]">
+                                            {{ $g['title'] ?? 'Game' }}
+                                            <span class="text-[#564D4A]/30 font-bold">#{{ $dailyNo }}</span>
+                                        </p>
+                                        <p class="mt-0.5 text-[11px] text-[#564D4A]/40 font-medium">{{ $g['desc'] ?? 'Daily game' }}</p>
+
+                                        <div class="mt-3 flex items-center justify-between">
+                                            {{-- Status --}}
+                                            <p class="text-[11px] font-semibold
+                                                {{ $gameStatus === 'solved' ? 'text-green-600' : ($gameStatus === 'failed' ? 'text-red-500' : 'text-[#564D4A]/35') }}">
+                                                @if($gameStatus === 'solved')
+                                                    Opgelost @if(!empty($g['status_time'])) in {{ $g['status_time'] }} @endif
+                                                @elseif($gameStatus === 'failed')
+                                                    Niet gehaald
+                                                @elseif($locked || $freeLocked)
+                                                    Op slot
+                                                @else
+                                                    Speel nu
+                                                @endif
+                                            </p>
+
+                                            {{-- XP reward --}}
+                                            @if($rewardXp > 0)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold
+                                                    {{ $gameStatus === 'solved' ? 'bg-green-100 text-green-600' : 'bg-[#5B2333]/8 text-[#5B2333]' }}">
+                                                    <i class="fa-solid fa-coins text-[8px]"></i>
+                                                    {{ $gameStatus === 'solved' ? '+' . $rewardXp : '+' . $rewardXp . ' XP' }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                @if($freeLocked)
+                                </div>
+                                @elseif(!$clickable)
+                                </span>
+                                @else
+                                </a>
+                                @endif
+                            @endforeach
+                        </div>
                     </div>
-                </div>
-            @endif
-        @endforeach
+                @endif
+            @endforeach
+        </div>
 
         {{-- Quest reward flash --}}
         @if(session('quest_rewarded'))

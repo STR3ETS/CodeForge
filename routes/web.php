@@ -33,6 +33,30 @@ Route::get('/games', fn() => view('pages.games'))->name('pages.games');
 Route::get('/hoe-het-werkt', fn() => view('pages.how-it-works'))->name('pages.how');
 Route::get('/pricing', fn() => view('pages.pricing'))->name('pages.pricing');
 
+// Game landing pages (SEO)
+Route::get('/games/word-forge-info', fn() => view('pages.games.word-forge'))->name('pages.games.word-forge');
+Route::get('/games/find-the-emoji-info', fn() => view('pages.games.find-the-emoji'))->name('pages.games.find-the-emoji');
+Route::get('/games/sequence-rush-info', fn() => view('pages.games.sequence-rush'))->name('pages.games.sequence-rush');
+Route::get('/games/flag-guess-info', fn() => view('pages.games.flag-guess'))->name('pages.games.flag-guess');
+Route::get('/games/block-drop-info', fn() => view('pages.games.block-drop'))->name('pages.games.block-drop');
+Route::get('/games/sudoku-info', fn() => view('pages.games.sudoku'))->name('pages.games.sudoku');
+Route::get('/games/memory-grid-info', fn() => view('pages.games.memory-grid'))->name('pages.games.memory-grid');
+Route::get('/games/color-match-info', fn() => view('pages.games.color-match'))->name('pages.games.color-match');
+Route::get('/games/reaction-time-info', fn() => view('pages.games.reaction-time'))->name('pages.games.reaction-time');
+Route::get('/games/maze-runner-info', fn() => view('pages.games.maze-runner'))->name('pages.games.maze-runner');
+Route::get('/games/color-sort-info', fn() => view('pages.games.color-sort'))->name('pages.games.color-sort');
+
+// Category landing pages (SEO)
+Route::get('/categorie/hersenkrakers', fn() => view('pages.categorie.hersenkrakers'))->name('pages.categorie.hersenkrakers');
+Route::get('/categorie/geheugentraining', fn() => view('pages.categorie.geheugentraining'))->name('pages.categorie.geheugentraining');
+Route::get('/categorie/logica-strategie', fn() => view('pages.categorie.logica-strategie'))->name('pages.categorie.logica-strategie');
+Route::get('/categorie/snelheid-reactie', fn() => view('pages.categorie.snelheid-reactie'))->name('pages.categorie.snelheid-reactie');
+
+// Legal pages
+Route::get('/algemene-voorwaarden', fn() => view('pages.algemene-voorwaarden'))->name('pages.terms');
+Route::get('/privacybeleid', fn() => view('pages.privacybeleid'))->name('pages.privacy');
+Route::get('/cookiebeleid', fn() => view('pages.cookiebeleid'))->name('pages.cookies');
+
 // Guest routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
