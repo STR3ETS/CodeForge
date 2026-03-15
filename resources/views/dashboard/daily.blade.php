@@ -23,6 +23,8 @@
             'reaction-time'  => ['bg' => 'bg-[#FEF9C3]', 'text' => 'text-[#a16207]'],
             'maze-runner'    => ['bg' => 'bg-[#DBEAFE]', 'text' => 'text-[#1d4ed8]'],
             'color-sort'     => ['bg' => 'bg-[#FEF3C7]', 'text' => 'text-[#b45309]'],
+            'math-rush'      => ['bg' => 'bg-[#DBEAFE]', 'text' => 'text-[#1d4ed8]'],
+            'geo-guess'      => ['bg' => 'bg-[#CCFBF1]', 'text' => 'text-[#0D9488]'],
         ];
 
         $diffOrder = ['Easy', 'Medium', 'Hard', 'Extreme'];

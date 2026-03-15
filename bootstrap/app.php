@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
 
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
+
         $middleware->validateCsrfTokens(except: [
             'stripe/webhook',
         ]);

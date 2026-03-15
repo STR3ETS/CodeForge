@@ -25,6 +25,7 @@ class User extends Authenticatable
         'daily_challenges_done',
         'daily_challenges_date',
         'last_challenge_completed_at',
+        'locale',
     ];
 
     protected $hidden = [

@@ -28,6 +28,11 @@
             return $m . 'm ' . $sec . 's';
         };
 
+        $fmtDist = function (int $meters): string {
+            if ($meters < 1000) return $meters . ' m';
+            return number_format($meters / 1000, 1, ',', '.') . ' km';
+        };
+
         $accentMap = [
             'find-the-emoji' => ['bg' => 'bg-[#FBE2D8]', 'text' => 'text-[#c0705a]'],
             'word-forge'     => ['bg' => 'bg-[#D6E4F0]', 'text' => 'text-[#4a7fa5]'],
@@ -40,6 +45,8 @@
             'reaction-time'  => ['bg' => 'bg-[#FEF9C3]', 'text' => 'text-[#a16207]'],
             'maze-runner'    => ['bg' => 'bg-[#DBEAFE]', 'text' => 'text-[#1d4ed8]'],
             'color-sort'     => ['bg' => 'bg-[#FEF3C7]', 'text' => 'text-[#b45309]'],
+            'math-rush'      => ['bg' => 'bg-[#DBEAFE]', 'text' => 'text-[#1d4ed8]'],
+            'geo-guess'      => ['bg' => 'bg-[#CCFBF1]', 'text' => 'text-[#0D9488]'],
         ];
 
         $meId = auth()->id();
@@ -276,7 +283,7 @@
                             </div>
                             <div>
                                 <h2 class="text-sm font-extrabold text-[#564D4A]">{{ $board['title'] }}</h2>
-                                <p class="text-[11px] font-semibold text-[#564D4A]/50">{{ ($board['rank_by'] ?? 'time') === 'attempts' ? 'Minste zetten vandaag' : (($board['rank_by'] ?? 'time') === 'reaction' ? 'Snelste reactie vandaag' : 'Snelst vandaag') }}</p>
+                                <p class="text-[11px] font-semibold text-[#564D4A]/50">{{ ($board['rank_by'] ?? 'time') === 'attempts' ? 'Minste zetten vandaag' : (($board['rank_by'] ?? 'time') === 'reaction' ? 'Snelste reactie vandaag' : (($board['rank_by'] ?? 'time') === 'distance' ? 'Dichtstbij vandaag' : 'Snelst vandaag')) }}</p>
                             </div>
                         </div>
                         @if(($board['rank_by'] ?? 'time') === 'attempts')
@@ -286,6 +293,10 @@
                         @elseif(($board['rank_by'] ?? 'time') === 'reaction')
                             <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold shrink-0">
                                 <i class="fa-solid fa-bolt"></i> Reactie
+                            </span>
+                        @elseif(($board['rank_by'] ?? 'time') === 'distance')
+                            <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold shrink-0">
+                                <i class="fa-solid fa-location-dot"></i> Afstand
                             </span>
                         @else
                             <span class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#5B2333]/10 text-[#5B2333] text-xs font-semibold shrink-0">
@@ -312,6 +323,7 @@
                                         $rankBy = $board['rank_by'] ?? 'time';
                                         $rankByAttempts = $rankBy === 'attempts';
                                         $rankByReaction = $rankBy === 'reaction';
+                                        $rankByDistance = $rankBy === 'distance';
                                         $bestAttempts = $slot['row']['best_attempts'] ?? null;
                                         $isMe = $rp ? ((int)$rp->id === (int)$meId) : false;
                                         $av   = $avatarOf($rp);
@@ -349,6 +361,11 @@
                                                     <i class="fa-solid fa-bolt text-[#5B2333]"></i>
                                                     {{ $ms }}ms
                                                 </span>
+                                            @elseif($rankByDistance)
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A] shrink-0">
+                                                    <i class="fa-solid fa-location-dot text-[#0D9488]"></i>
+                                                    {{ $fmtDist($ms) }}
+                                                </span>
                                             @else
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A] shrink-0">
                                                     <i class="fa-solid fa-stopwatch text-[#5B2333]"></i>
@@ -370,6 +387,7 @@
                                         $rankBy = $board['rank_by'] ?? 'time';
                                         $rankByAttempts = $rankBy === 'attempts';
                                         $rankByReaction = $rankBy === 'reaction';
+                                        $rankByDistance = $rankBy === 'distance';
                                         $bestAttempts = $row['best_attempts'] ?? null;
                                         $rank = $i + 4;
                                         $isMe = (int)($rp->id ?? 0) === (int)$meId;
@@ -405,6 +423,11 @@
                                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A] shrink-0">
                                                 <i class="fa-solid fa-bolt text-[#5B2333]"></i>
                                                 {{ $ms }}ms
+                                            </span>
+                                        @elseif($rankByDistance)
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A] shrink-0">
+                                                <i class="fa-solid fa-location-dot text-[#0D9488]"></i>
+                                                {{ $fmtDist($ms) }}
                                             </span>
                                         @else
                                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#F7F4F3] border border-[#564D4A]/6 text-xs font-extrabold text-[#564D4A] shrink-0">

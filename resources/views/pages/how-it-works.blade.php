@@ -156,7 +156,7 @@
                         <div class="w-12 h-12 rounded-xl bg-[#D6E4F0] flex items-center justify-center mb-3">
                             <i class="fa-solid fa-font text-[#4a7fa5] text-lg"></i>
                         </div>
-                        <p class="font-bold text-[#4a7fa5]/50 text-xs">Word Forge in actie</p>
+                        <p class="font-bold text-[#4a7fa5]/50 text-xs">Woord Raden in actie</p>
                     </div>
                     <div class="p-4">
                         <p class="font-bold text-sm text-[#564D4A]">Spelervaring</p>
@@ -201,7 +201,7 @@
                 </div>
                 <div>
                     <p class="font-bold text-sm text-[#564D4A]">Koffie + eerste game</p>
-                    <p class="text-xs text-[#564D4A]/50">Word Forge op makkelijk — 2 minuten</p>
+                    <p class="text-xs text-[#564D4A]/50">Woord Raden op makkelijk — 2 minuten</p>
                 </div>
             </div>
             <div class="flex items-center gap-5 p-5">
@@ -213,7 +213,7 @@
                 </div>
                 <div>
                     <p class="font-bold text-sm text-[#564D4A]">Lunchpauze challenge</p>
-                    <p class="text-xs text-[#564D4A]/50">Sudoku op normaal + Flag Guess — 8 minuten</p>
+                    <p class="text-xs text-[#564D4A]/50">Sudoku op normaal + Vlaggen Quiz — 8 minuten</p>
                 </div>
             </div>
             <div class="flex items-center gap-5 p-5">
@@ -225,7 +225,7 @@
                 </div>
                 <div>
                     <p class="font-bold text-sm text-[#564D4A]">Avond wind-down</p>
-                    <p class="text-xs text-[#564D4A]/50">Block Drop op moeilijk — 5 minuten. Quest voltooid!</p>
+                    <p class="text-xs text-[#564D4A]/50">Blok Drop op moeilijk — 5 minuten. Quest voltooid!</p>
                 </div>
             </div>
         </div>

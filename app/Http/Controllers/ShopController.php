@@ -14,7 +14,7 @@ class ShopController extends Controller
 
         $items = ShopItem::where('active', true)
             ->orderByRaw("FIELD(rarity, 'legendary', 'epic', 'rare', 'common')")
-            ->orderBy('price')
+            ->orderByDesc('price')
             ->get();
 
         $ownedIds = $user->cosmetics()->pluck('shop_items.id')->toArray();
@@ -139,7 +139,10 @@ class ShopController extends Controller
 
             $allowedColors = ['red', 'orange', 'yellow', 'green', 'emerald', 'cyan', 'blue', 'indigo', 'purple', 'pink', 'slate', 'rainbow'];
             $color = $request->input('custom_color', 'slate');
-            if (!in_array($color, $allowedColors)) {
+            // Allow gradient colors: 3 hex codes separated by commas (e.g. "#5B2333,#F59E0B,#0D9488")
+            if (!in_array($color, $allowedColors) && preg_match('/^#[0-9A-Fa-f]{6},#[0-9A-Fa-f]{6},#[0-9A-Fa-f]{6}$/', $color)) {
+                // Valid gradient — keep as-is
+            } elseif (!in_array($color, $allowedColors)) {
                 $color = 'slate';
             }
 

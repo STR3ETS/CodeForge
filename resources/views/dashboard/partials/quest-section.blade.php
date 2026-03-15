@@ -118,7 +118,27 @@
                                                     body: JSON.stringify({ quest_key: '{{ addslashes($q['key']) }}', quest_type: '{{ addslashes($q['quest_type'] ?? 'daily') }}' }),
                                                 });
                                                 const data = await r.json();
-                                                if (data.ok) { claimed = true; error = false; }
+                                                if (data.ok) {
+                                                    claimed = true; error = false;
+                                                    const wrap = document.getElementById('xp-bar-wrapper');
+                                                    const fill = document.getElementById('xp-bar-fill');
+                                                    const text = document.getElementById('xp-bar-text');
+                                                    const lvl  = document.getElementById('xp-bar-level');
+                                                    if (wrap) {
+                                                        const badge = document.createElement('span');
+                                                        badge.className = 'xp-pop-badge text-[11px] font-black text-[#5B2333]';
+                                                        badge.textContent = '+' + data.reward_xp + ' XP';
+                                                        wrap.appendChild(badge);
+                                                        setTimeout(() => badge.remove(), 1500);
+                                                    }
+                                                    if (fill) {
+                                                        fill.classList.add('xp-bar-glow');
+                                                        setTimeout(() => fill.classList.remove('xp-bar-glow'), 1700);
+                                                        setTimeout(() => { fill.style.width = data.percent + '%'; }, 300);
+                                                    }
+                                                    if (text) setTimeout(() => { text.textContent = new Intl.NumberFormat('nl-NL').format(data.inLevel) + '/' + new Intl.NumberFormat('nl-NL').format(data.nextInLevel); }, 300);
+                                                    if (lvl) { lvl.lastChild.textContent = ' Lvl ' + data.level; }
+                                                }
                                                 else { error = true; }
                                             } catch (e) { error = true; }
                                             loading = false;

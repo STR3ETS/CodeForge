@@ -1,6 +1,6 @@
 <x-layouts.marketing>
     <x-slot:title>Geheugentraining - Online Geheugenspellen | BrainForge</x-slot:title>
-    <x-slot:description>Verbeter je geheugen met dagelijkse geheugenspellen. Memory Grid, Color Match en meer — train je brein op BrainForge.</x-slot:description>
+    <x-slot:description>Verbeter je geheugen met dagelijkse geheugenspellen. Geheugen Grid, Kleuren Match en meer — train je brein op BrainForge.</x-slot:description>
 
     {{-- Page header --}}
     <section class="pt-28 pb-16 bg-white border-b border-[#564D4A]/6">
@@ -52,7 +52,7 @@
             @php
                 $games = [
                     [
-                        'name' => 'Memory Grid',
+                        'name' => 'Geheugen Grid',
                         'icon' => 'fa-solid fa-brain',
                         'bg' => 'bg-[#E8D5F0]',
                         'color' => 'text-[#7a4fa0]',
@@ -61,7 +61,7 @@
                         'description' => 'Onthoud de posities van emoji-paren in een grid. Je krijgt een paar seconden om alles te bekijken, daarna moet je alle paren vinden met zo min mogelijk zetten. Perfecte training voor je visueel geheugen.',
                     ],
                     [
-                        'name' => 'Color Match',
+                        'name' => 'Kleuren Match',
                         'icon' => 'fa-solid fa-palette',
                         'bg' => 'bg-[#FFE4E6]',
                         'color' => 'text-[#be123c]',
@@ -70,7 +70,7 @@
                         'description' => 'Je ziet een kleurwoord in een andere kleur geschreven. Klik op de knop die past bij de kleur van de tekst, niet het woord zelf. Dit Stroop-effect traint je werkgeheugen en cognitieve flexibiliteit.',
                     ],
                     [
-                        'name' => 'Find the Emoji',
+                        'name' => 'Vind de Emoji',
                         'icon' => 'fa-solid fa-face-grin',
                         'bg' => 'bg-[#FBE2D8]',
                         'color' => 'text-[#c0705a]',

@@ -1,5 +1,5 @@
 {{-- resources/views/games/color-match.blade.php --}}
-<x-layouts.dashboard :title="'Color Match'" active="daily">
+<x-layouts.dashboard :title="'Kleuren Match'" active="daily">
     @php
         $isSolved = (bool)($run->solved ?? false);
         $isFailed = (bool)(!$isSolved && !empty($run->finished_at));
@@ -100,7 +100,7 @@
                 <div>
                     <h1 class="text-[1.5rem] md:text-[1.8rem] font-black text-[#564D4A] tracking-tight leading-tight">
                         <template x-if="!isSolved && !isFailed">
-                            <span>Color Match <span class="text-[#564D4A]/40">#<span x-text="puzzle.number"></span></span></span>
+                            <span>Kleuren Match <span class="text-[#564D4A]/40">#<span x-text="puzzle.number"></span></span></span>
                         </template>
                         <template x-if="isSolved"><span>Goed gedaan! 🎨</span></template>
                         <template x-if="isFailed"><span>Niet afgemaakt 😅</span></template>

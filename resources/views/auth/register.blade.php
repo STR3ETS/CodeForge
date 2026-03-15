@@ -1,15 +1,17 @@
-<x-layouts.auth :title="'Register • ' . config('app.name')">
-    <div class="bg-white max-w-[400px] w-full p-8 rounded-2xl flex flex-col shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
-        <div class="w-12 h-12 rounded-xl bg-[#5B2333] flex items-center justify-center">
-            <img src="/assets/logo-wit.png" class="max-h-6" alt="Logo">
+<x-layouts.auth :title="'Register - ' . config('app.name')">
+    <div class="w-full max-w-[420px]">
+        <div class="mb-6">
+            <h1 class="text-2xl font-black text-[#564D4A] tracking-tight">Account aanmaken</h1>
+            <p class="text-sm text-[#564D4A]/40 mt-1">Gratis in 30 seconden. Geen creditcard nodig.</p>
         </div>
 
-        <h1 class="text-2xl font-black text-[#564D4A] my-3">Maak je account aan</h1>
-
         @if ($errors->any())
-            <div class="rounded-xl bg-red-50 border border-red-100 p-3 mb-4">
-                <p class="text-[12px] font-semibold text-red-700">Er ging iets mis:</p>
-                <ul class="mt-2 text-[12px] text-red-700 list-disc ml-4 space-y-1">
+            <div class="rounded-2xl bg-red-50 border border-red-100 p-4 mb-5">
+                <div class="flex items-center gap-2 mb-1.5">
+                    <i class="fa-solid fa-circle-exclamation text-red-500 text-xs"></i>
+                    <p class="text-xs font-bold text-red-700">Er ging iets mis</p>
+                </div>
+                <ul class="text-xs text-red-600 space-y-0.5 ml-5">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -17,73 +19,90 @@
             </div>
         @endif
 
-        <div class="cursor-pointer w-full bg-[#564D4A]/10 hover:bg-[#564D4A]/25 transition duration-200 rounded-md py-2.5 px-4 text-center text-xs text-[#564D4A] font-semibold">
-            <i class="fa-brands fa-google"></i> <span class="ml-2">Registreren met Google</span>
+        <a href="{{ route('auth.google') }}"
+            class="flex items-center justify-center gap-2.5 w-full bg-white border border-[#564D4A]/8 hover:border-[#564D4A]/20 hover:shadow-sm transition-all duration-200 rounded-xl py-3 px-4 text-sm text-[#564D4A] font-semibold cursor-pointer">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Registreren met Google
+        </a>
+
+        <div class="flex items-center gap-3 my-6">
+            <div class="flex-1 h-px bg-[#564D4A]/8"></div>
+            <span class="text-[10px] uppercase text-[#564D4A]/30 font-bold tracking-wider">of met e-mail</span>
+            <div class="flex-1 h-px bg-[#564D4A]/8"></div>
         </div>
 
-        <div class="grid grid-cols-5 gap-2 items-center my-5">
-            <div class="col-span-2 h-[1px] w-full bg-[#564D4A]/10"></div>
-            <p class="text-center text-[11px] uppercase text-[#564D4A]/50 font-bold">OF</p>
-            <div class="col-span-2 h-[1px] w-full bg-[#564D4A]/10"></div>
-        </div>
-
-        <form method="POST" action="{{ route('register.submit') }}" class="grid gap-3">
+        <form method="POST" action="{{ route('register.submit') }}" class="space-y-4">
             @csrf
 
-            <div class="relative w-full">
-                <input name="name" value="{{ old('name') }}" type="text"
-                    class="w-full outline-none rounded-md py-2.5 px-4 pl-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200"
-                    placeholder="Jouw naam" required autocomplete="name">
-                <i class="fa-solid fa-user text-[#564D4A]/50 absolute left-4 top-1/2 -translate-y-1/2 text-xs"></i>
-            </div>
-
-            <div class="relative w-full">
-                <input name="email" value="{{ old('email') }}" type="email"
-                    class="w-full outline-none rounded-md py-2.5 px-4 pl-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200"
-                    placeholder="Jouw e-mailadres" required autocomplete="email">
-                <i class="fa-solid fa-at text-[#564D4A]/50 absolute left-4 top-1/2 -translate-y-1/2 text-xs"></i>
-            </div>
-
-            <div class="grid gap-2">
-                <div class="relative w-full">
-                    <input name="password" type="password"
-                        class="w-full outline-none rounded-md py-2.5 px-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200"
-                        placeholder="Jouw wachtwoord" required autocomplete="new-password">
-                    <i class="fa-solid fa-key text-[#564D4A]/50 absolute left-4 top-1/2 -translate-y-1/2 text-xs"></i>
-                    <i class="fa-solid fa-eye text-[#564D4A]/30 absolute right-4 top-1/2 -translate-y-1/2 text-xs"></i>
+            <div>
+                <label class="text-xs font-semibold text-[#564D4A]/60 mb-1.5 block">Naam</label>
+                <div class="relative">
+                    <input name="name" value="{{ old('name') }}" type="text"
+                        class="w-full bg-white rounded-xl py-3 px-4 pl-10 text-sm text-[#564D4A] font-medium border border-[#564D4A]/8 focus:border-[#5B2333]/40 focus:ring-2 focus:ring-[#5B2333]/5 outline-none transition"
+                        placeholder="Jouw naam" required autocomplete="name">
+                    <i class="fa-solid fa-user text-[#564D4A]/25 absolute left-3.5 top-1/2 -translate-y-1/2 text-xs"></i>
                 </div>
-
-                <div class="relative w-full">
-                    <input name="password_confirmation" type="password"
-                        class="w-full outline-none rounded-md py-2.5 px-10 text-xs text-[#564D4A] font-semibold border border-[#564D4A]/10 focus:border-[#5B2333]/50 transition duration-200"
-                        placeholder="Wachtwoord bevestigen" required autocomplete="new-password">
-                    <i class="fa-solid fa-lock text-[#564D4A]/50 absolute left-4 top-1/2 -translate-y-1/2 text-xs"></i>
-                </div>
-
-                <p class="text-[11px] text-[#564D4A] font-medium italic mt-1 opacity-40">
-                    Wachtwoord moet minimaal 8 tekens zijn.
-                </p>
             </div>
 
-            <label class="flex items-center gap-2 mt-2 select-none">
-                <span class="relative flex items-center justify-center">
+            <div>
+                <label class="text-xs font-semibold text-[#564D4A]/60 mb-1.5 block">E-mailadres</label>
+                <div class="relative">
+                    <input name="email" value="{{ old('email') }}" type="email"
+                        class="w-full bg-white rounded-xl py-3 px-4 pl-10 text-sm text-[#564D4A] font-medium border border-[#564D4A]/8 focus:border-[#5B2333]/40 focus:ring-2 focus:ring-[#5B2333]/5 outline-none transition"
+                        placeholder="naam@voorbeeld.nl" required autocomplete="email">
+                    <i class="fa-solid fa-envelope text-[#564D4A]/25 absolute left-3.5 top-1/2 -translate-y-1/2 text-xs"></i>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-xs font-semibold text-[#564D4A]/60 mb-1.5 block">Wachtwoord</label>
+                    <div class="relative" x-data="{ show: false }">
+                        <input name="password" :type="show ? 'text' : 'password'"
+                            class="w-full bg-white rounded-xl py-3 px-4 pl-10 text-sm text-[#564D4A] font-medium border border-[#564D4A]/8 focus:border-[#5B2333]/40 focus:ring-2 focus:ring-[#5B2333]/5 outline-none transition"
+                            placeholder="Min. 8 tekens" required autocomplete="new-password">
+                        <i class="fa-solid fa-lock text-[#564D4A]/25 absolute left-3.5 top-1/2 -translate-y-1/2 text-xs"></i>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-[#564D4A]/60 mb-1.5 block">Bevestigen</label>
+                    <div class="relative">
+                        <input name="password_confirmation" type="password"
+                            class="w-full bg-white rounded-xl py-3 px-4 pl-10 text-sm text-[#564D4A] font-medium border border-[#564D4A]/8 focus:border-[#5B2333]/40 focus:ring-2 focus:ring-[#5B2333]/5 outline-none transition"
+                            placeholder="Herhaal" required autocomplete="new-password">
+                        <i class="fa-solid fa-lock text-[#564D4A]/25 absolute left-3.5 top-1/2 -translate-y-1/2 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <label class="flex items-start gap-2.5 select-none cursor-pointer">
+                <span class="relative flex items-center justify-center mt-0.5">
                     <input name="terms" value="1" type="checkbox" required
-                        class="peer h-4 w-4 appearance-none rounded border border-[#564D4A]/25 bg-white checked:bg-[#5B2333] checked:border-[#5B2333] focus:outline-none transition duration-200 cursor-pointer"/>
+                        class="peer h-[18px] w-[18px] appearance-none rounded-md border border-[#564D4A]/15 bg-white checked:bg-[#5B2333] checked:border-[#5B2333] focus:outline-none transition cursor-pointer"/>
                     <i class="fa-solid fa-check text-[8px] absolute text-white pointer-events-none opacity-0 peer-checked:opacity-100"></i>
                 </span>
-                <span class="text-xs text-[#564D4A] font-semibold">
-                    Ik ga akkoord met de <a href="#" class="text-[#5B2333] underline">Algemene voorwaarden</a>
+                <span class="text-xs text-[#564D4A]/60 font-medium leading-relaxed">
+                    Ik ga akkoord met de <a href="{{ route('pages.terms') }}" class="text-[#5B2333] font-semibold hover:underline">Algemene voorwaarden</a>
+                    en het <a href="{{ route('pages.privacy') }}" class="text-[#5B2333] font-semibold hover:underline">Privacybeleid</a>
                 </span>
             </label>
 
             <button type="submit"
-                class="cursor-pointer w-full bg-[#5B2333] hover:bg-[#5B2333]/80 transition duration-200 rounded-md py-3.5 px-4 text-center text-xs text-white font-semibold mt-6">
-                Account aanmaken
+                class="cursor-pointer w-full bg-[#5B2333] hover:bg-[#5B2333]/85 active:scale-[0.98] transition-all duration-200 rounded-xl py-3.5 text-sm text-white font-bold shadow-sm shadow-[#5B2333]/15 mt-2">
+                Account aanmaken <i class="fa-solid fa-arrow-right text-xs ml-1"></i>
             </button>
         </form>
 
-        <a href="{{ route('login') }}" class="text-xs italic opacity-50 font-medium text-center mt-4 underline">
-            Ik heb al een account
-        </a>
+        {{-- Trust signals --}}
+        <div class="flex items-center justify-center gap-5 mt-6 text-[10px] text-[#564D4A]/25 font-medium">
+            <span><i class="fa-solid fa-shield-halved mr-1"></i>Veilig</span>
+            <span><i class="fa-solid fa-bolt mr-1"></i>30 sec</span>
+            <span><i class="fa-solid fa-credit-card mr-1 line-through"></i>Geen creditcard</span>
+        </div>
+
+        <p class="text-center mt-4 text-xs text-[#564D4A]/40">
+            Al een account?
+            <a href="{{ route('login') }}" class="text-[#5B2333] font-semibold hover:underline">Inloggen</a>
+        </p>
     </div>
 </x-layouts.auth>

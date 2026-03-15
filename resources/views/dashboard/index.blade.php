@@ -23,23 +23,29 @@
             'flag-guess'     => ['bg' => 'bg-[#FFF3CD]', 'text' => 'text-[#9a7a20]'],
             'block-drop'     => ['bg' => 'bg-[#E8D5F0]', 'text' => 'text-[#7a4fa0]'],
             'sudoku'         => ['bg' => 'bg-[#D0EAE8]', 'text' => 'text-[#3a8a85]'],
+            'memory-grid'    => ['bg' => 'bg-[#F3E8F9]', 'text' => 'text-[#7a4fa0]'],
+            'color-match'    => ['bg' => 'bg-[#FFE4E6]', 'text' => 'text-[#be123c]'],
             'reaction-time'  => ['bg' => 'bg-[#FEF9C3]', 'text' => 'text-[#a16207]'],
             'maze-runner'    => ['bg' => 'bg-[#DBEAFE]', 'text' => 'text-[#1d4ed8]'],
             'color-sort'     => ['bg' => 'bg-[#FEF3C7]', 'text' => 'text-[#b45309]'],
+            'math-rush'      => ['bg' => 'bg-[#DBEAFE]', 'text' => 'text-[#1d4ed8]'],
+            'geo-guess'      => ['bg' => 'bg-[#CCFBF1]', 'text' => 'text-[#0D9488]'],
         ];
 
         $games = [
             ['key' => 'word-forge',    'name' => 'Woord Raden',     'icon' => 'fa-solid fa-font',                'color' => '#5B2333', 'route' => 'games.wordforge'],
             ['key' => 'find-the-emoji','name' => 'Vind de Emoji',   'icon' => 'fa-solid fa-face-smile-wink',     'color' => '#E8A838', 'route' => 'games.findtheemoji'],
-            ['key' => 'sequence-rush', 'name' => 'Reeks Raden',     'icon' => 'fa-solid fa-arrow-up-1-9',        'color' => '#3B82F6', 'route' => 'games.sequence'],
-            ['key' => 'flag-guess',    'name' => 'Vlaggen Quiz',    'icon' => 'fa-solid fa-flag',                'color' => '#10B981', 'route' => 'games.flagguess'],
-            ['key' => 'block-drop',    'name' => 'Block Drop',      'icon' => 'fa-solid fa-cube',                'color' => '#8B5CF6', 'route' => 'games.blockdrop'],
-            ['key' => 'sudoku',        'name' => 'Mini Sudoku',     'icon' => 'fa-solid fa-table-cells-large',   'color' => '#3a8a85', 'route' => 'games.sudoku'],
-            ['key' => 'memory-grid',   'name' => 'Memory Grid',     'icon' => 'fa-solid fa-brain',               'color' => '#7a4fa0', 'route' => 'games.memorygrid'],
-            ['key' => 'color-match',   'name' => 'Color Match',     'icon' => 'fa-solid fa-palette',             'color' => '#be123c', 'route' => 'games.colormatch'],
-            ['key' => 'reaction-time', 'name' => 'Reaction Time',   'icon' => 'fa-solid fa-bolt',                'color' => '#EAB308', 'route' => 'games.reactiontime'],
-            ['key' => 'maze-runner',   'name' => 'Maze Runner',     'icon' => 'fa-solid fa-route',                'color' => '#1d4ed8', 'route' => 'games.mazerunner'],
-            ['key' => 'color-sort',    'name' => 'Color Sort',      'icon' => 'fa-solid fa-layer-group',          'color' => '#b45309', 'route' => 'games.colorsort'],
+            ['key' => 'sequence-rush', 'name' => 'Reeks Raden',       'icon' => 'fa-solid fa-arrow-up-1-9',        'color' => '#3B82F6', 'route' => 'games.sequence'],
+            ['key' => 'flag-guess',    'name' => 'Vlaggen Quiz',     'icon' => 'fa-solid fa-flag',                'color' => '#10B981', 'route' => 'games.flagguess'],
+            ['key' => 'block-drop',    'name' => 'Blok Drop',        'icon' => 'fa-solid fa-cube',                'color' => '#8B5CF6', 'route' => 'games.blockdrop'],
+            ['key' => 'sudoku',        'name' => 'Mini Sudoku',      'icon' => 'fa-solid fa-table-cells-large',   'color' => '#3a8a85', 'route' => 'games.sudoku'],
+            ['key' => 'memory-grid',   'name' => 'Geheugen Grid',    'icon' => 'fa-solid fa-brain',               'color' => '#7a4fa0', 'route' => 'games.memorygrid'],
+            ['key' => 'color-match',   'name' => 'Kleuren Match',    'icon' => 'fa-solid fa-palette',             'color' => '#be123c', 'route' => 'games.colormatch'],
+            ['key' => 'reaction-time', 'name' => 'Reactietijd',      'icon' => 'fa-solid fa-bolt',                'color' => '#EAB308', 'route' => 'games.reactiontime'],
+            ['key' => 'maze-runner',   'name' => 'Doolhof Renner',   'icon' => 'fa-solid fa-route',                'color' => '#1d4ed8', 'route' => 'games.mazerunner'],
+            ['key' => 'color-sort',    'name' => 'Kleuren Sorteer',  'icon' => 'fa-solid fa-layer-group',          'color' => '#b45309', 'route' => 'games.colorsort'],
+            ['key' => 'math-rush',    'name' => 'Reken Rush',       'icon' => 'fa-solid fa-calculator',           'color' => '#1D4ED8', 'route' => 'games.mathrush'],
+            ['key' => 'geo-guess',    'name' => 'Geo Gok',          'icon' => 'fa-solid fa-earth-europe',         'color' => '#0D9488', 'route' => 'games.geoguess'],
         ];
 
         $runs = \App\Models\DailyGameRun::where('user_id', $u->id)
@@ -64,7 +70,12 @@
             } elseif ($run->solved) {
                 $g['status'] = 'done';
                 $g['label'] = 'Voltooid';
-                $g['status_time'] = $fmtMs($run->duration_ms);
+                if ($g['key'] === 'geo-guess') {
+                    $dm = (int) $run->duration_ms;
+                    $g['status_time'] = $dm < 1000 ? $dm . ' m' : number_format($dm / 1000, 1, ',', '.') . ' km';
+                } else {
+                    $g['status_time'] = $fmtMs($run->duration_ms);
+                }
             } else {
                 $g['status'] = 'failed';
                 $g['label'] = 'Niet gehaald';
@@ -88,7 +99,7 @@
         // Subscription info for Pro users
         $subscription = $isPro ? $u->subscription('pro') : null;
         $subEndsAt = $subscription?->ends_at;
-        $subCancelled = $subscription?->cancelled() ?? false;
+        $subCancelled = $subscription?->canceled() ?? false;
     @endphp
 
     <div class="flex flex-col gap-10" x-data="{ showUpgrade: false }">

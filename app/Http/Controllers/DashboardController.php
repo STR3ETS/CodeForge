@@ -318,17 +318,19 @@ class DashboardController extends Controller
 
         // ✅ Speed leaderboards per game
         $gameMeta = [
-            'find-the-emoji' => ['title' => 'Vind de Emoji',   'icon' => 'fa-solid fa-magnifying-glass'],
-            'word-forge'     => ['title' => 'Woord Raden',       'icon' => 'fa-solid fa-font'],
-            'sequence-rush'  => ['title' => 'Voltooi Reeks',    'icon' => 'fa-solid fa-list-ol'],
-            'flag-guess'     => ['title' => 'Vlag Raden',       'icon' => 'fa-solid fa-flag'],
+            'find-the-emoji' => ['title' => 'Vind de Emoji',    'icon' => 'fa-solid fa-magnifying-glass'],
+            'word-forge'     => ['title' => 'Woord Raden',      'icon' => 'fa-solid fa-font'],
+            'sequence-rush'  => ['title' => 'Reeks Raden',      'icon' => 'fa-solid fa-list-ol'],
+            'flag-guess'     => ['title' => 'Vlaggen Quiz',     'icon' => 'fa-solid fa-flag'],
             'block-drop'     => ['title' => 'Blok Drop',        'icon' => 'fa-solid fa-table-cells'],
             'sudoku'         => ['title' => 'Mini Sudoku',      'icon' => 'fa-solid fa-table-cells-large'],
-            'memory-grid'    => ['title' => 'Memory Grid',      'icon' => 'fa-solid fa-brain'],
-            'color-match'    => ['title' => 'Color Match',      'icon' => 'fa-solid fa-palette'],
-            'reaction-time'  => ['title' => 'Reaction Time',    'icon' => 'fa-solid fa-bolt'],
-            'maze-runner'    => ['title' => 'Maze Runner',      'icon' => 'fa-solid fa-route'],
-            'color-sort'     => ['title' => 'Color Sort',       'icon' => 'fa-solid fa-layer-group'],
+            'memory-grid'    => ['title' => 'Geheugen Grid',    'icon' => 'fa-solid fa-brain'],
+            'color-match'    => ['title' => 'Kleuren Match',    'icon' => 'fa-solid fa-palette'],
+            'reaction-time'  => ['title' => 'Reactietijd',      'icon' => 'fa-solid fa-bolt'],
+            'maze-runner'    => ['title' => 'Doolhof Renner',   'icon' => 'fa-solid fa-route'],
+            'color-sort'     => ['title' => 'Kleuren Sorteer',  'icon' => 'fa-solid fa-layer-group'],
+            'math-rush'      => ['title' => 'Reken Rush',       'icon' => 'fa-solid fa-calculator'],
+            'geo-guess'      => ['title' => 'Geo Gok',          'icon' => 'fa-solid fa-earth-europe'],
         ];
 
         $speedBoards = [];
@@ -356,6 +358,34 @@ class DashboardController extends Controller
                     'title' => $meta['title'],
                     'icon'  => $meta['icon'],
                     'rank_by' => 'reaction',
+                    'rows'  => $rows->map(fn($r) => [
+                        'user'    => $users->get($r->user_id),
+                        'best_ms' => (int) $r->best_ms,
+                    ])->filter(fn($r) => $r['user'] !== null)->values(),
+                ];
+            }
+            // Geo Guess ranks by closest distance (stored as duration_ms in meters)
+            elseif ($gameKey === 'geo-guess') {
+                $rows = DailyGameRun::query()
+                    ->select('user_id', DB::raw('MIN(duration_ms) as best_ms'))
+                    ->where('game_key', $gameKey)
+                    ->where('solved', true)
+                    ->whereNotNull('duration_ms')
+                    ->whereDate('puzzle_date', Carbon::today())
+                    ->groupBy('user_id')
+                    ->orderBy('best_ms')
+                    ->limit(10)
+                    ->get();
+
+                $userIds = $rows->pluck('user_id');
+                $users = User::whereIn('id', $userIds)
+                    ->select('id', 'name', 'profile_picture', 'plan', 'level')
+                    ->get()->keyBy('id');
+
+                $speedBoards[$gameKey] = [
+                    'title' => $meta['title'],
+                    'icon'  => $meta['icon'],
+                    'rank_by' => 'distance',
                     'rows'  => $rows->map(fn($r) => [
                         'user'    => $users->get($r->user_id),
                         'best_ms' => (int) $r->best_ms,
@@ -638,6 +668,40 @@ class DashboardController extends Controller
             $csTime = $mm . ':' . $ss;
         }
 
+        $mathRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'math-rush')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $mathSolved = (bool)($mathRun?->solved);
+        $mathFailed = (!$mathSolved && !empty($mathRun?->finished_at));
+        $mathTime = null;
+
+        if ($mathSolved && $mathRun?->duration_ms !== null) {
+            $sec = (int) round($mathRun->duration_ms / 1000);
+            $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
+            $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
+            $mathTime = $mm . ':' . $ss;
+        }
+
+        $geoRun = \App\Models\DailyGameRun::query()
+            ->where('user_id', $user->id)
+            ->where('game_key', 'geo-guess')
+            ->where('puzzle_date', $today->toDateString())
+            ->first();
+
+        $geoSolved = (bool)($geoRun?->solved);
+        $geoFailed = (!$geoSolved && !empty($geoRun?->finished_at));
+        $geoTime = null;
+
+        if ($geoSolved && $geoRun?->duration_ms !== null) {
+            $distM = (int) $geoRun->duration_ms;
+            $geoTime = $distM < 1000
+                ? $distM . ' m'
+                : number_format($distM / 1000, 1, ',', '.') . ' km';
+        }
+
         // Daily games list
         $games = [
             [
@@ -674,7 +738,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'sequence-rush',
-                'title' => 'Voltooi Reeks',
+                'title' => 'Reeks Raden',
                 'desc' => 'Vul het ontbrekende getal in de reeks in.',
                 'icon' => 'fa-solid fa-list-ol',
                 'tag' => 'Daily Game',
@@ -690,7 +754,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'flag-guess',
-                'title' => 'Vlag Raden',
+                'title' => 'Vlaggen Quiz',
                 'desc' => 'Identificeer het land aan de hand van zijn vlag.',
                 'icon' => 'fa-solid fa-flag',
                 'tag' => 'Daily Game',
@@ -738,7 +802,7 @@ class DashboardController extends Controller
             ],
             [
                 'key'        => 'memory-grid',
-                'title'      => 'Memory Grid',
+                'title'      => 'Geheugen Grid',
                 'desc'       => 'Onthoud de kaarten en vind alle paren.',
                 'icon'       => 'fa-solid fa-brain',
                 'tag'        => 'Daily Game',
@@ -754,7 +818,7 @@ class DashboardController extends Controller
             ],
             [
                 'key'        => 'color-match',
-                'title'      => 'Color Match',
+                'title'      => 'Kleuren Match',
                 'desc'       => 'Klik op de kleur van de tekst, niet het woord.',
                 'icon'       => 'fa-solid fa-palette',
                 'tag'        => 'Daily Game',
@@ -770,7 +834,7 @@ class DashboardController extends Controller
             ],
             [
                 'key'        => 'reaction-time',
-                'title'      => 'Reaction Time',
+                'title'      => 'Reactietijd',
                 'desc'       => 'Klik zo snel mogelijk als het scherm groen wordt.',
                 'icon'       => 'fa-solid fa-bolt',
                 'tag'        => 'Daily Game',
@@ -786,7 +850,7 @@ class DashboardController extends Controller
             ],
             [
                 'key'        => 'maze-runner',
-                'title'      => 'Maze Runner',
+                'title'      => 'Doolhof Renner',
                 'desc'       => 'Navigeer door het doolhof van start naar finish.',
                 'icon'       => 'fa-solid fa-route',
                 'tag'        => 'Daily Game',
@@ -802,7 +866,7 @@ class DashboardController extends Controller
             ],
             [
                 'key'        => 'color-sort',
-                'title'      => 'Color Sort',
+                'title'      => 'Kleuren Sorteer',
                 'desc'       => 'Sorteer gekleurde blokken op kleur.',
                 'icon'       => 'fa-solid fa-layer-group',
                 'tag'        => 'Daily Game',
@@ -815,6 +879,38 @@ class DashboardController extends Controller
                 'number'     => 100 + (abs(crc32('color-sort|' . $today->toDateString())) % 900),
                 'status'     => $csSolved ? 'solved' : ($csFailed ? 'failed' : null),
                 'status_time' => $csTime,
+            ],
+            [
+                'key'        => 'math-rush',
+                'title'      => 'Reken Rush',
+                'desc'       => 'Los sommen op tegen de klok.',
+                'icon'       => 'fa-solid fa-calculator',
+                'tag'        => 'Daily Game',
+                'difficulty' => 'Medium',
+                'proOnly'    => false,
+                'available'  => true,
+                'href'       => route('games.mathrush'),
+                'time'       => '~45 sec',
+                'reward_xp'  => 50,
+                'number'     => 100 + (abs(crc32('math-rush|' . $today->toDateString())) % 900),
+                'status'     => $mathSolved ? 'solved' : ($mathFailed ? 'failed' : null),
+                'status_time' => $mathTime,
+            ],
+            [
+                'key'        => 'geo-guess',
+                'title'      => 'Geo Gok',
+                'desc'       => 'Gok waar je bent op de wereldkaart.',
+                'icon'       => 'fa-solid fa-earth-europe',
+                'tag'        => 'Daily Game',
+                'difficulty' => 'Hard',
+                'proOnly'    => false,
+                'available'  => true,
+                'href'       => route('games.geoguess'),
+                'time'       => '~2 min',
+                'reward_xp'  => 100,
+                'number'     => 100 + (abs(crc32('geo-guess|' . $today->toDateString())) % 900),
+                'status'     => $geoSolved ? 'solved' : ($geoFailed ? 'failed' : null),
+                'status_time' => $geoTime,
             ],
         ];
 
@@ -895,7 +991,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'win_flag_guess',
-                'title' => 'Win Vlag Raden',
+                'title' => 'Win Vlaggen Quiz',
                 'desc' => 'Raad vandaag een vlag correct.',
                 'icon' => 'fa-solid fa-flag',
                 'goal' => 1,
@@ -943,8 +1039,8 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'w_sequence_3',
-                'title' => 'Win Voltooi Reeks 3×',
-                'desc' => 'Win Voltooi Reeks 3× deze week.',
+                'title' => 'Win Reeks Raden 3×',
+                'desc' => 'Win Reeks Raden 3× deze week.',
                 'icon' => 'fa-solid fa-list-ol',
                 'goal' => 3,
                 'reward_xp' => 40,
@@ -1197,7 +1293,16 @@ class DashboardController extends Controller
         }
 
         if ($request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
-            return response()->json(['ok' => true, 'reward_xp' => (int) $quest['reward_xp']]);
+            $user->refresh();
+            $meta = $user->levelMeta();
+            return response()->json([
+                'ok'          => true,
+                'reward_xp'   => (int) $quest['reward_xp'],
+                'level'       => (int) $meta['level'],
+                'percent'     => (int) $meta['percent'],
+                'inLevel'     => (int) $meta['inLevel'],
+                'nextInLevel' => (int) $meta['nextInLevel'],
+            ]);
         }
 
         return back()->with('quest_rewarded', $quest['reward_xp']);
@@ -1334,7 +1439,7 @@ class DashboardController extends Controller
         $today = now()->startOfDay();
         $key   = (string) $request->input('game_key', '');
 
-        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku', 'memory-grid', 'color-match', 'reaction-time', 'maze-runner', 'color-sort'];
+        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku', 'memory-grid', 'color-match', 'reaction-time', 'maze-runner', 'color-sort', 'math-rush', 'geo-guess'];
         if (!in_array($key, $allowed, true)) {
             return response()->json(['ok' => false], 422);
         }
@@ -1371,7 +1476,7 @@ class DashboardController extends Controller
         $today = now()->startOfDay();
         $key   = (string) $request->input('game_key', '');
 
-        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku', 'memory-grid', 'color-match', 'reaction-time', 'maze-runner', 'color-sort'];
+        $allowed = ['word-forge', 'find-the-emoji', 'sequence-rush', 'flag-guess', 'block-drop', 'sudoku', 'memory-grid', 'color-match', 'reaction-time', 'maze-runner', 'color-sort', 'math-rush', 'geo-guess'];
         if (!in_array($key, $allowed, true)) {
             return response()->json(['ok' => false], 422);
         }
@@ -1398,15 +1503,17 @@ class DashboardController extends Controller
     private const GAME_NAMES = [
         'find-the-emoji' => 'Vind de Emoji',
         'word-forge'     => 'Woord Raden',
-        'sequence-rush'  => 'Voltooi Reeks',
-        'flag-guess'     => 'Vlag Raden',
+        'sequence-rush'  => 'Reeks Raden',
+        'flag-guess'     => 'Vlaggen Quiz',
         'block-drop'     => 'Blok Drop',
         'sudoku'         => 'Mini Sudoku',
-        'memory-grid'    => 'Memory Grid',
-        'color-match'    => 'Color Match',
-        'reaction-time'  => 'Reaction Time',
-        'maze-runner'    => 'Maze Runner',
-        'color-sort'     => 'Color Sort',
+        'memory-grid'    => 'Geheugen Grid',
+        'color-match'    => 'Kleuren Match',
+        'reaction-time'  => 'Reactietijd',
+        'maze-runner'    => 'Doolhof Renner',
+        'color-sort'     => 'Kleuren Sorteer',
+        'math-rush'      => 'Reken Rush',
+        'geo-guess'      => 'Geo Gok',
     ];
 
     private const GAME_ROUTES = [
@@ -1421,6 +1528,8 @@ class DashboardController extends Controller
         'reaction-time'  => 'games.reactiontime',
         'maze-runner'    => 'games.mazerunner',
         'color-sort'     => 'games.colorsort',
+        'math-rush'      => 'games.mathrush',
+        'geo-guess'      => 'games.geoguess',
     ];
 
     /**
@@ -1447,17 +1556,213 @@ class DashboardController extends Controller
         }
 
         $gameName = self::GAME_NAMES[$gameKey];
-        $fmtTime = $this->formatMs($run->duration_ms);
         $percentile = $this->calcPercentile($gameKey, $today, $run->duration_ms);
+        $pctTop = $percentile !== null ? (100 - $percentile) : null;
 
-        $msg = "Ik heb vandaag {$gameName} opgelost";
-        if ($fmtTime) {
-            $msg .= " in {$fmtTime}";
+        // Build per-game share message with variety
+        if ($gameKey === 'geo-guess') {
+            $dist = $this->formatShareDistance($run->duration_ms);
+            $lines = [
+                "Ik zat er {$dist} naast bij Geo Gok vandaag! 🌍📍",
+                "Vandaag Geo Gok gespeeld — mijn gok zat er maar {$dist} naast! 🗺️🎯",
+                "Geo Gok gedaan! Afstand tot de echte locatie: {$dist} 🌎🔎",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Ik zat er {$dist} naast bij Geo Gok en was dichter bij dan {$percentile}% van de spelers! 🌍📍",
+                    "Vandaag Geo Gok gespeeld — {$dist} ernaast, beter dan {$percentile}% 🗺️🎯",
+                    "Geo Gok: {$dist} van de echte locatie — top {$pctTop}% vandaag! 🌎🔎",
+                ];
+            }
+            $fmtTime = $dist;
+        } elseif ($gameKey === 'reaction-time') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Mijn reactietijd vandaag: {$fmtTime}! ⚡🧠",
+                "Reactietijd vandaag getest — {$fmtTime}! Wie is er sneller? ⚡💥",
+                "{$fmtTime} bij Reactietijd! Durf jij het te proberen? 🏎️💨",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Reactietijd: {$fmtTime} — sneller dan {$percentile}% van de spelers! ⚡🧠",
+                    "Mijn reactietijd vandaag: {$fmtTime}! Beter dan {$percentile}% 🏎️💥",
+                    "{$fmtTime} bij Reactietijd — top {$pctTop}% vandaag! ⚡🔥",
+                ];
+            }
+        } elseif ($gameKey === 'math-rush') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Reken Rush gedaan in {$fmtTime}! 🔢🚀",
+                "Vandaag Reken Rush gehaald — {$fmtTime}! Wie rekent sneller? 🧮⚡",
+                "Alle sommen opgelost in {$fmtTime} bij Reken Rush! 🔢🏆",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Reken Rush in {$fmtTime} — sneller dan {$percentile}% van de spelers! 🔢🚀",
+                    "Reken Rush gehaald in {$fmtTime}! Top {$pctTop}% vandaag 🧮🔥",
+                    "Alle sommen in {$fmtTime} bij Reken Rush — beter dan {$percentile}%! 🔢⚡",
+                ];
+            }
+        } elseif ($gameKey === 'flag-guess') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Alle vlaggen geraden in {$fmtTime} bij Vlaggen Quiz! 🏳️🌍",
+                "Vlaggen Quiz gehaald in {$fmtTime}! Ken jij ze ook? 🚩🧠",
+                "Vandaag alle vlaggen herkend in {$fmtTime}! 🌎🏁",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Vlaggen Quiz in {$fmtTime} — sneller dan {$percentile}% van de spelers! 🏳️🔥",
+                    "Alle vlaggen geraden in {$fmtTime}! Beter dan {$percentile}% 🚩🌍",
+                    "Vlaggen Quiz gehaald in {$fmtTime} — top {$pctTop}%! 🌎🏆",
+                ];
+            }
+        } elseif ($gameKey === 'sudoku') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Sudoku opgelost in {$fmtTime}! 🔢✨",
+                "Vandaag de Sudoku gekraakt in {$fmtTime}! 🧩🧠",
+                "Sudoku van vandaag gedaan — {$fmtTime}! Wie is sneller? 🔢🏆",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Sudoku in {$fmtTime} — sneller dan {$percentile}% van de spelers! 🔢🔥",
+                    "Vandaag de Sudoku gekraakt in {$fmtTime}! Top {$pctTop}% 🧩✨",
+                    "Sudoku opgelost in {$fmtTime} — beter dan {$percentile}%! 🔢🏆",
+                ];
+            }
+        } elseif ($gameKey === 'memory-grid') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Geheugen Grid voltooid in {$fmtTime}! 🧠💡",
+                "Alle kaartjes onthouden in {$fmtTime} bij Geheugen Grid! 🃏✨",
+                "Geheugen Grid gehaald — {$fmtTime}! Hoe goed is jouw geheugen? 🧠🎯",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Geheugen Grid in {$fmtTime} — sneller dan {$percentile}%! 🧠🔥",
+                    "Alle kaartjes in {$fmtTime}! Beter dan {$percentile}% bij Geheugen Grid 🃏💡",
+                    "Geheugen Grid voltooid in {$fmtTime} — top {$pctTop}%! 🧠🏆",
+                ];
+            }
+        } elseif ($gameKey === 'color-match') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Kleuren Match gedaan in {$fmtTime}! 🎨⚡",
+                "Alle kleuren gematcht in {$fmtTime}! Hoe snel ben jij? 🎨🧠",
+                "Kleuren Match voltooid — {$fmtTime}! 🎯✨",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Kleuren Match in {$fmtTime} — sneller dan {$percentile}%! 🎨🔥",
+                    "Alle kleuren in {$fmtTime}! Top {$pctTop}% bij Kleuren Match 🎯⚡",
+                    "Kleuren Match gehaald in {$fmtTime} — beter dan {$percentile}%! 🎨🏆",
+                ];
+            }
+        } elseif ($gameKey === 'word-forge') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Woord Smederij gekraakt in {$fmtTime}! 🔤🔨",
+                "Het woord gevonden in {$fmtTime} bij Woord Smederij! 📝✨",
+                "Woord Smederij van vandaag opgelost — {$fmtTime}! 🔤🧠",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Woord Smederij in {$fmtTime} — sneller dan {$percentile}%! 🔤🔥",
+                    "Het woord gevonden in {$fmtTime}! Top {$pctTop}% vandaag 📝🏆",
+                    "Woord Smederij gekraakt in {$fmtTime} — beter dan {$percentile}%! 🔤⚡",
+                ];
+            }
+        } elseif ($gameKey === 'sequence') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Reeks Raden opgelost in {$fmtTime}! 🔢🧩",
+                "De reeks gevonden in {$fmtTime}! Zie jij het patroon? 🔍✨",
+                "Reeks Raden van vandaag gehaald — {$fmtTime}! 🧠🔢",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Reeks Raden in {$fmtTime} — sneller dan {$percentile}%! 🔢🔥",
+                    "De reeks gevonden in {$fmtTime}! Beter dan {$percentile}% vandaag 🔍🏆",
+                    "Reeks Raden opgelost in {$fmtTime} — top {$pctTop}%! 🧠⚡",
+                ];
+            }
+        } elseif ($gameKey === 'color-sort') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Kleuren Sorteren voltooid in {$fmtTime}! 🎨🧪",
+                "Alle kleuren gesorteerd in {$fmtTime}! 🎯🧠",
+                "Kleuren Sorteren gehaald — {$fmtTime}! 🎨✨",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Kleuren Sorteren in {$fmtTime} — sneller dan {$percentile}%! 🎨🔥",
+                    "Alle kleuren gesorteerd in {$fmtTime}! Top {$pctTop}% 🎯🏆",
+                    "Kleuren Sorteren in {$fmtTime} — beter dan {$percentile}%! 🎨⚡",
+                ];
+            }
+        } elseif ($gameKey === 'maze-runner') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Het doolhof ontsnapt in {$fmtTime}! 🏃‍♂️🌀",
+                "Doolhof Renner voltooid in {$fmtTime}! Vind jij de weg? 🗺️🏃",
+                "Vandaag het doolhof gekraakt — {$fmtTime}! 🌀✨",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Doolhof Renner in {$fmtTime} — sneller dan {$percentile}%! 🏃‍♂️🔥",
+                    "Het doolhof ontsnapt in {$fmtTime}! Top {$pctTop}% 🌀🏆",
+                    "Doolhof Renner gehaald in {$fmtTime} — beter dan {$percentile}%! 🏃⚡",
+                ];
+            }
+        } elseif ($gameKey === 'find-the-emoji') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Vind de Emoji voltooid in {$fmtTime}! 🔎😄",
+                "Alle emoji's gevonden in {$fmtTime}! 👀✨",
+                "Vind de Emoji gehaald — {$fmtTime}! Hoe scherp zijn jouw ogen? 🔎🧠",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Vind de Emoji in {$fmtTime} — sneller dan {$percentile}%! 🔎🔥",
+                    "Alle emoji's in {$fmtTime}! Top {$pctTop}% vandaag 👀🏆",
+                    "Vind de Emoji gehaald in {$fmtTime} — beter dan {$percentile}%! 🔎⚡",
+                ];
+            }
+        } elseif ($gameKey === 'block-drop') {
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "Blok Puzzel opgelost in {$fmtTime}! 🧱✨",
+                "Alle blokken geplaatst in {$fmtTime} bij Blok Puzzel! 🧩🧠",
+                "Blok Puzzel van vandaag gehaald — {$fmtTime}! 🧱🏆",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "Blok Puzzel in {$fmtTime} — sneller dan {$percentile}%! 🧱🔥",
+                    "Alle blokken in {$fmtTime}! Top {$pctTop}% vandaag 🧩🏆",
+                    "Blok Puzzel opgelost in {$fmtTime} — beter dan {$percentile}%! 🧱⚡",
+                ];
+            }
+        } else {
+            // Fallback for any new games
+            $fmtTime = $this->formatMs($run->duration_ms);
+            $lines = [
+                "{$gameName} voltooid in {$fmtTime}! 🧠🔥",
+                "Vandaag {$gameName} gehaald — {$fmtTime}! 🏆✨",
+                "{$gameName} van vandaag gedaan in {$fmtTime}! 💪🧠",
+            ];
+            if ($percentile !== null) {
+                $lines = [
+                    "{$gameName} in {$fmtTime} — sneller dan {$percentile}%! 🧠🔥",
+                    "{$gameName} gehaald in {$fmtTime}! Top {$pctTop}% vandaag 🏆✨",
+                    "{$gameName} voltooid in {$fmtTime} — beter dan {$percentile}%! 💪⚡",
+                ];
+            }
         }
-        if ($percentile !== null) {
-            $msg .= " en was daarmee sneller dan {$percentile}% van de spelers";
-        }
-        $msg .= '! 🧠🔥';
+
+        // Pick a deterministic-but-varied message based on date + game + user
+        $msgIndex = crc32($today->toDateString() . $gameKey . $user->id) % count($lines);
+        $msg = $lines[abs($msgIndex)];
 
         if (isset(self::GAME_ROUTES[$gameKey])) {
             $msg .= "\n\nSpeel zelf: " . route(self::GAME_ROUTES[$gameKey]);
@@ -1525,6 +1830,15 @@ class DashboardController extends Controller
         $mm = str_pad((string) floor($sec / 60), 2, '0', STR_PAD_LEFT);
         $ss = str_pad((string) ($sec % 60), 2, '0', STR_PAD_LEFT);
         return $mm . ':' . $ss;
+    }
+
+    private function formatShareDistance(?int $meters): string
+    {
+        if (!$meters) return '0 m';
+        if ($meters < 1000) {
+            return $meters . ' m';
+        }
+        return number_format($meters / 1000, 1, ',', '.') . ' km';
     }
 
     private function calcPercentile(string $gameKey, $today, ?int $durationMs): ?int

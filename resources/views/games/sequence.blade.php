@@ -1,5 +1,5 @@
 {{-- resources/views/games/sequence.blade.php --}}
-<x-layouts.dashboard :title="'Voltooi Reeks'" active="daily">
+<x-layouts.dashboard :title="'Reeks Raden'" active="daily">
     @php
         $isSolved = (bool)($run->solved ?? false);
         $isFailed = (bool)($isFailed ?? false);
@@ -101,7 +101,7 @@
                 <div>
                     <h1 class="text-[1.5rem] md:text-[1.8rem] font-black text-[#564D4A] tracking-tight leading-tight">
                         <template x-if="!isSolved && !isFailed">
-                            <span>Voltooi Reeks <span class="text-[#564D4A]/40">#<span x-text="puzzle.number"></span></span></span>
+                            <span>Reeks Raden <span class="text-[#564D4A]/40">#<span x-text="puzzle.number"></span></span></span>
                         </template>
                         <template x-if="isSolved"><span>Mooi! Perfect gedaan 🎉</span></template>
                         <template x-if="isFailed"><span>Oei… volgende keer beter! 😅</span></template>

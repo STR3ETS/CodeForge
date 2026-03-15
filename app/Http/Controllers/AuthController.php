@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -32,7 +33,7 @@ class AuthController extends Controller
 
         if (!Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']], $remember)) {
             throw ValidationException::withMessages([
-                'email' => 'Deze combinatie van e-mail en wachtwoord klopt niet.',
+                'email' => __('auth.invalid_credentials'),
             ]);
         }
 
@@ -64,6 +65,42 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard');
+    }
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback(Request $request)
+    {
+        $googleUser = Socialite::driver('google')->user();
+
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if ($user) {
+            // Existing user — log in
+            Auth::login($user, remember: true);
+        } else {
+            // New user — create account
+            $user = User::create([
+                'name' => $googleUser->getName(),
+                'email' => $googleUser->getEmail(),
+                'password' => Hash::make(str()->random(32)),
+                'avatar' => $googleUser->getAvatar(),
+                'plan' => 'free',
+                'xp' => 0,
+                'streak' => 0,
+                'daily_challenges_done' => 0,
+                'daily_challenges_date' => now()->toDateString(),
+            ]);
+
+            Auth::login($user, remember: true);
+        }
+
         $request->session()->regenerate();
 
         return redirect()->route('dashboard');

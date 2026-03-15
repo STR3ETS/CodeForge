@@ -1,25 +1,19 @@
 <x-layouts.marketing>
-    <x-slot:title>Color Sort - Kleuren Sorteren | BrainForge</x-slot:title>
-    <x-slot:description>Sorteer kleuren in de juiste volgorde en train je logisch denkvermogen. Speel Color Sort dagelijks op BrainForge!</x-slot:description>
+    <x-slot:title>{{ __('pages.game_info.color_sort.meta_title') }}</x-slot:title>
+    <x-slot:description>{{ __('pages.game_info.color_sort.meta_description') }}</x-slot:description>
 
     <section class="pt-28 pb-16 bg-white border-b border-[#564D4A]/6">
         <div class="max-w-6xl mx-auto px-6">
-            <a href="{{ route('pages.games') }}" data-animate="fade-up" class="inline-flex items-center gap-2 text-[#564D4A]/40 hover:text-[#564D4A] text-sm font-semibold mb-6 transition">
-                <i class="fa-solid fa-arrow-left text-[10px]"></i> Alle games
-            </a>
+            <a href="{{ route('pages.games') }}" data-animate="fade-up" class="inline-flex items-center gap-2 text-[#564D4A]/40 hover:text-[#564D4A] text-sm font-semibold mb-6 transition"><i class="fa-solid fa-arrow-left text-[10px]"></i> {{ __('pages.game_info.common.all_games') }}</a>
             <div class="flex items-start gap-5">
-                <div data-animate="fade-up" data-animate-delay="1" class="w-16 h-16 rounded-2xl bg-[#FEF3C7] flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-layer-group text-[#b45309] text-2xl"></i>
-                </div>
+                <div data-animate="fade-up" data-animate-delay="1" class="w-16 h-16 rounded-2xl bg-[#FEF3C7] flex items-center justify-center shrink-0"><i class="fa-solid fa-layer-group text-[#b45309] text-2xl"></i></div>
                 <div>
-                    <h1 data-animate="fade-up" data-animate-delay="1" class="text-3xl sm:text-4xl font-black text-[#564D4A] tracking-tight">Color Sort</h1>
-                    <p data-animate="fade-up" data-animate-delay="2" class="mt-2 text-[#564D4A]/50 max-w-2xl leading-relaxed text-lg">
-                        Sorteer kleuren in de juiste volgorde en train je logisch denkvermogen. Verplaats kleuren tussen buizen totdat elke buis slechts een kleur bevat.
-                    </p>
+                    <h1 data-animate="fade-up" data-animate-delay="1" class="text-3xl sm:text-4xl font-black text-[#564D4A] tracking-tight">{{ __('pages.game_info.color_sort.title') }}</h1>
+                    <p data-animate="fade-up" data-animate-delay="2" class="mt-2 text-[#564D4A]/50 max-w-2xl leading-relaxed text-lg">{{ __('pages.game_info.color_sort.description') }}</p>
                     <div data-animate="fade-up" data-animate-delay="3" class="flex flex-wrap gap-2 mt-4">
-                        <span class="px-3 py-1 rounded-full bg-[#FEF3C7]/50 text-[#b45309] text-xs font-bold">KLEUREN</span>
-                        <span class="px-3 py-1 rounded-full bg-[#FEF3C7]/50 text-[#b45309] text-xs font-bold">LOGICA</span>
-                        <span class="px-3 py-1 rounded-full bg-[#FEF3C7]/50 text-[#b45309] text-xs font-bold">PUZZEL</span>
+                        <span class="px-3 py-1 rounded-full bg-[#FEF3C7]/50 text-[#b45309] text-xs font-bold">{{ __('pages.game_info.color_sort.tag_1') }}</span>
+                        <span class="px-3 py-1 rounded-full bg-[#FEF3C7]/50 text-[#b45309] text-xs font-bold">{{ __('pages.game_info.color_sort.tag_2') }}</span>
+                        <span class="px-3 py-1 rounded-full bg-[#FEF3C7]/50 text-[#b45309] text-xs font-bold">{{ __('pages.game_info.color_sort.tag_3') }}</span>
                     </div>
                 </div>
             </div>
@@ -29,59 +23,19 @@
     <section class="max-w-6xl mx-auto px-6 py-20">
         <div class="grid md:grid-cols-2 gap-12">
             <div>
-                <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight mb-6">Hoe werkt Color Sort?</h2>
+                <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight mb-6">{{ __('pages.game_info.color_sort.how_title') }}</h2>
                 <div class="space-y-4">
-                    <div data-animate="fade-up" class="flex gap-4">
-                        <div class="w-8 h-8 rounded-lg bg-[#5B2333]/10 flex items-center justify-center shrink-0 mt-0.5">
-                            <span class="text-[#5B2333] text-sm font-black">1</span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-[#564D4A] mb-1">Bekijk de gekleurde buizen</h3>
-                            <p class="text-sm text-[#564D4A]/60 leading-relaxed">Je ziet meerdere buizen gevuld met verschillende kleuren door elkaar. Bestudeer de situatie!</p>
-                        </div>
-                    </div>
-                    <div data-animate="fade-up" class="flex gap-4">
-                        <div class="w-8 h-8 rounded-lg bg-[#5B2333]/10 flex items-center justify-center shrink-0 mt-0.5">
-                            <span class="text-[#5B2333] text-sm font-black">2</span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-[#564D4A] mb-1">Verplaats kleuren tussen buizen</h3>
-                            <p class="text-sm text-[#564D4A]/60 leading-relaxed">Klik op een buis om de bovenste kleur op te pakken en verplaats deze naar een andere buis.</p>
-                        </div>
-                    </div>
-                    <div data-animate="fade-up" class="flex gap-4">
-                        <div class="w-8 h-8 rounded-lg bg-[#5B2333]/10 flex items-center justify-center shrink-0 mt-0.5">
-                            <span class="text-[#5B2333] text-sm font-black">3</span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-[#564D4A] mb-1">Sorteer tot elke buis één kleur bevat</h3>
-                            <p class="text-sm text-[#564D4A]/60 leading-relaxed">Ga door met sorteren totdat elke buis slechts één kleur bevat. Hoe minder zetten, hoe meer XP!</p>
-                        </div>
-                    </div>
+                    <div data-animate="fade-up" class="flex gap-4"><div class="w-8 h-8 rounded-lg bg-[#5B2333]/10 flex items-center justify-center shrink-0 mt-0.5"><span class="text-[#5B2333] text-sm font-black">1</span></div><div><h3 class="font-bold text-[#564D4A] mb-1">{{ __('pages.game_info.color_sort.step1_title') }}</h3><p class="text-sm text-[#564D4A]/60 leading-relaxed">{{ __('pages.game_info.color_sort.step1_desc') }}</p></div></div>
+                    <div data-animate="fade-up" class="flex gap-4"><div class="w-8 h-8 rounded-lg bg-[#5B2333]/10 flex items-center justify-center shrink-0 mt-0.5"><span class="text-[#5B2333] text-sm font-black">2</span></div><div><h3 class="font-bold text-[#564D4A] mb-1">{{ __('pages.game_info.color_sort.step2_title') }}</h3><p class="text-sm text-[#564D4A]/60 leading-relaxed">{{ __('pages.game_info.color_sort.step2_desc') }}</p></div></div>
+                    <div data-animate="fade-up" class="flex gap-4"><div class="w-8 h-8 rounded-lg bg-[#5B2333]/10 flex items-center justify-center shrink-0 mt-0.5"><span class="text-[#5B2333] text-sm font-black">3</span></div><div><h3 class="font-bold text-[#564D4A] mb-1">{{ __('pages.game_info.color_sort.step3_title') }}</h3><p class="text-sm text-[#564D4A]/60 leading-relaxed">{{ __('pages.game_info.color_sort.step3_desc') }}</p></div></div>
                 </div>
             </div>
-
             <div>
-                <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight mb-6">Moeilijkheden</h2>
+                <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight mb-6">{{ __('pages.game_info.common.difficulties') }}</h2>
                 <div class="space-y-3">
-                    <div data-animate="fade-up" class="bg-white rounded-xl border border-[#564D4A]/8 p-5">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="px-2.5 py-1 rounded-lg bg-green-100 text-green-700 text-[11px] font-bold">MAKKELIJK</span>
-                        </div>
-                        <p class="text-sm text-[#564D4A]/60">Minder kleuren en extra lege buizen om te sorteren.</p>
-                    </div>
-                    <div data-animate="fade-up" class="bg-white rounded-xl border border-[#564D4A]/8 p-5">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="px-2.5 py-1 rounded-lg bg-yellow-100 text-yellow-700 text-[11px] font-bold">NORMAAL</span>
-                        </div>
-                        <p class="text-sm text-[#564D4A]/60">Standaard aantal kleuren en buizen.</p>
-                    </div>
-                    <div data-animate="fade-up" class="bg-white rounded-xl border border-[#564D4A]/8 p-5">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="px-2.5 py-1 rounded-lg bg-red-100 text-red-700 text-[11px] font-bold">MOEILIJK</span>
-                        </div>
-                        <p class="text-sm text-[#564D4A]/60">Meer kleuren en buizen met minder ruimte. Voor de echte puzzelaars.</p>
-                    </div>
+                    <div data-animate="fade-up" class="bg-white rounded-xl border border-[#564D4A]/8 p-5"><div class="flex items-center gap-3 mb-2"><span class="px-2.5 py-1 rounded-lg bg-green-100 text-green-700 text-[11px] font-bold">{{ __('pages.game_info.common.difficulty_easy') }}</span></div><p class="text-sm text-[#564D4A]/60">{{ __('pages.game_info.color_sort.easy_desc') }}</p></div>
+                    <div data-animate="fade-up" class="bg-white rounded-xl border border-[#564D4A]/8 p-5"><div class="flex items-center gap-3 mb-2"><span class="px-2.5 py-1 rounded-lg bg-yellow-100 text-yellow-700 text-[11px] font-bold">{{ __('pages.game_info.common.difficulty_normal') }}</span></div><p class="text-sm text-[#564D4A]/60">{{ __('pages.game_info.color_sort.normal_desc') }}</p></div>
+                    <div data-animate="fade-up" class="bg-white rounded-xl border border-[#564D4A]/8 p-5"><div class="flex items-center gap-3 mb-2"><span class="px-2.5 py-1 rounded-lg bg-red-100 text-red-700 text-[11px] font-bold">{{ __('pages.game_info.common.difficulty_hard') }}</span></div><p class="text-sm text-[#564D4A]/60">{{ __('pages.game_info.color_sort.hard_desc') }}</p></div>
                 </div>
             </div>
         </div>
@@ -89,39 +43,19 @@
 
     <section class="bg-white border-y border-[#564D4A]/6">
         <div class="max-w-6xl mx-auto px-6 py-20">
-            <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight text-center mb-4">Waarom Color Sort spelen?</h2>
-            <p data-animate="fade-up" class="text-center text-[#564D4A]/50 mb-12 max-w-xl mx-auto">Color Sort is meer dan een spelletje — het is een dagelijkse workout voor je brein.</p>
+            <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight text-center mb-4">{{ __('pages.game_info.color_sort.why_title') }}</h2>
+            <p data-animate="fade-up" class="text-center text-[#564D4A]/50 mb-12 max-w-xl mx-auto">{{ __('pages.game_info.color_sort.why_subtitle') }}</p>
             <div class="grid sm:grid-cols-3 gap-6">
-                <div data-animate="fade-up" class="text-center p-6">
-                    <div class="w-12 h-12 rounded-xl bg-[#5B2333]/8 flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-gears text-[#5B2333]"></i>
-                    </div>
-                    <h3 class="font-bold text-[#564D4A] mb-2">Logisch denken</h3>
-                    <p class="text-sm text-[#564D4A]/50 leading-relaxed">Ontwikkel je logisch denkvermogen door de juiste volgorde van zetten te bepalen.</p>
-                </div>
-                <div data-animate="fade-up" data-animate-delay="1" class="text-center p-6">
-                    <div class="w-12 h-12 rounded-xl bg-[#5B2333]/8 flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-list-check text-[#5B2333]"></i>
-                    </div>
-                    <h3 class="font-bold text-[#564D4A] mb-2">Planningsvaardigheden</h3>
-                    <p class="text-sm text-[#564D4A]/50 leading-relaxed">Leer vooruit te plannen en de gevolgen van je zetten te overzien.</p>
-                </div>
-                <div data-animate="fade-up" data-animate-delay="2" class="text-center p-6">
-                    <div class="w-12 h-12 rounded-xl bg-[#5B2333]/8 flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-hourglass-half text-[#5B2333]"></i>
-                    </div>
-                    <h3 class="font-bold text-[#564D4A] mb-2">Geduld en strategie</h3>
-                    <p class="text-sm text-[#564D4A]/50 leading-relaxed">Oefen geduld en strategisch denken om de puzzel met zo min mogelijk zetten op te lossen.</p>
-                </div>
+                <div data-animate="fade-up" class="text-center p-6"><div class="w-12 h-12 rounded-xl bg-[#5B2333]/8 flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-gears text-[#5B2333]"></i></div><h3 class="font-bold text-[#564D4A] mb-2">{{ __('pages.game_info.color_sort.benefit1_title') }}</h3><p class="text-sm text-[#564D4A]/50 leading-relaxed">{{ __('pages.game_info.color_sort.benefit1_desc') }}</p></div>
+                <div data-animate="fade-up" data-animate-delay="1" class="text-center p-6"><div class="w-12 h-12 rounded-xl bg-[#5B2333]/8 flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-list-check text-[#5B2333]"></i></div><h3 class="font-bold text-[#564D4A] mb-2">{{ __('pages.game_info.color_sort.benefit2_title') }}</h3><p class="text-sm text-[#564D4A]/50 leading-relaxed">{{ __('pages.game_info.color_sort.benefit2_desc') }}</p></div>
+                <div data-animate="fade-up" data-animate-delay="2" class="text-center p-6"><div class="w-12 h-12 rounded-xl bg-[#5B2333]/8 flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-hourglass-half text-[#5B2333]"></i></div><h3 class="font-bold text-[#564D4A] mb-2">{{ __('pages.game_info.color_sort.benefit3_title') }}</h3><p class="text-sm text-[#564D4A]/50 leading-relaxed">{{ __('pages.game_info.color_sort.benefit3_desc') }}</p></div>
             </div>
         </div>
     </section>
 
     <section class="max-w-3xl mx-auto px-6 py-20 text-center">
-        <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight mb-4">Klaar om te spelen?</h2>
-        <p data-animate="fade-up" class="text-[#564D4A]/50 mb-8">Maak gratis een account aan en speel vandaag nog Color Sort.</p>
-        <a href="{{ route('register') }}" data-animate="fade-up" class="inline-flex items-center gap-2 bg-[#5B2333] hover:bg-[#5B2333]/85 text-white font-bold text-sm px-8 py-4 rounded-2xl transition shadow-lg shadow-[#5B2333]/20">
-            <i class="fa-solid fa-bolt"></i> Gratis starten
-        </a>
+        <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight mb-4">{{ __('pages.game_info.common.ready_to_play') }}</h2>
+        <p data-animate="fade-up" class="text-[#564D4A]/50 mb-8">{{ __('pages.game_info.color_sort.cta_text') }}</p>
+        <a href="{{ route('register') }}" data-animate="fade-up" class="inline-flex items-center gap-2 bg-[#5B2333] hover:bg-[#5B2333]/85 text-white font-bold text-sm px-8 py-4 rounded-2xl transition shadow-lg shadow-[#5B2333]/20"><i class="fa-solid fa-bolt"></i> {{ __('pages.game_info.common.free_start') }}</a>
     </section>
 </x-layouts.marketing>

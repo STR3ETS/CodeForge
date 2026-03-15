@@ -1,6 +1,6 @@
 <x-layouts.marketing>
     <x-slot:title>Snelheid & Reactie Games | BrainForge</x-slot:title>
-    <x-slot:description>Test je reactiesnelheid en reflexen met onze snelheidsgames. Reaction Time, Sequence Rush, Color Match op BrainForge.</x-slot:description>
+    <x-slot:description>Test je reactiesnelheid en reflexen met onze snelheidsgames. Reactietijd, Reeks Raden, Kleuren Match op BrainForge.</x-slot:description>
 
     {{-- Page header --}}
     <section class="pt-28 pb-16 bg-white border-b border-[#564D4A]/6">
@@ -52,7 +52,7 @@
             @php
                 $games = [
                     [
-                        'name' => 'Reaction Time',
+                        'name' => 'Reactietijd',
                         'icon' => 'fa-solid fa-bolt',
                         'bg' => 'bg-[#FEF9C3]',
                         'color' => 'text-[#a16207]',
@@ -61,7 +61,7 @@
                         'description' => 'Wacht tot het scherm groen wordt en klik zo snel mogelijk. Je speelt 5 rondes en je gemiddelde reactietijd is je score. De ultieme test voor je pure reactiesnelheid.',
                     ],
                     [
-                        'name' => 'Sequence Rush',
+                        'name' => 'Reeks Raden',
                         'icon' => 'fa-solid fa-arrow-up-1-9',
                         'bg' => 'bg-[#D9EAD3]',
                         'color' => 'text-[#5a8a4e]',
@@ -70,7 +70,7 @@
                         'description' => 'Ontdek het patroon in een reeks getallen en vul het volgende getal aan. Hoe sneller je het patroon herkent en antwoordt, hoe meer punten je scoort. Snelheid en slim denken gecombineerd.',
                     ],
                     [
-                        'name' => 'Color Match',
+                        'name' => 'Kleuren Match',
                         'icon' => 'fa-solid fa-palette',
                         'bg' => 'bg-[#FFE4E6]',
                         'color' => 'text-[#be123c]',
@@ -79,7 +79,7 @@
                         'description' => 'Klik zo snel mogelijk op de kleur van de tekst, niet het woord zelf. Het Stroop-effect maakt dit lastiger dan het klinkt — je brein moet snel schakelen tussen lezen en waarnemen.',
                     ],
                     [
-                        'name' => 'Flag Guess',
+                        'name' => 'Vlaggen Quiz',
                         'icon' => 'fa-solid fa-flag',
                         'bg' => 'bg-[#FFF3CD]',
                         'color' => 'text-[#9a7a20]',

@@ -195,7 +195,7 @@ class AdminController extends Controller
         $user->update(['plan' => 'free']);
 
         $sub = $user->subscription('pro');
-        if ($sub && !$sub->cancelled()) {
+        if ($sub && !$sub->canceled()) {
             $sub->cancelNow();
         }
 

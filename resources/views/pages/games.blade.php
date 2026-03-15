@@ -1,6 +1,6 @@
 <x-layouts.marketing>
     <x-slot:title>Alle Games - Online Breinspellen | BrainForge</x-slot:title>
-    <x-slot:description>Ontdek alle 11 breinspellen op BrainForge. Van woordpuzzels tot geheugentraining — elke dag nieuwe uitdagingen in 3 moeilijkheden.</x-slot:description>
+    <x-slot:description>Ontdek alle 13 breinspellen op BrainForge. Van woordpuzzels tot geheugentraining — elke dag nieuwe uitdagingen in 3 moeilijkheden.</x-slot:description>
 
     {{-- Page header --}}
     <section class="pt-28 pb-16 bg-white border-b border-[#564D4A]/6">
@@ -9,10 +9,10 @@
                 <i class="fa-solid fa-gamepad text-[10px]"></i> ONZE GAMES
             </span>
             <h1 data-animate="fade-up" data-animate-delay="1" class="text-3xl sm:text-4xl font-black text-[#564D4A] tracking-tight">
-                11 games, elke dag nieuw
+                13 games, elke dag nieuw
             </h1>
             <p data-animate="fade-up" data-animate-delay="2" class="mt-4 text-[#564D4A]/50 max-w-2xl leading-relaxed text-lg">
-                Elke dag krijg je 11 verse uitdagingen. Kies je moeilijkheidsgraad en test je brein met puzzels die variëren van woordspellen tot geheugentraining.
+                Elke dag krijg je 13 verse uitdagingen. Kies je moeilijkheidsgraad en test je brein met puzzels die variëren van woordspellen tot geheugentraining.
             </p>
         </div>
     </section>
@@ -22,7 +22,7 @@
         @php
             $games = [
                 [
-                    'name' => 'Word Forge',
+                    'name' => 'Woord Raden',
                     'icon' => 'fa-solid fa-font',
                     'bg' => 'bg-[#D6E4F0]',
                     'color' => 'text-[#4a7fa5]',
@@ -32,7 +32,7 @@
                     'difficulty' => 'Makkelijk: 7 letters met hints | Normaal: 6 letters | Moeilijk: 5 letters, minder hints',
                 ],
                 [
-                    'name' => 'Find the Emoji',
+                    'name' => 'Vind de Emoji',
                     'icon' => 'fa-solid fa-face-grin',
                     'bg' => 'bg-[#FBE2D8]',
                     'color' => 'text-[#c0705a]',
@@ -42,7 +42,7 @@
                     'difficulty' => 'Makkelijk: 1 emoji | Normaal: 2 emoji\'s | Moeilijk: 3 emoji\'s',
                 ],
                 [
-                    'name' => 'Sequence Rush',
+                    'name' => 'Reeks Raden',
                     'icon' => 'fa-solid fa-arrow-up-1-9',
                     'bg' => 'bg-[#D9EAD3]',
                     'color' => 'text-[#5a8a4e]',
@@ -52,7 +52,7 @@
                     'difficulty' => 'Makkelijk: eenvoudige reeksen | Normaal: complexere patronen | Moeilijk: meerdere bewerkingen',
                 ],
                 [
-                    'name' => 'Flag Guess',
+                    'name' => 'Vlaggen Quiz',
                     'icon' => 'fa-solid fa-flag',
                     'bg' => 'bg-[#FFF3CD]',
                     'color' => 'text-[#9a7a20]',
@@ -62,7 +62,7 @@
                     'difficulty' => 'Makkelijk: bekende landen | Normaal: alle continenten | Moeilijk: obscure staten',
                 ],
                 [
-                    'name' => 'Block Drop',
+                    'name' => 'Blok Drop',
                     'icon' => 'fa-solid fa-cube',
                     'bg' => 'bg-[#E8D5F0]',
                     'color' => 'text-[#7a4fa0]',
@@ -82,7 +82,7 @@
                     'difficulty' => 'Makkelijk: meer vooringevuld | Normaal: standaard | Moeilijk: minimale hints',
                 ],
                 [
-                    'name' => 'Memory Grid',
+                    'name' => 'Geheugen Grid',
                     'icon' => 'fa-solid fa-brain',
                     'bg' => 'bg-[#F3E8F9]',
                     'color' => 'text-[#7a4fa0]',
@@ -92,7 +92,7 @@
                     'difficulty' => 'Score op basis van aantal zetten — hoe minder, hoe beter',
                 ],
                 [
-                    'name' => 'Color Match',
+                    'name' => 'Kleuren Match',
                     'icon' => 'fa-solid fa-palette',
                     'bg' => 'bg-[#FFE4E6]',
                     'color' => 'text-[#be123c]',
@@ -102,7 +102,7 @@
                     'difficulty' => '20 rondes — score op snelheid en nauwkeurigheid',
                 ],
                 [
-                    'name' => 'Reaction Time',
+                    'name' => 'Reactietijd',
                     'icon' => 'fa-solid fa-bolt',
                     'bg' => 'bg-[#FEF9C3]',
                     'color' => 'text-[#a16207]',
@@ -112,7 +112,7 @@
                     'difficulty' => '5 rondes — laagste gemiddelde reactietijd wint',
                 ],
                 [
-                    'name' => 'Maze Runner',
+                    'name' => 'Doolhof Renner',
                     'icon' => 'fa-solid fa-route',
                     'bg' => 'bg-[#DBEAFE]',
                     'color' => 'text-[#1d4ed8]',
@@ -122,7 +122,7 @@
                     'difficulty' => 'Score op basis van snelheid — elke dag een nieuw doolhof',
                 ],
                 [
-                    'name' => 'Color Sort',
+                    'name' => 'Kleuren Sorteer',
                     'icon' => 'fa-solid fa-layer-group',
                     'bg' => 'bg-[#FEF3C7]',
                     'color' => 'text-[#b45309]',
@@ -130,6 +130,26 @@
                     'tags' => ['PUZZEL', 'STRATEGIE'],
                     'description' => 'Sorteer gekleurde blokken over 5 stapels zodat elke stapel slechts één kleur bevat. Je kunt een blok alleen plaatsen op dezelfde kleur of een lege stapel. Denk strategisch — er is weinig ruimte!',
                     'difficulty' => 'Moeilijk — 4 kleuren, 5 stapels, minimale ruimte om te manoeuvreren',
+                ],
+                [
+                    'name' => 'Reken Rush',
+                    'icon' => 'fa-solid fa-calculator',
+                    'bg' => 'bg-[#DBEAFE]',
+                    'color' => 'text-[#1d4ed8]',
+                    'tagBg' => 'bg-[#DBEAFE]/50',
+                    'tags' => ['REKENEN', 'SNELHEID'],
+                    'description' => 'Los 15 wiskundige sommen zo snel mogelijk op. De moeilijkheid neemt toe van simpele optelsommen tot vermenigvuldigingen en delingen. Vier antwoordopties per som — snelheid en nauwkeurigheid bepalen je score.',
+                    'difficulty' => 'Progressief — rondes 1-5 makkelijk, 6-10 gemiddeld, 11-15 moeilijk',
+                ],
+                [
+                    'name' => 'Geo Gok',
+                    'icon' => 'fa-solid fa-earth-europe',
+                    'bg' => 'bg-[#CCFBF1]',
+                    'color' => 'text-[#0D9488]',
+                    'tagBg' => 'bg-[#CCFBF1]/50',
+                    'tags' => ['AARDRIJKSKUNDE', 'ONTDEKKEN'],
+                    'description' => 'Je wordt ergens op de wereld gedropt in Google Street View. Kijk rond, zoek aanwijzingen en plaats een pin op de kaart. Hoe dichter bij de echte locatie, hoe hoger je op het leaderboard staat.',
+                    'difficulty' => 'Variabel — van herkenbare steden tot afgelegen plekken',
                 ],
             ];
         @endphp
@@ -160,128 +180,6 @@
         </div>
     </section>
 
-    {{-- Game in action preview --}}
-    <section class="bg-white border-y border-[#564D4A]/6">
-        <div class="max-w-6xl mx-auto px-6 py-24">
-            <div class="text-center mb-14">
-                <span data-animate="fade-up" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5B2333]/8 text-[#5B2333] text-xs font-bold mb-4">
-                    <i class="fa-solid fa-play text-[10px]"></i> IN ACTIE
-                </span>
-                <h2 data-animate="fade-up" data-animate-delay="1" class="text-2xl sm:text-3xl font-black text-[#564D4A] tracking-tight">Zo ziet het eruit</h2>
-                <p data-animate="fade-up" data-animate-delay="2" class="mt-3 text-[#564D4A]/50 max-w-lg mx-auto">Een kijkje in de game-ervaring. Elke game heeft een uniek speelveld en directe feedback.</p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8">
-                {{-- Word Forge preview --}}
-                <div data-animate="fade-up" class="relative">
-                    <div class="bg-[#D6E4F0]/20 rounded-2xl border-2 border-dashed border-[#D6E4F0] p-8 aspect-[16/10] flex flex-col items-center justify-center text-center">
-                        <div class="w-14 h-14 rounded-2xl bg-[#D6E4F0] flex items-center justify-center mb-4">
-                            <i class="fa-solid fa-font text-[#4a7fa5] text-xl"></i>
-                        </div>
-                        <p class="font-bold text-[#4a7fa5] text-sm">Word Forge gameplay</p>
-                        <p class="text-xs text-[#4a7fa5]/50 mt-1">Raad het woord met kleur-hints</p>
-                    </div>
-                </div>
-
-                {{-- Sudoku preview --}}
-                <div data-animate="fade-up" data-animate-delay="1" class="relative">
-                    <div class="bg-[#D0EAE8]/20 rounded-2xl border-2 border-dashed border-[#D0EAE8] p-8 aspect-[16/10] flex flex-col items-center justify-center text-center">
-                        <div class="w-14 h-14 rounded-2xl bg-[#D0EAE8] flex items-center justify-center mb-4">
-                            <i class="fa-solid fa-table-cells text-[#3a8a85] text-xl"></i>
-                        </div>
-                        <p class="font-bold text-[#3a8a85] text-sm">Sudoku gameplay</p>
-                        <p class="text-xs text-[#3a8a85]/50 mt-1">Klassiek 9x9 grid met notities</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8 mt-8">
-                {{-- Flag Guess preview --}}
-                <div data-animate="fade-up" class="relative">
-                    <div class="bg-[#FFF3CD]/20 rounded-2xl border-2 border-dashed border-[#FFF3CD] p-6 aspect-square flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 rounded-xl bg-[#FFF3CD] flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-flag text-[#9a7a20] text-lg"></i>
-                        </div>
-                        <p class="font-bold text-[#9a7a20] text-xs">Flag Guess</p>
-                    </div>
-                </div>
-
-                {{-- Block Drop preview --}}
-                <div data-animate="fade-up" data-animate-delay="1" class="relative">
-                    <div class="bg-[#E8D5F0]/20 rounded-2xl border-2 border-dashed border-[#E8D5F0] p-6 aspect-square flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 rounded-xl bg-[#E8D5F0] flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-cube text-[#7a4fa0] text-lg"></i>
-                        </div>
-                        <p class="font-bold text-[#7a4fa0] text-xs">Block Drop</p>
-                    </div>
-                </div>
-
-                {{-- Sequence Rush preview --}}
-                <div data-animate="fade-up" data-animate-delay="2" class="relative">
-                    <div class="bg-[#D9EAD3]/20 rounded-2xl border-2 border-dashed border-[#D9EAD3] p-6 aspect-square flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 rounded-xl bg-[#D9EAD3] flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-arrow-up-1-9 text-[#5a8a4e] text-lg"></i>
-                        </div>
-                        <p class="font-bold text-[#5a8a4e] text-xs">Sequence Rush</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8 mt-8">
-                {{-- Memory Grid preview --}}
-                <div data-animate="fade-up" class="relative">
-                    <div class="bg-[#F3E8F9]/20 rounded-2xl border-2 border-dashed border-[#F3E8F9] p-6 aspect-square flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 rounded-xl bg-[#F3E8F9] flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-brain text-[#7a4fa0] text-lg"></i>
-                        </div>
-                        <p class="font-bold text-[#7a4fa0] text-xs">Memory Grid</p>
-                    </div>
-                </div>
-
-                {{-- Color Match preview --}}
-                <div data-animate="fade-up" data-animate-delay="1" class="relative">
-                    <div class="bg-[#FFE4E6]/20 rounded-2xl border-2 border-dashed border-[#FFE4E6] p-6 aspect-square flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 rounded-xl bg-[#FFE4E6] flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-palette text-[#be123c] text-lg"></i>
-                        </div>
-                        <p class="font-bold text-[#be123c] text-xs">Color Match</p>
-                    </div>
-                </div>
-
-                {{-- Reaction Time preview --}}
-                <div data-animate="fade-up" data-animate-delay="2" class="relative">
-                    <div class="bg-[#FEF9C3]/20 rounded-2xl border-2 border-dashed border-[#FEF9C3] p-6 aspect-square flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 rounded-xl bg-[#FEF9C3] flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-bolt text-[#a16207] text-lg"></i>
-                        </div>
-                        <p class="font-bold text-[#a16207] text-xs">Reaction Time</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8 mt-8">
-                {{-- Maze Runner preview --}}
-                <div data-animate="fade-up" class="relative">
-                    <div class="bg-[#DBEAFE]/20 rounded-2xl border-2 border-dashed border-[#DBEAFE] p-6 aspect-square flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 rounded-xl bg-[#DBEAFE] flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-route text-[#1d4ed8] text-lg"></i>
-                        </div>
-                        <p class="font-bold text-[#1d4ed8] text-xs">Maze Runner</p>
-                    </div>
-                </div>
-
-                {{-- Color Sort preview --}}
-                <div data-animate="fade-up" data-animate-delay="1" class="relative">
-                    <div class="bg-[#FEF3C7]/20 rounded-2xl border-2 border-dashed border-[#FEF3C7] p-6 aspect-square flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 rounded-xl bg-[#FEF3C7] flex items-center justify-center mb-3">
-                            <i class="fa-solid fa-layer-group text-[#b45309] text-lg"></i>
-                        </div>
-                        <p class="font-bold text-[#b45309] text-xs">Color Sort</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     {{-- XP & scoring explanation --}}
     <section class="max-w-6xl mx-auto px-6 py-24">

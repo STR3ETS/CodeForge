@@ -20,8 +20,9 @@
         .animate-name-neon-pulse { animation:name-neon-pulse 2s ease-in-out infinite; }
         @keyframes name-glitch { 0%,100%{color:#22d3ee;text-shadow:none} 5%{color:#f43f5e;text-shadow:-2px 0 #22d3ee} 10%{color:#22d3ee;text-shadow:2px 0 #f43f5e} 15%{color:#a855f7;text-shadow:none} 20%{color:#22d3ee;text-shadow:-1px 0 #a855f7,1px 0 #f43f5e} 25%,100%{color:#22d3ee;text-shadow:none} }
         .animate-name-glitch { animation:name-glitch 3s steps(1) infinite; }
-        @keyframes badge-rainbow { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
-        .animate-badge-rainbow { background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#9b59b6,#ff6b6b); background-size:200% 200%; animation:badge-rainbow 3s linear infinite; color:white; border-color:transparent; text-shadow:0 1px 2px rgba(0,0,0,.15); }
+        @keyframes badge-gradient-shift { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+        .animate-badge-rainbow,
+        .animate-badge-custom-gradient { background:linear-gradient(90deg,var(--badge-c1,#5B2333),var(--badge-c2,#F59E0B),var(--badge-c3,#0D9488),var(--badge-c1,#5B2333)); background-size:200% 200%; animation:badge-gradient-shift 3s linear infinite; color:white; border-color:transparent; text-shadow:0 1px 2px rgba(0,0,0,.15); }
     </style>
 
     {{-- Tailwind safelist: bg-red-100 text-red-700 border-red-200 bg-orange-100 text-orange-700 border-orange-200 bg-yellow-100 text-yellow-700 border-yellow-200 bg-green-100 text-green-700 border-green-200 bg-emerald-100 text-emerald-700 border-emerald-200 bg-cyan-100 text-cyan-700 border-cyan-200 bg-blue-100 text-blue-700 border-blue-200 bg-indigo-100 text-indigo-700 border-indigo-200 bg-purple-100 text-purple-700 border-purple-200 bg-pink-100 text-pink-700 border-pink-200 bg-slate-100 text-slate-700 border-slate-200 --}}
@@ -37,6 +38,7 @@
         $eqEffect    = $equipped->get('effect');
         $eqFlair     = $equipped->get('badge_flair');
         $eqNameColor = $equipped->get('name_color');
+        $eqFlag      = $equipped->get('flag');
 
         $hatEmojis = [
             'hat-party' => '🎉', 'hat-cap' => '🧢', 'hat-beanie' => '🧶',
@@ -60,7 +62,7 @@
             'flair-speedrunner'    => ['emoji' => '⚡', 'bg' => 'bg-yellow-100',  'text' => 'text-yellow-700',  'border' => 'border-yellow-200'],
             'flair-1iq'            => ['emoji' => '🪱', 'bg' => 'bg-orange-100',  'text' => 'text-orange-700',  'border' => 'border-orange-200'],
             'flair-custom-gold'    => ['emoji' => '✏️', 'bg' => 'bg-yellow-100',  'text' => 'text-yellow-800',  'border' => 'border-yellow-300'],
-            'flair-custom-rainbow' => ['emoji' => '🌈', 'bg' => 'bg-gradient-to-r from-pink-100 via-purple-100 to-cyan-100', 'text' => 'text-purple-700', 'border' => 'border-purple-200'],
+            'flair-custom-rainbow' => ['emoji' => '🎨', 'bg' => 'bg-gradient-to-r from-pink-100 via-purple-100 to-cyan-100', 'text' => 'text-purple-700', 'border' => 'border-purple-200'],
             'flair-goat'           => ['emoji' => '🐐', 'bg' => 'bg-amber-100',   'text' => 'text-amber-800',   'border' => 'border-amber-300'],
         ];
     @endphp
@@ -150,6 +152,9 @@
                     @else
                         <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-[#564D4A]/5 text-[#564D4A]/60">FREE</span>
                     @endif
+                    @if($eqFlag)
+                        <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-[#564D4A]/5 text-[#564D4A]/60 inline-flex items-center gap-1" title="{{ $eqFlag->name }}"><span class="fi fi-{{ str_replace('flag-', '', $eqFlag->slug) }} text-xs rounded-sm"></span>{{ $eqFlag->name }}</span>
+                    @endif
                 </div>
 
                 <div class="flex items-center gap-3 mt-2">
@@ -163,12 +168,19 @@
                             }
                             if ($isCustomFlair && $customData) {
                                 $cc = $customData['color'] ?? 'slate';
-                                $isRainbow = ($cc === 'rainbow');
+                                $isGradient = str_contains($cc, ',');
+                                $isRainbow = ($cc === 'rainbow') || $isGradient;
+                                $gradientStyle = '';
+                                if ($isGradient) {
+                                    $colors = explode(',', $cc);
+                                    $gradientStyle = '--badge-c1:' . ($colors[0] ?? '#5B2333') . ';--badge-c2:' . ($colors[1] ?? '#F59E0B') . ';--badge-c3:' . ($colors[2] ?? '#0D9488') . ';';
+                                }
                                 $fm = [
                                     'emoji' => $customData['emoji'] ?? '✦',
-                                    'bg' => $isRainbow ? 'animate-badge-rainbow' : "bg-{$cc}-100",
+                                    'bg' => $isRainbow ? 'animate-badge-custom-gradient' : "bg-{$cc}-100",
                                     'text' => $isRainbow ? '' : "text-{$cc}-700",
                                     'border' => $isRainbow ? '' : "border-{$cc}-200",
+                                    'style' => $gradientStyle,
                                 ];
                                 $flairLabel = $customData['text'] ?? $eqFlair->name;
                             } elseif ($isCustomFlair) {
@@ -179,7 +191,8 @@
                                 $flairLabel = $eqFlair->name;
                             }
                         @endphp
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border {{ $fm['bg'] }} {{ $fm['text'] }} {{ $fm['border'] }} w-fit">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border {{ $fm['bg'] }} {{ $fm['text'] }} {{ $fm['border'] }} w-fit"
+                            @if (!empty($fm['style'])) style="{{ $fm['style'] }}" @endif>
                             <span class="text-xs leading-none">{{ $fm['emoji'] }}</span> {{ $flairLabel }}
                         </span>
                     @endif

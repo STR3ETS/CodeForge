@@ -19,6 +19,8 @@ use App\Http\Controllers\ReactionTimeController;
 use App\Http\Controllers\MazeRunnerController;
 use App\Http\Controllers\ColorSortController;
 use App\Http\Controllers\IqTestController;
+use App\Http\Controllers\MathRushController;
+use App\Http\Controllers\GeoGuessController;
 use App\Http\Controllers\ChatController;
 
 // Stripe webhook (no CSRF, no auth)
@@ -45,6 +47,8 @@ Route::get('/games/color-match-info', fn() => view('pages.games.color-match'))->
 Route::get('/games/reaction-time-info', fn() => view('pages.games.reaction-time'))->name('pages.games.reaction-time');
 Route::get('/games/maze-runner-info', fn() => view('pages.games.maze-runner'))->name('pages.games.maze-runner');
 Route::get('/games/color-sort-info', fn() => view('pages.games.color-sort'))->name('pages.games.color-sort');
+Route::get('/games/math-rush-info', fn() => view('pages.games.math-rush'))->name('pages.games.math-rush');
+Route::get('/games/geo-guess-info', fn() => view('pages.games.geo-guess'))->name('pages.games.geo-guess');
 
 // Category landing pages (SEO)
 Route::get('/categorie/hersenkrakers', fn() => view('pages.categorie.hersenkrakers'))->name('pages.categorie.hersenkrakers');
@@ -57,6 +61,17 @@ Route::get('/algemene-voorwaarden', fn() => view('pages.algemene-voorwaarden'))-
 Route::get('/privacybeleid', fn() => view('pages.privacybeleid'))->name('pages.privacy');
 Route::get('/cookiebeleid', fn() => view('pages.cookiebeleid'))->name('pages.cookies');
 
+// Language switcher
+Route::get('/lang/{locale}', function (string $locale) {
+    if (in_array($locale, config('app.available_locales', ['nl']))) {
+        session(['locale' => $locale]);
+        if (auth()->check()) {
+            auth()->user()->update(['locale' => $locale]);
+        }
+    }
+    return redirect()->back();
+})->name('lang.switch');
+
 // Guest routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -64,6 +79,9 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
+
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 });
 
 // Auth routes
@@ -106,6 +124,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/games/color-sort', [ColorSortController::class, 'show'])->name('games.colorsort');
     Route::post('/games/color-sort/solve', [ColorSortController::class, 'solve'])->name('games.colorsort.solve');
+
+    Route::get('/games/math-rush', [MathRushController::class, 'show'])->name('games.mathrush');
+    Route::post('/games/math-rush/solve', [MathRushController::class, 'solve'])->name('games.mathrush.solve');
+
+    Route::get('/games/geo-guess', [GeoGuessController::class, 'show'])->name('games.geoguess');
+    Route::post('/games/geo-guess/solve', [GeoGuessController::class, 'solve'])->name('games.geoguess.solve');
 
     Route::get('/games/iq-test', [IqTestController::class, 'show'])->name('games.iqtest');
 

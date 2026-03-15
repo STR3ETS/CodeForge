@@ -50,7 +50,7 @@
                 @php
                     $freeFeatures = [
                         ['label' => 'Onbeperkt games per dag', 'included' => false],
-                        ['label' => 'Alle 11 game types', 'included' => true],
+                        ['label' => 'Alle 13 game types', 'included' => true],
                         ['label' => '3 moeilijkheden', 'included' => true],
                         ['label' => 'Streaks, XP, leaderboard & vrienden', 'included' => true],
                         ['label' => 'Epische & Legendarische cosmetics in de Shop', 'included' => false],
@@ -117,7 +117,7 @@
                             <div class="w-5 h-5 rounded-full bg-yellow-300/20 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-check text-yellow-300 text-[9px]"></i>
                             </div>
-                            <span class="text-sm font-medium">Alle 11 game types</span>
+                            <span class="text-sm font-medium">Alle 13 game types</span>
                         </li>
                         <li class="flex items-center gap-3 text-white/80">
                             <div class="w-5 h-5 rounded-full bg-yellow-300/20 flex items-center justify-center shrink-0">
@@ -218,7 +218,7 @@
                             <td class="text-center px-4 py-4 font-bold text-[#5B2333]">Onbeperkt</td>
                         </tr>
                         <tr>
-                            <td class="px-6 py-4 text-[#564D4A]/70">Alle 11 game types</td>
+                            <td class="px-6 py-4 text-[#564D4A]/70">Alle 13 game types</td>
                             <td class="text-center px-4 py-4"><i class="fa-solid fa-check text-green-500 text-xs"></i></td>
                             <td class="text-center px-4 py-4"><i class="fa-solid fa-check text-green-500 text-xs"></i></td>
                         </tr>
@@ -332,7 +332,7 @@
             <div class="grid gap-6" x-data="{ open: null }">
                 @php
                     $faqs = [
-                        ['q' => 'Is BrainForge echt gratis?', 'a' => 'Ja! Je kunt 5 games per dag gratis spelen, met toegang tot alle 11 game types, streaks, XP, het leaderboard en vrienden. Er is geen tijdslimiet op het gratis plan.'],
+                        ['q' => 'Is BrainForge echt gratis?', 'a' => 'Ja! Je kunt 5 games per dag gratis spelen, met toegang tot alle 13 game types, streaks, XP, het leaderboard en vrienden. Er is geen tijdslimiet op het gratis plan.'],
                         ['q' => 'Wat krijg ik extra met Pro?', 'a' => 'Met Pro kun je onbeperkt games per dag spelen, epische & legendarische cosmetics kopen in de shop (animated naamkleuren, custom badges en meer), GIF-profielfoto\'s en banners uploaden via Tenor, grotere bestanden uploaden, en je krijgt een Pro badge op je profiel.'],
                         ['q' => 'Kan ik Pro op elk moment opzeggen?', 'a' => 'Absoluut. Je kunt je Pro-abonnement op elk moment opzeggen. Je houdt toegang tot Pro-features tot het einde van je betaalperiode.'],
                         ['q' => 'Hoe werken streaks?', 'a' => 'Speel minstens 1 game per dag om je streak te behouden. Als je een dag overslaat, start je streak opnieuw. Je beste streak wordt altijd bewaard.'],

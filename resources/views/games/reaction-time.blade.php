@@ -1,5 +1,5 @@
 {{-- resources/views/games/reaction-time.blade.php --}}
-<x-layouts.dashboard :title="'Reaction Time'" active="daily">
+<x-layouts.dashboard :title="'Reactietijd'" active="daily">
     @php
         $isSolved = (bool)($run->solved ?? false);
         $isFailed = (bool)(!$isSolved && !empty($run->finished_at));
@@ -90,7 +90,7 @@
                 <div>
                     <h1 class="text-[1.5rem] md:text-[1.8rem] font-black text-[#564D4A] tracking-tight leading-tight">
                         <template x-if="!isSolved && !isFailed">
-                            <span>Reaction Time <span class="text-[#564D4A]/40">#<span x-text="puzzle.number"></span></span></span>
+                            <span>Reactietijd <span class="text-[#564D4A]/40">#<span x-text="puzzle.number"></span></span></span>
                         </template>
                         <template x-if="isSolved"><span>Goed gedaan! ⚡</span></template>
                         <template x-if="isFailed"><span>Niet afgemaakt 😅</span></template>

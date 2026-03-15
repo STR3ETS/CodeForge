@@ -1,6 +1,6 @@
 <x-layouts.marketing>
-    <x-slot:title>Word Forge - Online Woordspel | BrainForge</x-slot:title>
-    <x-slot:description>Raad het verborgen woord in 6 pogingen. Train je woordenschat en logisch denkvermogen met Word Forge op BrainForge. Elke dag een nieuwe puzzel!</x-slot:description>
+    <x-slot:title>Woord Raden - Online Woordspel | BrainForge</x-slot:title>
+    <x-slot:description>Raad het verborgen woord in 6 pogingen. Train je woordenschat en logisch denkvermogen met Woord Raden op BrainForge. Elke dag een nieuwe puzzel!</x-slot:description>
 
     <section class="pt-28 pb-16 bg-white border-b border-[#564D4A]/6">
         <div class="max-w-6xl mx-auto px-6">
@@ -12,7 +12,7 @@
                     <i class="fa-solid fa-font text-[#4a7fa5] text-2xl"></i>
                 </div>
                 <div>
-                    <h1 data-animate="fade-up" data-animate-delay="1" class="text-3xl sm:text-4xl font-black text-[#564D4A] tracking-tight">Word Forge</h1>
+                    <h1 data-animate="fade-up" data-animate-delay="1" class="text-3xl sm:text-4xl font-black text-[#564D4A] tracking-tight">Woord Raden</h1>
                     <p data-animate="fade-up" data-animate-delay="2" class="mt-2 text-[#564D4A]/50 max-w-2xl leading-relaxed text-lg">
                         Raad het verborgen woord in maximaal 6 pogingen. Na elke gok krijg je kleurhints — groen voor de juiste letter op de juiste plek, geel als de letter in het woord zit maar op een andere positie.
                     </p>
@@ -29,7 +29,7 @@
     <section class="max-w-6xl mx-auto px-6 py-20">
         <div class="grid md:grid-cols-2 gap-12">
             <div>
-                <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight mb-6">Hoe werkt Word Forge?</h2>
+                <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight mb-6">Hoe werkt Woord Raden?</h2>
                 <div class="space-y-4">
                     <div data-animate="fade-up" class="flex gap-4">
                         <div class="w-8 h-8 rounded-lg bg-[#5B2333]/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -89,8 +89,8 @@
 
     <section class="bg-white border-y border-[#564D4A]/6">
         <div class="max-w-6xl mx-auto px-6 py-20">
-            <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight text-center mb-4">Waarom Word Forge spelen?</h2>
-            <p data-animate="fade-up" class="text-center text-[#564D4A]/50 mb-12 max-w-xl mx-auto">Word Forge is meer dan een spelletje — het is een dagelijkse workout voor je brein.</p>
+            <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight text-center mb-4">Waarom Woord Raden spelen?</h2>
+            <p data-animate="fade-up" class="text-center text-[#564D4A]/50 mb-12 max-w-xl mx-auto">Woord Raden is meer dan een spelletje — het is een dagelijkse workout voor je brein.</p>
             <div class="grid sm:grid-cols-3 gap-6">
                 <div data-animate="fade-up" class="text-center p-6">
                     <div class="w-12 h-12 rounded-xl bg-[#5B2333]/8 flex items-center justify-center mx-auto mb-4">
@@ -119,7 +119,7 @@
 
     <section class="max-w-3xl mx-auto px-6 py-20 text-center">
         <h2 data-animate="fade-up" class="text-2xl font-black text-[#564D4A] tracking-tight mb-4">Klaar om te spelen?</h2>
-        <p data-animate="fade-up" class="text-[#564D4A]/50 mb-8">Maak gratis een account aan en speel vandaag nog Word Forge.</p>
+        <p data-animate="fade-up" class="text-[#564D4A]/50 mb-8">Maak gratis een account aan en speel vandaag nog Woord Raden.</p>
         <a href="{{ route('register') }}" data-animate="fade-up" class="inline-flex items-center gap-2 bg-[#5B2333] hover:bg-[#5B2333]/85 text-white font-bold text-sm px-8 py-4 rounded-2xl transition shadow-lg shadow-[#5B2333]/20">
             <i class="fa-solid fa-bolt"></i> Gratis starten
         </a>

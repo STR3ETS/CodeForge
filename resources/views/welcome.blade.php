@@ -120,7 +120,7 @@
                             <div class="w-12 h-12 rounded-xl bg-[#D6E4F0] flex items-center justify-center mb-3">
                                 <i class="fa-solid fa-font text-[#4a7fa5] text-xl"></i>
                             </div>
-                            <p class="font-bold text-sm text-[#564D4A]">Word Forge</p>
+                            <p class="font-bold text-sm text-[#564D4A]">Woord Raden</p>
                             <p class="text-[11px] text-[#564D4A]/50 mt-1">Raad het woord in 6 pogingen</p>
                         </div>
                     </div>
@@ -130,7 +130,7 @@
                             <div class="w-12 h-12 rounded-xl bg-[#FBE2D8] flex items-center justify-center mb-3">
                                 <i class="fa-solid fa-face-grin text-[#c0705a] text-xl"></i>
                             </div>
-                            <p class="font-bold text-sm text-[#564D4A]">Find the Emoji</p>
+                            <p class="font-bold text-sm text-[#564D4A]">Vind de Emoji</p>
                             <p class="text-[11px] text-[#564D4A]/50 mt-1">Vind de juiste emoji combinatie</p>
                         </div>
                     </div>
@@ -140,7 +140,7 @@
                             <div class="w-12 h-12 rounded-xl bg-[#D9EAD3] flex items-center justify-center mb-3">
                                 <i class="fa-solid fa-arrow-up-1-9 text-[#5a8a4e] text-xl"></i>
                             </div>
-                            <p class="font-bold text-sm text-[#564D4A]">Sequence Rush</p>
+                            <p class="font-bold text-sm text-[#564D4A]">Reeks Raden</p>
                             <p class="text-[11px] text-[#564D4A]/50 mt-1">Vul de reeks zo snel mogelijk aan</p>
                         </div>
                     </div>
@@ -150,7 +150,7 @@
                             <div class="w-12 h-12 rounded-xl bg-[#FFF3CD] flex items-center justify-center mb-3">
                                 <i class="fa-solid fa-flag text-[#9a7a20] text-xl"></i>
                             </div>
-                            <p class="font-bold text-sm text-[#564D4A]">Flag Guess</p>
+                            <p class="font-bold text-sm text-[#564D4A]">Vlaggen Quiz</p>
                             <p class="text-[11px] text-[#564D4A]/50 mt-1">Herken vlaggen van over de wereld</p>
                         </div>
                     </div>
@@ -160,7 +160,7 @@
                             <div class="w-12 h-12 rounded-xl bg-[#E8D5F0] flex items-center justify-center mb-3">
                                 <i class="fa-solid fa-cube text-[#7a4fa0] text-xl"></i>
                             </div>
-                            <p class="font-bold text-sm text-[#564D4A]">Block Drop</p>
+                            <p class="font-bold text-sm text-[#564D4A]">Blok Drop</p>
                             <p class="text-[11px] text-[#564D4A]/50 mt-1">Tetris-achtige puzzel</p>
                         </div>
                     </div>
@@ -203,7 +203,7 @@
                 <i class="fa-solid fa-gamepad text-[10px]"></i> ONZE GAMES
             </span>
             <h2 class="text-3xl sm:text-4xl font-black text-[#564D4A] tracking-tight">
-                11 games, elke dag nieuw
+                13 games, elke dag nieuw
             </h2>
             <p class="mt-4 text-[#564D4A]/60 max-w-lg mx-auto leading-relaxed">
                 Van woordpuzzels tot logische reeksen. Kies je moeilijkheid en daag jezelf uit met een nieuwe uitdaging, elke dag.
@@ -216,7 +216,7 @@
                 <div class="game-icon w-14 h-14 rounded-2xl bg-[#D6E4F0] flex items-center justify-center mb-4 transition-transform duration-300">
                     <i class="fa-solid fa-font text-[#4a7fa5] text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-lg text-[#564D4A]">Word Forge</h3>
+                <h3 class="font-bold text-lg text-[#564D4A]">Woord Raden</h3>
                 <p class="text-sm text-[#564D4A]/50 mt-2 leading-relaxed">Raad het verborgen woord in maximaal 6 pogingen. Elke gok geeft je hints.</p>
                 <div class="mt-4 flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded-md bg-[#D6E4F0]/50 text-[#4a7fa5] text-[10px] font-bold">WOORDEN</span>
@@ -229,7 +229,7 @@
                 <div class="game-icon w-14 h-14 rounded-2xl bg-[#FBE2D8] flex items-center justify-center mb-4 transition-transform duration-300">
                     <i class="fa-solid fa-face-grin text-[#c0705a] text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-lg text-[#564D4A]">Find the Emoji</h3>
+                <h3 class="font-bold text-lg text-[#564D4A]">Vind de Emoji</h3>
                 <p class="text-sm text-[#564D4A]/50 mt-2 leading-relaxed">Ontdek welke emoji's bij de beschrijving horen. Test je creativiteit.</p>
                 <div class="mt-4 flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded-md bg-[#FBE2D8]/50 text-[#c0705a] text-[10px] font-bold">EMOJI</span>
@@ -242,7 +242,7 @@
                 <div class="game-icon w-14 h-14 rounded-2xl bg-[#D9EAD3] flex items-center justify-center mb-4 transition-transform duration-300">
                     <i class="fa-solid fa-arrow-up-1-9 text-[#5a8a4e] text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-lg text-[#564D4A]">Sequence Rush</h3>
+                <h3 class="font-bold text-lg text-[#564D4A]">Reeks Raden</h3>
                 <p class="text-sm text-[#564D4A]/50 mt-2 leading-relaxed">Ontdek het patroon en vul de reeks aan. Hoe sneller, hoe beter.</p>
                 <div class="mt-4 flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded-md bg-[#D9EAD3]/50 text-[#5a8a4e] text-[10px] font-bold">GETALLEN</span>
@@ -255,7 +255,7 @@
                 <div class="game-icon w-14 h-14 rounded-2xl bg-[#FFF3CD] flex items-center justify-center mb-4 transition-transform duration-300">
                     <i class="fa-solid fa-flag text-[#9a7a20] text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-lg text-[#564D4A]">Flag Guess</h3>
+                <h3 class="font-bold text-lg text-[#564D4A]">Vlaggen Quiz</h3>
                 <p class="text-sm text-[#564D4A]/50 mt-2 leading-relaxed">Herken vlaggen van landen over de hele wereld. Test je aardrijkskundekennis.</p>
                 <div class="mt-4 flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded-md bg-[#FFF3CD]/50 text-[#9a7a20] text-[10px] font-bold">VLAGGEN</span>
@@ -268,7 +268,7 @@
                 <div class="game-icon w-14 h-14 rounded-2xl bg-[#E8D5F0] flex items-center justify-center mb-4 transition-transform duration-300">
                     <i class="fa-solid fa-cube text-[#7a4fa0] text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-lg text-[#564D4A]">Block Drop</h3>
+                <h3 class="font-bold text-lg text-[#564D4A]">Blok Drop</h3>
                 <p class="text-sm text-[#564D4A]/50 mt-2 leading-relaxed">Plaats blokken strategisch op het bord. Maak rijen vrij en scoor punten.</p>
                 <div class="mt-4 flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded-md bg-[#E8D5F0]/50 text-[#7a4fa0] text-[10px] font-bold">PUZZEL</span>
@@ -438,7 +438,7 @@
                             <i class="fa-solid fa-check text-green-500 text-xs"></i> 5 games per dag
                         </li>
                         <li class="flex items-center gap-2.5 text-sm text-[#564D4A]/70">
-                            <i class="fa-solid fa-check text-green-500 text-xs"></i> Alle 11 game types
+                            <i class="fa-solid fa-check text-green-500 text-xs"></i> Alle 13 game types
                         </li>
                         <li class="flex items-center gap-2.5 text-sm text-[#564D4A]/70">
                             <i class="fa-solid fa-check text-green-500 text-xs"></i> Streaks & XP
@@ -480,7 +480,7 @@
                                 <i class="fa-solid fa-check text-yellow-300 text-xs"></i> Onbeperkt games per dag
                             </li>
                             <li class="flex items-center gap-2.5 text-sm text-white/80">
-                                <i class="fa-solid fa-check text-yellow-300 text-xs"></i> Alle 11 game types
+                                <i class="fa-solid fa-check text-yellow-300 text-xs"></i> Alle 13 game types
                             </li>
                             <li class="flex items-center gap-2.5 text-sm text-white/80">
                                 <i class="fa-solid fa-check text-yellow-300 text-xs"></i> GIF profielfoto & banner

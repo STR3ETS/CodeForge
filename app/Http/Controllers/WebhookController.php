@@ -67,7 +67,7 @@ class WebhookController extends CashierWebhookController
 
                 // Cancel the subscription in Stripe too
                 $sub = $user->subscription('pro');
-                if ($sub && !$sub->cancelled()) {
+                if ($sub && !$sub->canceled()) {
                     $sub->cancelNow();
                 }
 
@@ -92,7 +92,7 @@ class WebhookController extends CashierWebhookController
                 $user->update(['plan' => 'free']);
 
                 $sub = $user->subscription('pro');
-                if ($sub && !$sub->cancelled()) {
+                if ($sub && !$sub->canceled()) {
                     $sub->cancelNow();
                 }
 

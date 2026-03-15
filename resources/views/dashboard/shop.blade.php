@@ -207,14 +207,15 @@
         }
 
         /* ── Animated rainbow badge ── */
-        @keyframes badge-rainbow {
+        @keyframes badge-gradient-shift {
             0% { background-position: 0% 50%; }
             100% { background-position: 200% 50%; }
         }
-        .animate-badge-rainbow {
-            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #9b59b6, #ff6b6b);
+        .animate-badge-rainbow,
+        .animate-badge-custom-gradient {
+            background: linear-gradient(90deg, var(--badge-c1, #5B2333), var(--badge-c2, #F59E0B), var(--badge-c3, #0D9488), var(--badge-c1, #5B2333));
             background-size: 200% 200%;
-            animation: badge-rainbow 3s linear infinite;
+            animation: badge-gradient-shift 3s linear infinite;
             color: white;
             border-color: transparent;
             text-shadow: 0 1px 2px rgba(0,0,0,0.15);
@@ -249,6 +250,7 @@
             'effect'      => 'Effect',
             'badge_flair' => 'Profiel Badge',
             'name_color'  => 'Naam Kleur',
+            'flag'        => 'Vlag',
         ];
 
         $typeIcons = [
@@ -257,6 +259,7 @@
             'effect'      => 'fa-solid fa-wand-magic-sparkles',
             'badge_flair' => 'fa-solid fa-certificate',
             'name_color'  => 'fa-solid fa-palette',
+            'flag'        => 'fa-solid fa-flag',
         ];
 
         $isPro = ($u->plan ?? 'free') === 'pro';
@@ -369,7 +372,7 @@
             'flair-final-boss'     => ['emoji' => '👹', 'bg' => 'bg-rose-100',     'text' => 'text-rose-700',     'border' => 'border-rose-200'],
             // Legendary (8)
             'flair-custom-gold'    => ['emoji' => '✏️', 'bg' => 'bg-yellow-100',   'text' => 'text-yellow-800',   'border' => 'border-yellow-300'],
-            'flair-custom-rainbow' => ['emoji' => '🌈', 'bg' => 'bg-gradient-to-r from-pink-100 via-purple-100 to-cyan-100', 'text' => 'text-purple-700', 'border' => 'border-purple-200'],
+            'flair-custom-rainbow' => ['emoji' => '🎨', 'bg' => 'bg-gradient-to-r from-pink-100 via-purple-100 to-cyan-100', 'text' => 'text-purple-700', 'border' => 'border-purple-200'],
             'flair-goat'           => ['emoji' => '🏅', 'bg' => 'bg-amber-100',    'text' => 'text-amber-800',    'border' => 'border-amber-300'],
             'flair-legendary'      => ['emoji' => '⭐', 'bg' => 'bg-yellow-100',   'text' => 'text-yellow-800',   'border' => 'border-yellow-300'],
             'flair-god-mode'       => ['emoji' => '🔱', 'bg' => 'bg-cyan-100',     'text' => 'text-cyan-800',     'border' => 'border-cyan-300'],
@@ -482,6 +485,7 @@
                     'effect' => ['label' => 'Effecten', 'icon' => 'fa-solid fa-wand-magic-sparkles'],
                     'badge_flair' => ['label' => 'Badges', 'icon' => 'fa-solid fa-certificate'],
                     'name_color' => ['label' => 'Naam Kleur', 'icon' => 'fa-solid fa-palette'],
+                    'flag' => ['label' => 'Vlaggen', 'icon' => 'fa-solid fa-flag'],
                 ];
             @endphp
             @foreach ($filters as $filterKey => $f)
@@ -612,6 +616,9 @@
                             </div>
 
                             <div class="flex items-center gap-2 mt-2">
+                                @if ($item->type === 'flag')
+                                    <span class="fi fi-{{ str_replace('flag-', '', $item->slug) }} text-2xl leading-none rounded-sm shadow-sm"></span>
+                                @endif
                                 @if ($item->type === 'badge_flair')
                                     @php
                                     $fm = $flairMeta[$item->slug] ?? ['emoji' => '✦', 'bg' => 'bg-slate-100', 'text' => 'text-slate-600', 'border' => 'border-slate-200'];
@@ -619,8 +626,8 @@
                                     $flairLabel = $isCustomFlairPreview ? 'Jouw tekst' : $item->name;
                                 @endphp
                                 @if ($isCustomFlairPreview && $item->slug === 'flair-custom-rainbow')
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border animate-badge-rainbow">
-                                        <span class="text-xs leading-none">🌈</span> Jouw tekst
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border animate-badge-custom-gradient" style="--badge-c1:#5B2333;--badge-c2:#F59E0B;--badge-c3:#0D9488;">
+                                        <span class="text-xs leading-none">🎨</span> Jouw tekst
                                     </span>
                                 @elseif ($isCustomFlairPreview)
                                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border bg-purple-100 text-purple-700 border-purple-200">
@@ -730,8 +737,8 @@
                                     <template x-if="!equippedIds.includes({{ $item->id }})">
                                         <div>
                                             @if ($item->slug === 'flair-custom-rainbow')
-                                                {{-- Rainbow badge builder --}}
-                                                <div x-data="{ open: false, customText: '', customEmoji: '🌈', showEmojis: false }">
+                                                {{-- Custom gradient badge builder --}}
+                                                <div x-data="{ open: false, customText: '', customEmoji: '🎨', showEmojis: false, c1: '#5B2333', c2: '#F59E0B', c3: '#0D9488' }">
                                                     <button x-show="!open" @click="open = true"
                                                         class="w-full py-2.5 rounded-xl text-xs font-bold bg-[#564D4A]/5 text-[#564D4A] hover:bg-[#564D4A]/10 transition cursor-pointer">
                                                         <i class="fa-solid fa-wand-magic-sparkles text-[10px] mr-1"></i> Uitrusten
@@ -739,7 +746,8 @@
                                                     <div x-show="open" x-cloak x-transition class="space-y-2">
                                                         {{-- Live preview --}}
                                                         <div class="flex justify-center py-2">
-                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border animate-badge-rainbow">
+                                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border animate-badge-custom-gradient"
+                                                                :style="`--badge-c1:${c1};--badge-c2:${c2};--badge-c3:${c3};`">
                                                                 <span class="text-xs leading-none" x-text="customEmoji"></span>
                                                                 <span x-text="customText || 'Jouw tekst'"></span>
                                                             </span>
@@ -756,7 +764,7 @@
                                                             <div x-show="showEmojis" x-cloak @click.outside="showEmojis = false"
                                                                 x-transition
                                                                 class="absolute bottom-full left-0 right-0 mb-1 p-2 bg-white rounded-xl border border-[#564D4A]/10 shadow-lg z-20 grid grid-cols-7 gap-1">
-                                                                @foreach (['✦','⭐','🔥','💀','🎮','🏆','💎','⚡','🎯','👑','🐐','🧠','💪','🎵','🌟','💫','❤️','💜','🦊','🐉','🌈','🍀','🎲','🪐','🤖','🦄','🎪'] as $e)
+                                                                @foreach (['✦','⭐','🔥','💀','🎮','🏆','💎','⚡','🎯','👑','🐐','🧠','💪','🎵','🌟','💫','❤️','💜','🦊','🐉','🍀','🎲','🪐','🤖','🦄','🎪','🎨'] as $e)
                                                                     <button type="button" @click="customEmoji = '{{ $e }}'; showEmojis = false"
                                                                         class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F7F4F3] text-base cursor-pointer transition"
                                                                         :class="customEmoji === '{{ $e }}' ? 'bg-[#5B2333]/10 ring-1 ring-[#5B2333]/20' : ''">
@@ -765,8 +773,21 @@
                                                                 @endforeach
                                                             </div>
                                                         </div>
+                                                        {{-- 3 Color pickers --}}
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="text-[10px] font-semibold text-[#564D4A]/50 w-14 shrink-0">Kleuren</span>
+                                                            <label class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 cursor-pointer">
+                                                                <input type="color" x-model="c1" class="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded [&::-webkit-color-swatch]:border-0">
+                                                            </label>
+                                                            <label class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 cursor-pointer">
+                                                                <input type="color" x-model="c2" class="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded [&::-webkit-color-swatch]:border-0">
+                                                            </label>
+                                                            <label class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-[#F7F4F3] border border-[#564D4A]/10 cursor-pointer">
+                                                                <input type="color" x-model="c3" class="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded [&::-webkit-color-swatch]:border-0">
+                                                            </label>
+                                                        </div>
                                                         <div class="flex gap-2">
-                                                            <button @click="if(customText.trim()) equipCustom({{ $item->id }}, customText.trim(), customEmoji, 'rainbow')"
+                                                            <button @click="if(customText.trim()) equipCustom({{ $item->id }}, customText.trim(), customEmoji, c1 + ',' + c2 + ',' + c3)"
                                                                 :disabled="!customText.trim()"
                                                                 class="flex-1 py-2.5 rounded-xl text-xs font-bold bg-[#5B2333] text-white hover:bg-[#5B2333]/85 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
                                                                 <i class="fa-solid fa-check text-[10px] mr-1"></i> Opslaan
@@ -832,7 +853,7 @@
                                                             <div x-show="showEmojis" x-cloak @click.outside="showEmojis = false"
                                                                 x-transition
                                                                 class="absolute bottom-full left-0 right-0 mb-1 p-2 bg-white rounded-xl border border-[#564D4A]/10 shadow-lg z-20 grid grid-cols-7 gap-1">
-                                                                @foreach (['✦','⭐','🔥','💀','🎮','🏆','💎','⚡','🎯','👑','🐐','🧠','💪','🎵','🌟','💫','❤️','💜','🦊','🐉','🌈','🍀','🎲','🪐','🤖','🦄','🎪'] as $e)
+                                                                @foreach (['✦','⭐','🔥','💀','🎮','🏆','💎','⚡','🎯','👑','🐐','🧠','💪','🎵','🌟','💫','❤️','💜','🦊','🐉','🍀','🎲','🪐','🤖','🦄','🎪'] as $e)
                                                                     <button type="button" @click="customEmoji = '{{ $e }}'; showEmojis = false"
                                                                         class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F7F4F3] text-base cursor-pointer transition"
                                                                         :class="customEmoji === '{{ $e }}' ? 'bg-[#5B2333]/10 ring-1 ring-[#5B2333]/20' : ''">

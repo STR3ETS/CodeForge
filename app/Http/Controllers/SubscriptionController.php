@@ -103,7 +103,7 @@ class SubscriptionController extends Controller
             'plan'       => $user->plan,
             'subscribed' => $user->subscribed('pro'),
             'on_trial'   => $user->onTrial('pro'),
-            'cancelled'  => $user->subscription('pro')?->cancelled() ?? false,
+            'cancelled'  => $user->subscription('pro')?->canceled() ?? false,
             'ends_at'    => $user->subscription('pro')?->ends_at,
         ]);
     }

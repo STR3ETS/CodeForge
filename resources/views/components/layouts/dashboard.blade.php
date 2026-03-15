@@ -38,6 +38,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700,800,900" rel="stylesheet" />
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
     <link rel="preload" href="{{ asset('fontawesome/css/all.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ asset('fontawesome/css/all.min.css') }}"></noscript>
     <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -304,15 +305,39 @@
                                 $xpFmt = number_format((int)($xpMeta['inLevel'] ?? 0), 0, ',', '.');
                                 $nextFmt = number_format((int)($xpMeta['nextInLevel'] ?? 0), 0, ',', '.');
                             @endphp
-                            <div class="flex items-center gap-3">
+                            <div id="xp-bar-wrapper" class="relative flex items-center gap-3">
                                 <div class="w-[140px] h-[5px] rounded-full bg-[#564D4A]/8 overflow-hidden">
-                                    <div class="h-full bg-[#5B2333] rounded-full transition-all" style="width: {{ (int)$xpMeta['percent'] }}%"></div>
+                                    <div id="xp-bar-fill" class="h-full bg-[#5B2333] rounded-full transition-all duration-500" style="width: {{ (int)$xpMeta['percent'] }}%"></div>
                                 </div>
-                                <p class="text-[10px] text-[#564D4A]/40 font-semibold">{{ $xpFmt }}/{{ $nextFmt }}</p>
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#5B2333]/8 text-[#5B2333] text-[11px] font-bold">
+                                <p id="xp-bar-text" class="w-[70px] text-[10px] text-[#564D4A]/40 font-semibold tabular-nums">{{ $xpFmt }}/{{ $nextFmt }}</p>
+                                <span id="xp-bar-level" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#5B2333]/8 text-[#5B2333] text-[11px] font-bold">
                                     <i class="fa-solid fa-bolt text-[9px]"></i> Lvl {{ (int)$xpMeta['level'] }}
                                 </span>
                             </div>
+                            <style>
+                                @keyframes xp-slide-in {
+                                    0%   { opacity: 0; }
+                                    10%  { opacity: 1; }
+                                    60%  { opacity: 1; transform: translateX(0); }
+                                    100% { opacity: 0; transform: translateX(20px); }
+                                }
+                                @keyframes xp-glow {
+                                    0%, 100% { box-shadow: 0 0 0 0 rgba(91,35,51,0); }
+                                    50%      { box-shadow: 0 0 8px 3px rgba(91,35,51,0.35); }
+                                }
+                                .xp-pop-badge {
+                                    position: absolute;
+                                    left: -54px;
+                                    top: 4px;
+                                    pointer-events: none;
+                                    animation: xp-slide-in 1.6s ease-in-out forwards;
+                                    white-space: nowrap;
+                                }
+                                .xp-bar-glow {
+                                    animation: xp-glow 0.8s ease-in-out 2;
+                                    border-radius: 9999px;
+                                }
+                            </style>
                         </div>
 
                         {{-- Coins --}}
