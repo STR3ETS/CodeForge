@@ -15,220 +15,327 @@ class IqTestController extends Controller
                 ->with('error', 'IQ Test is alleen beschikbaar voor Pro-leden.');
         }
 
-        $questions = $this->getQuestions();
-
         return view('games.iq-test', [
             'user' => $user,
-            'questions' => $questions,
+            'simpleQuestions' => $this->getSimpleQuestions(),
+            'extendedQuestions' => $this->getExtendedQuestions(),
         ]);
     }
 
-    private function getQuestions(): array
+    private function getSimpleQuestions(): array
     {
         return [
-            // --- REEKSEN (Numerical Reasoning) ---
+            // --- REEKSEN (2) ---
             [
                 'category' => 'Reeksen',
-                'question' => 'Welk getal volgt? 2, 4, 8, 16, 32, ...',
-                'options' => ['48', '64', '56', '36'],
+                'question' => 'Welk getal volgt? 5, 11, 23, 47, 95, ...',
+                'options' => ['180', '191', '185', '200'],
                 'answer' => 1,
             ],
             [
                 'category' => 'Reeksen',
-                'question' => 'Welk getal volgt? 3, 6, 11, 18, 27, ...',
-                'options' => ['36', '38', '35', '40'],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Reeksen',
-                'question' => 'Welk getal volgt? 1, 1, 2, 3, 5, 8, ...',
-                'options' => ['11', '12', '13', '10'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Reeksen',
-                'question' => 'Welk getal ontbreekt? 4, 9, 16, ?, 36, 49',
-                'options' => ['20', '24', '25', '28'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Reeksen',
-                'question' => 'Welk getal volgt? 100, 81, 64, 49, 36, ...',
-                'options' => ['16', '24', '25', '30'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Reeksen',
-                'question' => 'Welk getal volgt? 2, 6, 12, 20, 30, ...',
-                'options' => ['40', '42', '44', '38'],
-                'answer' => 1,
-            ],
-
-            // --- LOGICA (Logical Reasoning) ---
-            [
-                'category' => 'Logica',
-                'question' => 'Alle rozen zijn bloemen. Sommige bloemen verwelken snel. Welke conclusie klopt?',
-                'options' => [
-                    'Alle rozen verwelken snel',
-                    'Sommige rozen verwelken mogelijk snel',
-                    'Geen enkele roos verwelkt snel',
-                    'Bloemen zijn altijd rozen',
-                ],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Logica',
-                'question' => 'Als het regent, is de straat nat. De straat is nat. Wat weet je zeker?',
-                'options' => [
-                    'Het regent',
-                    'Het heeft geregend',
-                    'De straat kan ook om een andere reden nat zijn',
-                    'Het stopt binnenkort met regenen',
-                ],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Logica',
-                'question' => 'A is groter dan B. B is groter dan C. C is groter dan D. Welke uitspraak klopt?',
-                'options' => [
-                    'D is groter dan A',
-                    'B is groter dan D',
-                    'C is groter dan A',
-                    'D is groter dan B',
-                ],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Logica',
-                'question' => 'In een groep van 5 mensen schudt iedereen elke andere persoon precies één keer de hand. Hoeveel handdrukken zijn er in totaal?',
-                'options' => ['20', '15', '10', '25'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Logica',
-                'question' => 'Een klok loopt 5 minuten achter per uur. Na 12 uur, hoeveel minuten loopt hij achter?',
-                'options' => ['55 minuten', '60 minuten', '50 minuten', '65 minuten'],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Logica',
-                'question' => 'Je hebt 3 dozen. Eén bevat appels, één sinaasappels, en één beide. Alle labels zijn FOUT. Je pakt één vrucht uit de doos met label "Beide". Het is een appel. Wat zit er in de doos met label "Sinaasappels"?',
-                'options' => ['Sinaasappels', 'Appels', 'Beide', 'Leeg'],
+                'question' => 'Welk getal ontbreekt? 1, 4, 9, ?, 25, 36',
+                'options' => ['12', '14', '16', '18'],
                 'answer' => 2,
             ],
 
-            // --- WISKUNDE (Mathematical Reasoning) ---
+            // --- LOGICA (2) ---
             [
-                'category' => 'Wiskunde',
-                'question' => 'Als 3x + 7 = 22, wat is x?',
-                'options' => ['3', '4', '5', '6'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Wiskunde',
-                'question' => 'Een trein rijdt 120 km in 1,5 uur. Wat is de gemiddelde snelheid?',
-                'options' => ['60 km/u', '70 km/u', '80 km/u', '90 km/u'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Wiskunde',
-                'question' => 'Wat is 15% van 240?',
-                'options' => ['32', '34', '36', '38'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Wiskunde',
-                'question' => 'Een winkel geeft 20% korting. Daarna nog eens 10% op de verlaagde prijs. Hoeveel procent korting heb je in totaal?',
-                'options' => ['30%', '28%', '27%', '25%'],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Wiskunde',
-                'question' => 'Wat is de volgende priemgetal na 29?',
-                'options' => ['31', '33', '35', '37'],
-                'answer' => 0,
-            ],
-            [
-                'category' => 'Wiskunde',
-                'question' => 'Een rechthoek heeft een omtrek van 36 cm en een breedte van 6 cm. Wat is de oppervlakte?',
-                'options' => ['60 cm²', '66 cm²', '72 cm²', '78 cm²'],
-                'answer' => 2,
-            ],
-
-            // --- ANALOGIEËN (Verbal Reasoning) ---
-            [
-                'category' => 'Analogieën',
-                'question' => 'Boek is voor lezen als vork is voor ...',
-                'options' => ['keuken', 'eten', 'metaal', 'mes'],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Analogieën',
-                'question' => 'Piloot is voor vliegtuig als kapitein is voor ...',
-                'options' => ['zee', 'schip', 'haven', 'uniform'],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Analogieën',
-                'question' => 'Welk woord past niet in de reeks? Tafel, stoel, lamp, kast',
-                'options' => ['Tafel', 'Stoel', 'Lamp', 'Kast'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Analogieën',
-                'question' => 'Warm is voor koud als licht is voor ...',
-                'options' => ['lamp', 'donker', 'zon', 'helder'],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Analogieën',
-                'question' => 'Welk woord past niet? Dolfijn, haai, walvis, zalm',
-                'options' => ['Dolfijn', 'Haai', 'Walvis', 'Zalm'],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Analogieën',
-                'question' => 'Schilder is voor penseel als schrijver is voor ...',
-                'options' => ['boek', 'pen', 'papier', 'verhaal'],
-                'answer' => 1,
-            ],
-
-            // --- RUIMTELIJK INZICHT (Spatial/Pattern) ---
-            [
-                'category' => 'Patronen',
-                'question' => 'Een kubus heeft 6 vlakken, 12 ribben en ... hoekpunten?',
-                'options' => ['4', '6', '8', '10'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Patronen',
-                'question' => 'Als je een vierkant papier diagonaal vouwt en dan de punt afknipt, hoeveel gaten zitten er in het papier als je het openvouwt?',
-                'options' => ['1', '2', '3', '4'],
-                'answer' => 0,
-            ],
-            [
-                'category' => 'Patronen',
-                'question' => 'Hoeveel driehoeken zitten er in een ster van David (hexagram)?',
-                'options' => ['6', '8', '10', '20'],
-                'answer' => 1,
-            ],
-            [
-                'category' => 'Patronen',
-                'question' => 'Een spiegelbeeld van de klok toont 3:00. Hoe laat is het echt?',
-                'options' => ['9:00', '3:00', '6:00', '12:00'],
-                'answer' => 0,
-            ],
-            [
-                'category' => 'Patronen',
-                'question' => 'Je draait 90° naar rechts, dan 180°, dan 90° naar links. Hoeveel graden ben je in totaal gedraaid ten opzichte van je startpositie?',
-                'options' => ['0°', '90°', '180°', '360°'],
-                'answer' => 2,
-            ],
-            [
-                'category' => 'Patronen',
-                'question' => 'Hoeveel blokken zijn er nodig om een kubus van 3×3×3 te bouwen?',
-                'options' => ['9', '18', '24', '27'],
+                'category' => 'Logica',
+                'question' => 'Jan is ouder dan Pieter. Pieter is ouder dan Klaas. Klaas is ouder dan Tom. Wie is het jongst?',
+                'options' => ['Jan', 'Pieter', 'Klaas', 'Tom'],
                 'answer' => 3,
+            ],
+            [
+                'category' => 'Logica',
+                'question' => 'In een race haal je de persoon op plek 2 in. Op welke plek sta je nu?',
+                'options' => ['Plek 1', 'Plek 2', 'Plek 3', 'Plek 4'],
+                'answer' => 1,
+            ],
+
+            // --- WISKUNDE (2) ---
+            [
+                'category' => 'Wiskunde',
+                'question' => 'Een boer heeft 17 schapen. Alle behalve 9 gaan dood. Hoeveel schapen heeft hij nog?',
+                'options' => ['8', '9', '17', '0'],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Wiskunde',
+                'question' => 'Als je 2 appels pakt van 5 appels, hoeveel appels heb je dan?',
+                'options' => ['3', '5', '2', '7'],
+                'answer' => 2,
+            ],
+
+            // --- ANALOGIEËN (2) ---
+            [
+                'category' => 'Analogieën',
+                'question' => 'Oog is voor zien als oor is voor ...',
+                'options' => ['geluid', 'horen', 'hoofd', 'muziek'],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Analogieën',
+                'question' => 'Welk woord past niet? Mars, Venus, Zon, Saturnus',
+                'options' => ['Mars', 'Venus', 'Zon', 'Saturnus'],
+                'answer' => 2,
+            ],
+
+            // --- PATRONEN / RUIMTELIJK (2) ---
+            [
+                'category' => 'Patronen',
+                'question' => 'Deze kubus wordt opengevouwen. Hoeveel vlakken zie je in totaal?',
+                'options' => ['4', '5', '6', '8'],
+                'answer' => 2,
+                'visual' => 'cube-unfold-cross',
+            ],
+            [
+                'category' => 'Patronen',
+                'question' => 'Je kijkt recht van voren naar deze piramide. Welke 2D-vorm zie je?',
+                'options' => ['Vierkant', 'Driehoek', 'Rechthoek', 'Cirkel'],
+                'answer' => 1,
+                'visual' => 'pyramid-front',
+            ],
+        ];
+    }
+
+    private function getExtendedQuestions(): array
+    {
+        return [
+            // =====================
+            // REEKSEN (6)
+            // =====================
+            [
+                'category' => 'Reeksen',
+                'question' => 'Welk getal volgt? 3, 5, 9, 17, 33, ...',
+                'options' => ['49', '57', '65', '61'],
+                'answer' => 2,
+            ],
+            [
+                'category' => 'Reeksen',
+                'question' => 'Welk getal volgt? 2, 3, 5, 7, 11, 13, ...',
+                'options' => ['15', '16', '17', '19'],
+                'answer' => 2,
+            ],
+            [
+                'category' => 'Reeksen',
+                'question' => 'Welk getal ontbreekt? 1, 3, 7, 15, ?, 63',
+                'options' => ['27', '30', '31', '32'],
+                'answer' => 2,
+            ],
+            [
+                'category' => 'Reeksen',
+                'question' => 'Welk getal volgt? 120, 60, 20, 5, ...',
+                'options' => ['2', '1', '0', '2.5'],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Reeksen',
+                'question' => 'Welk getal volgt? 1, 1, 2, 6, 24, ...',
+                'options' => ['48', '72', '100', '120'],
+                'answer' => 3,
+            ],
+            [
+                'category' => 'Reeksen',
+                'question' => 'Welk getal volgt? 0, 1, 1, 2, 3, 5, 8, 13, ...',
+                'options' => ['18', '20', '21', '24'],
+                'answer' => 2,
+            ],
+
+            // =====================
+            // LOGICA (6)
+            // =====================
+            [
+                'category' => 'Logica',
+                'question' => 'Drie vrienden (Anna, Ben, Clara) dragen elk een andere kleur: rood, blauw, groen. Anna draagt geen rood. Ben draagt blauw. Welke kleur draagt Anna?',
+                'options' => ['Rood', 'Blauw', 'Groen', 'Geel'],
+                'answer' => 2,
+            ],
+            [
+                'category' => 'Logica',
+                'question' => 'Alle A\'s zijn B\'s. Geen enkele B is een C. Wat klopt?',
+                'options' => [
+                    'Sommige A\'s zijn C\'s',
+                    'Geen enkele A is een C',
+                    'Alle C\'s zijn A\'s',
+                    'Sommige B\'s zijn C\'s',
+                ],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Logica',
+                'question' => 'Er zijn 2 vaders en 2 zonen. Samen hebben ze 3 auto\'s, en ieder heeft er precies één. Hoe kan dat?',
+                'options' => [
+                    'Eén persoon heeft 2 auto\'s',
+                    'Het zijn 3 personen: opa, vader, zoon',
+                    'Eén van hen liegt',
+                    'Dat kan niet',
+                ],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Logica',
+                'question' => 'Als alle katten dieren zijn en sommige dieren zwart zijn, welke conclusie is dan ZEKER waar?',
+                'options' => [
+                    'Sommige katten zijn zwart',
+                    'Alle katten zijn zwart',
+                    'Katten zijn dieren',
+                    'Alle dieren zijn katten',
+                ],
+                'answer' => 2,
+            ],
+            [
+                'category' => 'Logica',
+                'question' => 'Je hebt een lucifer en loopt een donkere kamer in met een kaars, een olielamp en een open haard. Wat steek je het eerst aan?',
+                'options' => ['De kaars', 'De olielamp', 'De open haard', 'De lucifer'],
+                'answer' => 3,
+            ],
+            [
+                'category' => 'Logica',
+                'question' => 'Een arts zegt: "De jongen is mijn zoon, maar ik ben niet zijn vader." Hoe kan dat?',
+                'options' => [
+                    'De arts liegt',
+                    'De arts is zijn moeder',
+                    'Het is zijn stiefvader',
+                    'Dat kan niet',
+                ],
+                'answer' => 1,
+            ],
+
+            // =====================
+            // WISKUNDE (6)
+            // =====================
+            [
+                'category' => 'Wiskunde',
+                'question' => 'Een klok slaat om 6 uur 6 keer. Dat duurt 30 seconden. Hoe lang duurt het om 12 keer te slaan?',
+                'options' => ['60 sec', '66 sec', '55 sec', '72 sec'],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Wiskunde',
+                'question' => 'Een halve kip legt in anderhalve dag anderhalf ei. Hoeveel eieren leggen 6 kippen in 6 dagen?',
+                'options' => ['6', '12', '24', '36'],
+                'answer' => 2,
+            ],
+            [
+                'category' => 'Wiskunde',
+                'question' => 'Je verdubbelt elke dag het aantal bacteriën. Na 20 dagen is het glas vol. Op welke dag is het glas half vol?',
+                'options' => ['Dag 10', 'Dag 15', 'Dag 18', 'Dag 19'],
+                'answer' => 3,
+            ],
+            [
+                'category' => 'Wiskunde',
+                'question' => 'Hoeveel driehoeken kun je vormen met 6 punten op een cirkel?',
+                'options' => ['10', '15', '20', '30'],
+                'answer' => 2,
+            ],
+            [
+                'category' => 'Wiskunde',
+                'question' => 'Een item kost €100. Het gaat 10% omlaag, dan 10% omhoog. Wat is de prijs nu?',
+                'options' => ['€100', '€99', '€101', '€98'],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Wiskunde',
+                'question' => 'Je hebt 8 identieke ballen. Eén is zwaarder. Met een balans, wat is het minimale aantal keer wegen om de zware bal te vinden?',
+                'options' => ['1', '2', '3', '4'],
+                'answer' => 1,
+            ],
+
+            // =====================
+            // ANALOGIEËN (6)
+            // =====================
+            [
+                'category' => 'Analogieën',
+                'question' => 'Chirurg is voor scalpel als schilder is voor ...',
+                'options' => ['verf', 'kwast', 'doek', 'ezel'],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Analogieën',
+                'question' => 'Welk woord past niet? Viool, piano, fluit, trommel',
+                'options' => ['Viool', 'Piano', 'Fluit', 'Trommel'],
+                'answer' => 3,
+            ],
+            [
+                'category' => 'Analogieën',
+                'question' => 'Water is voor stoom als ijs is voor ...',
+                'options' => ['koud', 'water', 'sneeuw', 'vorst'],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Analogieën',
+                'question' => 'Welk woord past niet? Parijs, London, New York, Frankrijk',
+                'options' => ['Parijs', 'London', 'New York', 'Frankrijk'],
+                'answer' => 3,
+            ],
+            [
+                'category' => 'Analogieën',
+                'question' => 'Kilometer is voor afstand als kilogram is voor ...',
+                'options' => ['snelheid', 'gewicht', 'temperatuur', 'volume'],
+                'answer' => 1,
+            ],
+            [
+                'category' => 'Analogieën',
+                'question' => 'Architect is voor gebouw als componist is voor ...',
+                'options' => ['instrument', 'orkest', 'muziekstuk', 'podium'],
+                'answer' => 2,
+            ],
+
+            // =====================
+            // PATRONEN / RUIMTELIJK INZICHT (6)
+            // =====================
+            [
+                'category' => 'Patronen',
+                'question' => 'Bekijk deze opengevouwen kubus. Je draait de kubus 90° naar rechts. Wat zie je dan op de voorkant?',
+                'options' => ['Cirkel', 'Ster', 'Vierkant', 'Driehoek'],
+                'answer' => 2,
+                'visual' => 'cube-symbols-rotate',
+            ],
+            [
+                'category' => 'Patronen',
+                'question' => 'Bekijk deze opengevouwen kubus in T-vorm. Het donkere vlak is gemarkeerd. Welk vlak zit tegenover het donkere vlak als de kubus wordt dichtgevouwen?',
+                'options' => [
+                    'Vlak 1 (boven)',
+                    'Vlak 5 (onder)',
+                    'Vlak 4 (links)',
+                    'Vlak 6 (rechts)',
+                ],
+                'answer' => 0,
+                'visual' => 'cube-t-shape',
+            ],
+            [
+                'category' => 'Patronen',
+                'question' => 'Je kijkt van bovenaf naar deze opstelling: een cilinder staat op een kubus. Welke vorm(en) zie je?',
+                'options' => [
+                    'Een cirkel in een vierkant',
+                    'Alleen een cirkel',
+                    'Een vierkant',
+                    'Een cirkel naast een vierkant',
+                ],
+                'answer' => 0,
+                'visual' => 'cylinder-on-cube',
+            ],
+            [
+                'category' => 'Patronen',
+                'question' => 'Bekijk deze opengevouwen kubus met cijfers 1 t/m 6. Welk cijfer zit tegenover het vlak met cijfer 2?',
+                'options' => ['1', '3', '5', '6'],
+                'answer' => 3,
+                'visual' => 'cube-numbers',
+            ],
+            [
+                'category' => 'Patronen',
+                'question' => 'Een vierkant papier wordt 2 keer gevouwen (in kwarten) zoals hieronder. Daarna knip je de rechterbovenhoek af (rood). Hoeveel gaten zitten er als je het papier openvouwt?',
+                'options' => ['1 gat (in het midden)', '2 gaten', '3 gaten', '4 gaten'],
+                'answer' => 0,
+                'visual' => 'paper-fold',
+            ],
+            [
+                'category' => 'Patronen',
+                'question' => 'Bekijk dit patroon. Welke figuur hoort op de plek van het vraagteken?',
+                'options' => ['Gevulde cirkel', 'Lege driehoek', 'Gevulde driehoek', 'Lege cirkel'],
+                'answer' => 2,
+                'visual' => 'pattern-matrix',
             ],
         ];
     }
